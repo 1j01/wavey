@@ -1,4 +1,11 @@
 
+.audio-editor {
+	user-select: none;
+	-ms-user-select: none;
+	-moz-user-select: none;
+	-webkit-user-select: none;
+}
+
 .track-controls {
 	float: left;
 	width: 4em; /* = .track-content {margin-left} */
