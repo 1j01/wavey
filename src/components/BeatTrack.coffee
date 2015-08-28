@@ -1,5 +1,7 @@
 
 class @BeatTrack extends E.Component
 	render: ->
-		# E ".beat-track",
-		E Track, muted: yes, pinned: yes, E BeatMarkings
+		E ".track.beat-track",
+			E TrackControls, muted: yes, pinned: yes
+			E ".track-content",
+				E BeatMarkings
