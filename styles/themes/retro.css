@@ -1,24 +1,22 @@
 
 .audio-editor {
+	/* Change me! */
 	background: black;
-	color: white;
+	color: #FFA600;
 }
 
 .track {
 	padding: 5px;
 }
 
-.beat-markings {
-	height: 1em;
-}
 .beat-marking {
 	border-left: 1px solid currentColor;
-	height: 1em;
+	height: 100%;
 	opacity: 0.5;
 }
 .beat-marking.sub {
+	height: 50%;
 	opacity: 0.3;
-	height: 0.5em;
 }
 
 .audio-editor button {
@@ -34,3 +32,16 @@
 	background: rgba(0, 193, 255, 0.25);
 	box-shadow: 0 0 0px 1px rgba(0, 193, 255, 0.5);
 }
+/* This can be used (in place of the above rule) to make this theme entirely monochrome:
+.selection {
+	box-shadow: 0 0 0px 1px currentColor;
+	opacity: 0.5;
+}
+.selection::after {
+	content: "";
+	display: block;
+	height: 100%;
+	background: currentColor;
+	opacity: 0.5;
+}
+*/
