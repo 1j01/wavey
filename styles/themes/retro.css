@@ -29,3 +29,8 @@
 .audio-editor button.toggle:not(.active) > * {
 	opacity: 0.2;
 }
+
+.selection {
+	background: rgba(0, 193, 255, 0.25);
+	box-shadow: 0 0 0px 1px rgba(0, 193, 255, 0.5);
+}
