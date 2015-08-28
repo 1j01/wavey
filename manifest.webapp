@@ -1,0 +1,27 @@
+{
+	"name": "Audio Editor",
+	"version": "0.0.0",
+	"description": "Edit audio simply",
+	"icons": {
+		"16": "images/icon-16.png",
+		"48": "images/icon-48.png",
+		"128": "images/icon-128.png"
+	},
+	"activities": {
+		"edit": {
+			"filters": {
+				"type": [ "audio/*" ]
+			},
+			"href": "/audio-editor/",
+			"disposition": "window",
+			"returnValue": true
+		}
+	},
+	"permissions": {},
+	"developer": {
+		"name": "Isaiah Odhner",
+		"url": "http://1j01.github.io/"
+	},
+	"launch_path": "/audio-editor/",
+	"default_locale": "en"
+}

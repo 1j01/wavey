@@ -1,0 +1,23 @@
+{
+  "name": "audio-editor",
+	"version": "0.0.0",
+	"description": "Edit audio simply",
+  "main": "index.html",
+  "scripts": {
+    "start": "nw"
+  },
+  "window": {
+    "icon": "images/icons/48.png",
+    "toolbar": false
+  },
+  "dependencies": {
+    "nw": "^0.12.0-1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/1j01/audio-editor.git"
+  },
+  "bugs": {
+    "url": "http://github.com/1j01/audio-editor/issues"
+  }
+}

@@ -1,0 +1,31 @@
+
+.audio-editor {
+	background: black;
+	color: white;
+}
+
+.track {
+	padding: 5px;
+}
+
+.beat-markings {
+	height: 1em;
+}
+.beat-marking {
+	border-left: 1px solid currentColor;
+	height: 1em;
+	opacity: 0.5;
+}
+.beat-marking.sub {
+	opacity: 0.3;
+	height: 0.5em;
+}
+
+.audio-editor button {
+	background: transparent;
+	border: 0;
+	color: inherit;
+}
+.audio-editor button.toggle:not(.active) > * {
+	opacity: 0.2;
+}

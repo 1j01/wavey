@@ -1,0 +1,8 @@
+
+.track-controls {
+	float: left;
+	width: 4em;
+}
+.track-content {
+	margin-left: 4em; /* = .track-controls {width} */
+}
