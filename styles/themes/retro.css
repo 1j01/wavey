@@ -8,6 +8,10 @@
 .track {
 	padding: 5px;
 }
+.track-content {
+	background-color: rgba(255, 39, 0, 0.27);
+	padding: 2px;
+}
 
 .beat-marking {
 	border-left: 1px solid currentColor;

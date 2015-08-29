@@ -17,3 +17,7 @@
 .beat-markings {
 	height: 1em;
 }
+
+* {
+	box-sizing: border-box;
+}

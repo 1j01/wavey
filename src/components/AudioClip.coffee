@@ -2,7 +2,7 @@
 class @AudioClip extends E.Component
 	render: ->
 		E ".audio-clip", style: @props.style,
-			E "canvas", ref: "canvas", height: 80, width: 5000
+			E "canvas", ref: "canvas", height: 80, width: 5000 # 80 = .track-content {height}
 	renderCanvas: ->
 		canvas = React.findDOMNode @refs.canvas
 		ctx = canvas.getContext "2d"

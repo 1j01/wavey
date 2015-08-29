@@ -7,7 +7,7 @@ class @AudioTrack extends E.Component
 			E TrackControls
 			E ".track-content",
 				ref: "content"
-				style: position: "relative", height: 80
+				style: position: "relative", height: 80, boxSizing: "content-box" # 80 = canvas height
 				E AudioClip, style: position: "absolute", left: 0
 				if selection
 					if selection[0] < selection[1]
@@ -20,5 +20,6 @@ class @AudioTrack extends E.Component
 						style:
 							position: "absolute"
 							left: at_time start
+							top: 0
 							width: (at_time end) - (at_time start)
 							height: "100%"
