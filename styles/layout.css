@@ -6,6 +6,10 @@
 	-webkit-user-select: none;
 }
 
+.tracks {
+	height: 100%;
+}
+
 .track-controls {
 	float: left;
 	width: 4em; /* = .track-content {margin-left} */

@@ -12,9 +12,13 @@ class @Tracks extends E.Component
 	render: ->
 		E ".tracks",
 			onMouseDown: (e)=>
-				el = closest e.target, ".track-content"
-				return unless el
 				return unless e.button is 0
+				el = closest e.target, ".track-content"
+				unless el
+					unless closest e.target, ".track-controls"
+						e.preventDefault()
+						@setState selection: null
+					return
 				e.preventDefault()
 				
 				time_at = (e)=>
@@ -22,12 +26,11 @@ class @Tracks extends E.Component
 					(e.clientX - rect.left) / scale
 				
 				t = time_at e
-				@setState selection: [t, t]
+				@setState selection: new Selection t
 				
 				window.addEventListener "mousemove", onMouseMove = (e)=>
 					if @state.selection
-						t = time_at e
-						@setState selection: [t, @state.selection[1]]
+						@setState selection: Selection.drag @state.selection, to: time_at e
 						e.preventDefault()
 				
 				window.addEventListener "mouseup", onMouseUp = (e)=>
