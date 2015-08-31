@@ -6,6 +6,18 @@ closest = (elem, selector)->
 		elem = elem.parentElement
 	no
 
+sample_data_1 = for i in [0..50*sampleRate]
+	x = i*90
+	Math.sin((x/50)**0.9) * Math.sin(x**1.1) * (x**0.1) * 0.2
+sample_data_2 = for i in [0..50*sampleRate]
+	x = i*90
+	# Math.sin((x/50)**0.9) * Math.sin(x**1.1) * 0.9 * ((x*50)%200)/200
+	(
+		((
+			((i >> 10) & 42) * i
+		) & 255) / 127 - 1
+	) * 0.6
+
 class @Tracks extends E.Component
 	constructor: ->
 		@state = selection: null
@@ -53,5 +65,5 @@ class @Tracks extends E.Component
 					window.removeEventListener "mouseup", onMouseUp
 					window.removeEventListener "mousemove", onMouseMove
 			E BeatTrack, key: 0
-			E AudioTrack, key: 1, selection: (@state.selection if @state.selection?.containsTrack? 1)
-			E AudioTrack, key: 2, selection: (@state.selection if @state.selection?.containsTrack? 2)
+			E AudioTrack, key: 1, data: sample_data_1, selection: (@state.selection if @state.selection?.containsTrack? 1)
+			E AudioTrack, key: 2, data: sample_data_2, selection: (@state.selection if @state.selection?.containsTrack? 2)
