@@ -1,0 +1,34 @@
+
+@import url("../../lib/elementary-dark.css");
+
+.audio-editor {
+	background: #383e41;
+	color: white;
+}
+
+.track {
+	padding: 5px;
+}
+
+.beat-track .track-content {
+	height: 24px;
+}
+.beat-marking {
+	border-left: 1px solid currentColor;
+	height: 100%;
+	opacity: 0.5;
+}
+.beat-marking.sub {
+	height: 50%;
+	opacity: 0.3;
+}
+
+.audio-clip {
+	/*color: #B0F4FF; or something? */
+}
+
+.selection {
+	/* @TODO: try the elementary selection styles with the gradient */
+	background: rgba(0, 193, 255, 0.25);
+	box-shadow: 0 0 0px 1px rgba(0, 193, 255, 0.5);
+}

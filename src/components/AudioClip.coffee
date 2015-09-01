@@ -13,11 +13,16 @@ class @AudioClip extends E.Component
 		for x in [0..canvas.width] by 0.1
 			ctx.lineTo x, canvas.height/2 + canvas.height/2 * (data[~~(x/scale*sampleRate)])
 		ctx.stroke()
-	componentDidMount: -> @renderCanvas()
+	componentDidMount: -> @renderCanvas(); @rerenderCanvasWhenTheStylesChange()
 	componentDidUpdate: -> @renderCanvas()
 	shouldComponentUpdate: (nextProps, nextState)->
 		nextProps.data isnt @props.data
-		# canvas = React.findDOMNode @refs.canvas
-		# ctx = canvas.getContext "2d"
-		# if getComputedStyle(canvas).color isnt ctx.strokeStyle
-		# 	return yes
+	rerenderCanvasWhenTheStylesChange: ->
+		# @TODO: clearTimeout on componentWillUnmount
+		setTimeout =>
+			requestAnimationFrame =>
+				canvas = React.findDOMNode @refs.canvas
+				ctx = canvas.getContext "2d"
+				@renderCanvas() if getComputedStyle(canvas).color isnt ctx.strokeStyle
+				@rerenderCanvasWhenTheStylesChange()
+		, 100
