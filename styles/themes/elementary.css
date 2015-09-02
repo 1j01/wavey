@@ -6,21 +6,8 @@
 	color: black;
 }
 
-.track {
-	padding: 5px;
-}
-
 .beat-track .track-content {
 	height: 24px;
-}
-.beat-marking {
-	border-left: 1px solid currentColor;
-	height: 100%;
-	opacity: 0.5;
-}
-.beat-marking.sub {
-	height: 50%;
-	opacity: 0.3;
 }
 
 .audio-clip {

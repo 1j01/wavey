@@ -5,22 +5,9 @@
 	color: #FFA600;
 }
 
-.track {
-	padding: 5px;
-}
 .track-content {
 	background-color: rgba(255, 39, 0, 0.27);
 	padding: 2px;
-}
-
-.beat-marking {
-	border-left: 1px solid currentColor;
-	height: 100%;
-	opacity: 0.5;
-}
-.beat-marking.sub {
-	height: 50%;
-	opacity: 0.3;
 }
 
 .audio-editor button {
