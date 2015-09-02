@@ -1,19 +1,14 @@
 
-elementary_dark = null
+hacky_interval = null
 update_from_hash = ->
 	if m = location.hash.match /theme=([\w\-]*)/
 		theme = m[1]
 		theme_link = document.getElementById "theme"
 		theme_link.href = "styles/themes/#{theme}.css"
 		
-		# if theme is "elementary"
-		if theme is "elementary-dark"
-			# if not elementary_dark?
-				# elementary_dark = document.createElement "link"
-				# elementary_dark.rel = "stylesheet"
-				# elementary_dark.href = "lib/elementary-dark.css"
-				# document.head.appendChild elementary_dark
-				setInterval ->
+		if theme.match /elementary/
+			unless hacky_interval
+				hacky_interval = setInterval ->
 					for button in document.querySelectorAll "button"
 						button.classList.add "button"
 					for tc in document.querySelectorAll ".track-controls"
