@@ -1,7 +1,7 @@
 
 .audio-editor {
 	background: #EDF2F8;
-	background-image: url("paper.jpg");
+	background-image: url("./images/paper.jpg");
 	background-size: calc((90/4) / (594/20) * 1783px);
 	color: #000C48;
 }

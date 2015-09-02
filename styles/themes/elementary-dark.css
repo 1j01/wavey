@@ -1,5 +1,5 @@
 
-@import url("../../lib/elementary-dark.css");
+@import url("./lib/elementary-dark.css");
 
 .audio-editor {
 	background: #383e41;
