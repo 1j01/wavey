@@ -1,0 +1,22 @@
+
+.audio-editor {
+	background: black;
+	color: white;
+}
+
+.track-content {
+	padding: 2px;
+}
+
+.audio-editor button {
+	background: transparent;
+	border: 0;
+	color: inherit;
+}
+.audio-editor button.toggle:not(.active) > * {
+	opacity: 0.2;
+}
+
+.selection {
+	box-shadow: 0 0 0px 1px currentColor;
+}

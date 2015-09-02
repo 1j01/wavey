@@ -1,7 +1,7 @@
 
 hacky_interval = null
 update_from_hash = ->
-	if m = location.hash.match /theme=([\w\-]*)/
+	if m = location.hash.match /theme=([\w\-./]*)/
 		theme = m[1]
 		theme_link = document.getElementById "theme"
 		theme_link.href = "styles/themes/#{theme}.css"

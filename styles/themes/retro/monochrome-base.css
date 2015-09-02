@@ -1,0 +1,14 @@
+
+@import url("./base.css");
+
+.selection {
+	box-shadow: 0 0 0px 1px currentColor;
+	opacity: 0.5;
+}
+.selection::after {
+	content: "";
+	display: block;
+	height: 100%;
+	background: currentColor;
+	opacity: 0.5;
+}

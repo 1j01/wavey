@@ -1,0 +1,12 @@
+
+@import url("./base.css");
+
+.audio-editor {
+	background: #230213;
+	color: #FFA600;
+}
+.selection {
+	box-shadow: 0 0 0px 1px #FFAFED;
+	background: #391A3A;
+	opacity: 0.5;
+}
