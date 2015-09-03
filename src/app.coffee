@@ -9,12 +9,12 @@ update_from_hash = ->
 		if theme.match /elementary/
 			unless hacky_interval
 				hacky_interval = setInterval ->
-					for button in document.querySelectorAll "button"
-						button.classList.add "button"
-					for tc in document.querySelectorAll ".track-controls"
-						tc.classList.add "linked"
-					for tc in document.querySelectorAll ".track-content"
-						tc.classList.add "notebook"
+					requestAnimationFrame ->
+						for tc in document.querySelectorAll ".track-content"
+							tc.classList.add "notebook"
+						for ae in document.querySelectorAll ".audio-editor"
+							ae.classList.add "window-frame"
+							ae.classList.add "active"
 				, 150
 
 window.addEventListener "hashchange", update_from_hash
