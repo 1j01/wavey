@@ -15,6 +15,10 @@ update_from_hash = ->
 						for ae in document.querySelectorAll ".audio-editor"
 							ae.classList.add "window-frame"
 							ae.classList.add "active"
+							ae.style.borderRadius = "0"
+						#for aec in document.querySelectorAll ".audio-editor .controls"
+							#aec.classList.add "secondary-toolbar"
+							#aec.classList.add "titlebar"
 				, 150
 
 window.addEventListener "hashchange", update_from_hash

@@ -1,4 +1,22 @@
 
+.controls {
+	/*padding: 5px;*/
+	padding: 0 3px;
+}
+.controls > * {
+	/*margin-right: 5px;*/
+	margin: 5px 2px;
+}
+.controls i {
+	display: inline-block;
+	vertical-align: bottom; /* always specify vertical-align with display: inline-block; */
+	font-size: 16px;
+	height: 16px;
+}
+.controls .precording-dropdown {
+	padding: 3px 4px;
+}
+
 .track {
 	padding: 5px;
 }
@@ -10,4 +28,8 @@
 .beat-marking.sub {
 	height: 50%;
 	opacity: 0.3;
+}
+
+.audio-editor button:focus {
+	outline: 0;
 }

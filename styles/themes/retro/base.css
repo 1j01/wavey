@@ -17,6 +17,18 @@
 	opacity: 0.2;
 }
 
+.controls {
+	border-bottom: 1px solid currentColor;
+}
+.record {
+	padding-right: 0;
+}
+.prerecording-dropdown {
+	padding-left: 0;
+	/* opacity: 0.5; */
+	vertical-align: middle;
+}
+
 .selection {
 	box-shadow: 0 0 0px 1px currentColor;
 }
