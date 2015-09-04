@@ -6,6 +6,23 @@
 	-webkit-user-select: none;
 }
 
+.precording-menu-container {
+	position: relative;
+	display: inline-block;
+	vertical-align: bottom;
+	margin: 0 !important;
+	padding: 0 !important;
+}
+.precording.menu {
+	z-index: 5;
+	top: 0;
+	left: 0;
+}
+.menu-item {
+	cursor: default;
+	white-space: nowrap;
+}
+
 .tracks {
 	height: 100%;
 }

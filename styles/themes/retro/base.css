@@ -23,10 +23,41 @@
 .record {
 	padding-right: 0;
 }
-.prerecording-dropdown {
+.precording-dropdown {
 	padding-left: 0;
-	/* opacity: 0.5; */
 	vertical-align: middle;
+}
+.controls,
+.precording-menu-container {
+	background: inherit;
+}
+.precording.menu {
+	background: inherit;
+	border: 1px solid currentColor;
+	border-top: 0;
+	/*box-shadow: 0 3px 0 1px black;*/
+}
+.precording.menu::before {
+	content: "";
+	position: absolute;
+	left: -1px;
+	right: -1px;
+	top: 1px;
+	bottom: -1px;
+	background: inherit;
+	z-index: -1;
+	/*outline: currentColor 1px solid;*/
+	/*outline-offset: -1px;*/
+}
+.precording.menu::after {
+	content: "";
+	position: absolute;
+	left: 0px;
+	right: 0px;
+	top: 0px;
+	bottom: 0px;
+	border: 1px solid currentColor;
+	border-top: 0;
 }
 
 .selection {

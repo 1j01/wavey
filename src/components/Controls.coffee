@@ -1,6 +1,9 @@
 
 class @Controls extends E.Component
+	constructor: ->
+		@state = precording_menu_open: no
 	render: ->
+		{precording_menu_open} = @state
 		{playing, play, pause, go_to_start, go_to_end, record, show_settings} = @props
 		E ".controls",
 			E "button.button.settings",
@@ -22,11 +25,40 @@ class @Controls extends E.Component
 					onClick: go_to_end
 					title: "Go to end"
 					E "i.icon-go-to-end"
+			
+			E ".precording-menu-container",
+				style: position: "relative", display: "inline-block"
+				if precording_menu_open
+					E ".precording.menu",
+						style: position: "absolute"
+						E ".menu-item",
+							onClick: => @setState precording_menu_open: no
+							"Record since 1min ago"
+						E ".menu-item",
+							onClick: => @setState precording_menu_open: no
+							"Record since 2min ago"
+						E ".menu-item",
+							onClick: => @setState precording_menu_open: no
+							"Record since 5min ago"
+			
 			E "span.linked",
 				E "button.button.record",
 					onClick: record
 					title: "Start recording"
 					E "i.icon-record"
-				E "button.button.prerecording-dropdown",
-					title: "Recording options"
+				E "button.button.precording-dropdown",
+					onClick: =>
+						if precording_menu_open
+							@setState precording_menu_open: no
+						else
+							@setState precording_menu_open: yes
+							window.removeEventListener "mousedown", @_onmousedown
+							window.addEventListener "mousedown", @_onmousedown = (e)=>
+								unless closest e.target, ".precording-dropdown, .precording-menu-container"
+									@setState precording_menu_open: no
+					title: "Precording options"
 					E "i.octicon.octicon-chevron-down"
+	
+	componentDidUpdate: ->
+		unless @state.precording_menu_open
+			window.removeEventListener "mousedown", @_onmousedown

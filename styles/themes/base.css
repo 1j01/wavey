@@ -1,10 +1,8 @@
 
 .controls {
-	/*padding: 5px;*/
 	padding: 0 3px;
 }
 .controls > * {
-	/*margin-right: 5px;*/
 	margin: 5px 2px;
 }
 .controls i {
@@ -13,8 +11,11 @@
 	font-size: 16px;
 	height: 16px;
 }
-.controls .precording-dropdown {
+.precording-dropdown {
 	padding: 3px 4px;
+}
+.menu-item {
+	padding: 2px 5px;
 }
 
 .track {
@@ -32,4 +33,7 @@
 
 .audio-editor button:focus {
 	outline: 0;
+}
+.audio-editor {
+	font-family: sans-serif;
 }
