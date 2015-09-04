@@ -39,6 +39,7 @@
 }
 .precording.menu::before {
 	content: "";
+	pointer-events: none;
 	position: absolute;
 	left: -1px;
 	right: -1px;
@@ -51,6 +52,7 @@
 }
 .precording.menu::after {
 	content: "";
+	pointer-events: none;
 	position: absolute;
 	left: 0px;
 	right: 0px;
