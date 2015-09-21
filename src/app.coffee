@@ -1,4 +1,14 @@
 
+themes =
+	"elementary": "elementary"
+	"elementary Dark": "elementary-dark"
+	"[Retro] Aqua": "retro/aqua"
+	"[Retro] Green": "retro/green"
+	"[Retro] Chroma": "retro/chroma"
+	"[Retro] Amber": "retro/amber"
+	"[Retro] Ambergine (aubergine + amber)": "retro/ambergine"
+	"[Silly] Paper": "paper"
+
 hacky_interval = null
 update_from_hash = ->
 	if m = location.hash.match /theme=([\w\-./]*)/
@@ -24,4 +34,7 @@ update_from_hash = ->
 window.addEventListener "hashchange", update_from_hash
 update_from_hash()
 
-React.render (E AudioEditor), document.body
+set_theme = (theme)->
+	location.hash = "theme=#{theme}"
+
+React.render (E AudioEditor, {themes, set_theme}), document.body

@@ -4,6 +4,7 @@
 }
 .controls > * {
 	margin: 5px 2px;
+	display: inline-block;
 }
 .controls i {
 	display: inline-block;
@@ -11,7 +12,7 @@
 	font-size: 16px;
 	height: 16px;
 }
-.precording-dropdown {
+.dropdown-button {
 	padding: 3px 4px;
 }
 .menu-item {

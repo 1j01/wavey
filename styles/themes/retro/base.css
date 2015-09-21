@@ -23,21 +23,26 @@
 .record {
 	padding-right: 0;
 }
-.precording-dropdown {
+.dropdown-button {
 	padding-left: 0;
 	vertical-align: middle;
 }
 .controls,
-.precording-menu-container {
+.controls > span,
+.dropdown-button-container,
+.menu-positioner,
+.menu-positioner .menu {
 	background: inherit;
 }
-.precording.menu {
-	background: inherit;
+.controls .menu-positioner .menu {
+	top: 5px; /* = .controls > * { margin-bottom } */
+}
+.menu-positioner .menu {
 	border: 1px solid currentColor;
 	border-top: 0;
 	/*box-shadow: 0 3px 0 1px black;*/
 }
-.precording.menu::before {
+.menu-positioner .menu::before {
 	content: "";
 	pointer-events: none;
 	position: absolute;
@@ -50,7 +55,7 @@
 	/*outline: currentColor 1px solid;*/
 	/*outline-offset: -1px;*/
 }
-.precording.menu::after {
+.menu-positioner .menu::after {
 	content: "";
 	pointer-events: none;
 	position: absolute;

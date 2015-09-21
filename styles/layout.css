@@ -6,15 +6,16 @@
 	-webkit-user-select: none;
 }
 
-.precording-menu-container {
+.menu-positioner {
 	position: relative;
 	display: inline-block;
 	vertical-align: bottom;
 	margin: 0 !important;
 	padding: 0 !important;
 }
-.precording.menu {
+.dropdown-menu {
 	z-index: 5;
+	position: absolute;
 	top: 0;
 	left: 0;
 }
