@@ -2,12 +2,11 @@
 themes =
 	"elementary": "elementary"
 	"elementary Dark": "elementary-dark"
-	"[Retro] Aqua": "retro/aqua"
-	"[Retro] Green": "retro/green"
-	"[Retro] Chroma": "retro/chroma"
-	"[Retro] Amber": "retro/amber"
-	"[Retro] Ambergine (aubergine + amber)": "retro/ambergine"
-	"[Silly] Paper": "paper"
+	"Monochrome Aqua": "retro/aqua"
+	"Monochrome Green": "retro/green"
+	"Monochrome Amber": "retro/amber"
+	"Ambergine (aubergine + amber)": "retro/ambergine"
+	"Chroma": "retro/chroma"
 
 hacky_interval = null
 update_from_hash = ->
