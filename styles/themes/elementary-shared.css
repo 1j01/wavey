@@ -1,0 +1,32 @@
+
+/* @TODO: have this button open on mouse down */
+.controls button[title="Settings"] {
+	border: 0;
+	box-shadow: none;
+	background: transparent;
+	border-radius: 50% !important;
+	width: 28px;
+	height: 28px;
+	padding: 2px;
+}
+.controls button[title="Settings"]:active,
+.controls .menu-open button[title="Settings"] {
+    background: rgba(0, 0, 0, 0.15);
+}
+.controls button[title="Settings"] > i {
+	color: transparent;
+	text-shadow: none;
+	background: url("./images/gear.svg");
+	width: 24px;
+	height: 24px;
+}
+
+.beat-track .track-content {
+	height: 24px; /* = height of buttons */
+}
+
+.selection {
+	/* @TODO: try the elementary selection styles with the gradient */
+	background: rgba(0, 193, 255, 0.25);
+	box-shadow: 0 0 0px 1px rgba(0, 193, 255, 0.5);
+}

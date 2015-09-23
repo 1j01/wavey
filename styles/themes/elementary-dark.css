@@ -1,23 +1,12 @@
 
 @import url("./lib/elementary-dark.css");
+@import url("./elementary-shared.css");
 
 .audio-editor {
 	background: #383e41;
 	color: white;
 }
 
-.beat-track .track-content {
-	height: 24px;
-}
-
 .audio-clip {
-	/*color: #B0F4FF;*/
-	/*color: #c0c6c4;*/
 	-webkit-filter: drop-shadow(0 1px rgba(0,0,0,.4));
-}
-
-.selection {
-	/* @TODO: try the elementary selection styles with the gradient */
-	background: rgba(0, 193, 255, 0.25);
-	box-shadow: 0 0 0px 1px rgba(0, 193, 255, 0.5);
 }

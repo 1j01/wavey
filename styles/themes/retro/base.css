@@ -40,7 +40,6 @@
 .menu-positioner .menu {
 	border: 1px solid currentColor;
 	border-top: 0;
-	/*box-shadow: 0 3px 0 1px black;*/
 }
 .menu-positioner .menu::before {
 	content: "";
@@ -52,8 +51,6 @@
 	bottom: -1px;
 	background: inherit;
 	z-index: -1;
-	/*outline: currentColor 1px solid;*/
-	/*outline-offset: -1px;*/
 }
 .menu-positioner .menu::after {
 	content: "";

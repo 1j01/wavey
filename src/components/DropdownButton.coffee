@@ -6,6 +6,7 @@ class @DropdownButton extends E.Component
 		{menu_open} = @state
 		{children, title, mainButton, menu} = @props
 		E "span.dropdown-button-container",
+			class: ("menu-open" if menu_open)
 			E ".menu-positioner",
 					style: position: "relative", display: "inline-block"
 					if menu_open
