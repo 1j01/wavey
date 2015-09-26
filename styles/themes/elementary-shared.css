@@ -5,13 +5,14 @@
 	box-shadow: none;
 	background: transparent;
 	border-radius: 50% !important;
-	width: 28px;
-	height: 28px;
-	padding: 2px;
+	width: 24px;
+	height: 24px;
+	padding: 0;
 }
 .controls button[title="Settings"]:active,
 .controls .menu-open button[title="Settings"] {
     background: rgba(0, 0, 0, 0.15);
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.15);
 }
 .controls button[title="Settings"] > i {
 	color: transparent;

@@ -8,6 +8,23 @@ themes =
 	"Ambergine (aubergine + amber)": "retro/ambergine"
 	"Chroma": "retro/chroma"
 
+patch_elementary_classes = ->
+	requestAnimationFrame ->
+		for el in document.querySelectorAll ".track-content"
+			el.classList.add "notebook"
+		for el in document.querySelectorAll ".audio-editor"
+			el.classList.add "window-frame"
+			el.classList.add "active"
+			el.style.borderRadius = "0"
+		for el in document.querySelectorAll ".audio-editor .controls"
+			el.classList.add "titlebar"
+		for el in document.querySelectorAll ".menu-item"
+			el.classList.add "menuitem"
+		for el in document.querySelectorAll ".dropdown-menu"
+			el.classList.add "window-frame"
+			el.classList.add "active"
+			el.classList.add "csd"
+
 hacky_interval = null
 update_from_hash = ->
 	if m = location.hash.match /theme=([\w\-./]*)/
@@ -17,18 +34,9 @@ update_from_hash = ->
 		
 		if theme.match /elementary/
 			unless hacky_interval
-				hacky_interval = setInterval ->
-					requestAnimationFrame ->
-						for tc in document.querySelectorAll ".track-content"
-							tc.classList.add "notebook"
-						for ae in document.querySelectorAll ".audio-editor"
-							ae.classList.add "window-frame"
-							ae.classList.add "active"
-							ae.style.borderRadius = "0"
-						#for aec in document.querySelectorAll ".audio-editor .controls"
-							#aec.classList.add "secondary-toolbar"
-							#aec.classList.add "titlebar"
-				, 150
+				hacky_interval = setInterval patch_elementary_classes, 150
+				window.addEventListener "mousedown", patch_elementary_classes
+				window.addEventListener "mouseup", patch_elementary_classes
 
 window.addEventListener "hashchange", update_from_hash
 update_from_hash()
