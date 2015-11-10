@@ -1,4 +1,12 @@
 
+@actx = new (
+	window.AudioContext ?
+	window.webkitAudioContext ?
+	window.mozAudioContext ?
+	window.oAudioContext ?
+	window.msAudioContext
+)
+
 themes =
 	"elementary": "elementary"
 	"elementary Dark": "elementary-dark"
@@ -44,4 +52,8 @@ update_from_hash()
 set_theme = (theme)->
 	location.hash = "theme=#{theme}"
 
-React.render (E AudioEditor, {themes, set_theme}), document.body
+tracks = [
+	{clips: [{time: 0, data: sample_data_1}]}
+	{clips: [{time: 0, data: sample_data_2}]}
+]
+React.render (E AudioEditor, {tracks, themes, set_theme}), document.body

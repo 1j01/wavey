@@ -3,6 +3,7 @@ class @Tracks extends E.Component
 	constructor: ->
 		@state = selection: null
 	render: ->
+		{tracks} = @props
 		E ".tracks",
 			onMouseDown: (e)=>
 				return unless e.button is 0
@@ -20,7 +21,7 @@ class @Tracks extends E.Component
 				
 				tracks_el = closest e.target, ".tracks"
 				track_index_at = (e)->
-					track_index = 0
+					track_index = -1
 					for track_el in tracks_el.children
 						rect = track_el.getBoundingClientRect()
 						if e.clientY > rect.bottom
@@ -41,6 +42,9 @@ class @Tracks extends E.Component
 				window.addEventListener "mouseup", onMouseUp = (e)=>
 					window.removeEventListener "mouseup", onMouseUp
 					window.removeEventListener "mousemove", onMouseMove
-			E BeatTrack, key: 0
-			E AudioTrack, key: 1, data: sample_data_1, selection: (@state.selection if @state.selection?.containsTrack? 1)
-			E AudioTrack, key: 2, data: sample_data_2, selection: (@state.selection if @state.selection?.containsTrack? 2)
+			E BeatTrack, key: "bt"
+			for track, ti in tracks
+				E AudioTrack,
+					key: ti
+					track: track
+					selection: (@state.selection if @state.selection?.containsTrack ti)
