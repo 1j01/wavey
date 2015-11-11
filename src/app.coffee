@@ -69,6 +69,7 @@ load_clip_data = (clip)->
 	localforage.getItem "#{document_id}/#{clip.id}", (err, array_buffer)=>
 		if err
 			alert "Failed to load audio data.\n#{err}"
+			console.error err
 		else
 			actx.decodeAudioData array_buffer, (buffer)=>
 				audio_buffers_by_clip_id[clip.id] = buffer
@@ -77,6 +78,7 @@ load_clip_data = (clip)->
 localforage.getItem "#{document_id}/tracks", (err, trax)=>
 	if err
 		alert "Failed to load the document.\n#{err}"
+		console.error err
 	else if trax
 		tracks = trax
 		render()
@@ -91,14 +93,11 @@ localforage.getItem "#{document_id}/tracks", (err, trax)=>
 		array_buffer = e.target.result
 		id = GUID()
 		
-		console.log array_buffer
-		
 		localforage.setItem "#{document_id}/#{id}", array_buffer, (err)=>
 			if err
 				alert "Failed to store audio data.\n#{err}"
+				console.error err
 		
-		#actx.decodeAudioData array_buffer
-			#.then (buffer)=>
 		actx.decodeAudioData array_buffer, (buffer)=>
 			audio_buffers_by_clip_id[id] = buffer
 			clip = {
@@ -108,10 +107,10 @@ localforage.getItem "#{document_id}/tracks", (err, trax)=>
 			tracks[track_index].clips.push clip
 			localforage.setItem "#{document_id}/tracks", tracks, (err)=>
 				if err
-					alert "Failed to store track metadata.\n#{err.stack}"
+					alert "Failed to store track metadata.\n#{err}"
+					console.error err
 				else
 					render()
-			#.catch (err)=>
 		, (e)=>
 			alert "Audio not playable or not supported."
 			console.error e

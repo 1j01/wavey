@@ -7,6 +7,7 @@ class @AudioClip extends E.Component
 		audio_buffer = @props.data
 		if audio_buffer
 			data = audio_buffer.getChannelData 0
+			# @TODO: visualize multiple channels?
 			canvas = React.findDOMNode @refs.canvas
 			ctx = canvas.getContext "2d"
 			ctx.clearRect 0, 0, canvas.width, canvas.height
@@ -15,8 +16,6 @@ class @AudioClip extends E.Component
 			for x in [0..canvas.width] by 0.1
 				ctx.lineTo x, canvas.height/2 + canvas.height/2 * (data[~~(x/scale*audio_buffer.sampleRate)])
 			ctx.stroke()
-		#else
-			#console.log "AudioClip no data", @props
 	componentDidMount: -> @renderCanvas(); @rerenderCanvasWhenTheStylesChange()
 	componentDidUpdate: -> @renderCanvas()
 	shouldComponentUpdate: (nextProps, nextState)->
