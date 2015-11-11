@@ -5,6 +5,7 @@ class @DropdownMenu extends E.Component
 		E ".menu.dropdown-menu",
 			for item in items
 				E ".menu-item",
+					key: item.label
 					onClick: item.action
 					item.label
 	componentDidMount: -> @updateOffset()

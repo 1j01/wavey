@@ -53,7 +53,71 @@ set_theme = (theme)->
 	location.hash = "theme=#{theme}"
 
 tracks = [
-	{clips: [{time: 0, data: sample_data_1}]}
-	{clips: [{time: 0, data: sample_data_2}]}
+	{clips: []}
 ]
-React.render (E AudioEditor, {tracks, themes, set_theme}), document.body
+document_id = (location.hash.match(/document=([\w\-./]*)/) ? [0, "d1"])[1]
+
+audio_buffers_by_clip_id = {}
+
+@audio_buffer_for_clip = (clip_id)->
+	audio_buffers_by_clip_id[clip_id]
+
+do render = ->
+	React.render (E AudioEditor, {tracks, themes, set_theme}), document.body
+
+load_clip_data = (clip)->
+	localforage.getItem "#{document_id}/#{clip.id}", (err, array_buffer)=>
+		if err
+			alert "Failed to load audio data.\n#{err}"
+		else
+			actx.decodeAudioData array_buffer, (buffer)=>
+				audio_buffers_by_clip_id[clip.id] = buffer
+				render()
+
+localforage.getItem "#{document_id}/tracks", (err, trax)=>
+	if err
+		alert "Failed to load the document.\n#{err}"
+	else if trax
+		tracks = trax
+		render()
+		for track in tracks
+			for clip in track.clips
+				load_clip_data clip
+
+
+@add_clip = (track_index, file)->
+	reader = new FileReader
+	reader.onload = (e)=>
+		array_buffer = e.target.result
+		id = GUID()
+		
+		console.log array_buffer
+		
+		localforage.setItem "#{document_id}/#{id}", array_buffer, (err)=>
+			if err
+				alert "Failed to store audio data.\n#{err}"
+		
+		#actx.decodeAudioData array_buffer
+			#.then (buffer)=>
+		actx.decodeAudioData array_buffer, (buffer)=>
+			audio_buffers_by_clip_id[id] = buffer
+			clip = {
+				time: 0
+				id: id
+			}
+			tracks[track_index].clips.push clip
+			localforage.setItem "#{document_id}/tracks", tracks, (err)=>
+				if err
+					alert "Failed to store track metadata.\n#{err.stack}"
+				else
+					render()
+			#.catch (err)=>
+		, (e)=>
+			alert "Audio not playable or not supported."
+			console.error e
+	
+	reader.onerror = (e)=>
+		alert "Failed to read audio file."
+		console.error e
+	
+	reader.readAsArrayBuffer file

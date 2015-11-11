@@ -42,7 +42,7 @@ class @Tracks extends E.Component
 				window.addEventListener "mouseup", onMouseUp = (e)=>
 					window.removeEventListener "mouseup", onMouseUp
 					window.removeEventListener "mousemove", onMouseMove
-			E BeatTrack, key: "bt"
+			E BeatTrack, key: "beat-track"
 			for track, ti in tracks
 				E AudioTrack,
 					key: ti
