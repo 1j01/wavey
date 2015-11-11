@@ -40,6 +40,16 @@
 	height: 1em;
 }
 
+GtkInfoBar {
+	display: flex;
+	align-items: center;
+	height: 40px;
+	padding: 0 5px;
+}
+GtkInfoBar > GtkLabel {
+	flex: 1;
+}
+
 * {
 	box-sizing: border-box;
 }

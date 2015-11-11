@@ -68,16 +68,20 @@ do render = ->
 load_clip_data = (clip)->
 	localforage.getItem "#{document_id}/#{clip.id}", (err, array_buffer)=>
 		if err
-			alert "Failed to load audio data.\n#{err}"
+			alert "Failed to load audio data.\n#{err.message}"
 			console.error err
-		else
+		else if array_buffer
 			actx.decodeAudioData array_buffer, (buffer)=>
 				audio_buffers_by_clip_id[clip.id] = buffer
+				remove_alert "Not all tracks have finished loading."
 				render()
+		else
+			alert "An audio clip is missing from storage."
+			console.warn "An audio clip is missing from storage.", clip
 
 localforage.getItem "#{document_id}/tracks", (err, trax)=>
 	if err
-		alert "Failed to load the document.\n#{err}"
+		alert "Failed to load the document.\n#{err.message}"
 		console.error err
 	else if trax
 		tracks = trax
@@ -94,22 +98,23 @@ localforage.getItem "#{document_id}/tracks", (err, trax)=>
 		
 		localforage.setItem "#{document_id}/#{id}", array_buffer, (err)=>
 			if err
-				alert "Failed to store audio data.\n#{err}"
+				alert "Failed to store audio data.\n#{err.message}"
 				console.error err
-		
-		actx.decodeAudioData array_buffer, (buffer)=>
-			audio_buffers_by_clip_id[id] = buffer
-			clip = {
-				time: 0
-				id: id
-			}
-			tracks[track_index].clips.push clip
-			localforage.setItem "#{document_id}/tracks", tracks, (err)=>
-				if err
-					alert "Failed to store track metadata.\n#{err}"
-					console.error err
-				else
-					render()
+			else
+				# TODO: optimize by parallelizing decoding and storing, but keep good error handling
+				actx.decodeAudioData array_buffer, (buffer)=>
+					audio_buffers_by_clip_id[id] = buffer
+					clip = {
+						time: 0
+						id: id
+					}
+					tracks[track_index].clips.push clip
+					localforage.setItem "#{document_id}/tracks", tracks, (err)=>
+						if err
+							alert "Failed to store track metadata.\n#{err.message}"
+							console.error err
+						else
+							render()
 		, (e)=>
 			alert "Audio not playable or not supported."
 			console.error e

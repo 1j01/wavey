@@ -5,6 +5,13 @@ class @AudioEditor extends E.Component
 	
 	play: =>
 		{tracks} = @props
+		
+		for track in tracks
+			for clip in track.clips
+				unless audio_buffer_for_clip clip.id
+					alert "Not all tracks have finished loading."
+					return
+		
 		@setState
 			playing: yes
 			track_sources:
@@ -40,7 +47,14 @@ class @AudioEditor extends E.Component
 	render: ->
 		{playing} = @state
 		{document_id, tracks, themes, set_theme} = @props
-	
+		
+		window.alert = (message)=>
+			@setState alert_message: message
+		
+		window.remove_alert = (message)=>
+			if @state.alert_message is message
+				@setState alert_message: null
+		
 		E ".audio-editor",
 			tabIndex: 0
 			onMouseDown: (e)=>
@@ -62,4 +76,13 @@ class @AudioEditor extends E.Component
 			play = => @play()
 			pause = => @pause()
 			E Controls, {playing, play, pause, themes, set_theme}
+			E "div",
+				if @state.alert_message
+					# @TODO: remove Gtk-isms
+					# @TODO: animate appearing/disappearing
+					E "GtkInfoBar.warning",
+						E "GtkLabel", @state.alert_message
+						E "button.button",
+							onClick: => @setState alert_message: null
+							E "GtkLabel", "Dismiss"
 			E Tracks, {tracks}
