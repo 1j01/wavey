@@ -3,7 +3,7 @@ class @AudioEditor extends E.Component
 	constructor: ->
 		@state = playing: no, track_sources: [], position: null
 	
-	update_position_indicator: (start_time = @state.start_time)=>
+	update_position_indicator: (start_time)=>
 		@setState position: actx.currentTime - start_time + 0.00001
 	
 	play: =>
@@ -20,7 +20,6 @@ class @AudioEditor extends E.Component
 		@setState
 			start_time: actx.currentTime
 			playing: yes
-			iid: setInterval @update_position_indicator, 500
 			track_sources:
 				for track in tracks
 					for clip in track.clips
@@ -34,7 +33,6 @@ class @AudioEditor extends E.Component
 		@update_position_indicator actx.currentTime
 
 	pause: =>
-		clearInterval @state.iid
 		for track_sources in @state.track_sources
 			for source in track_sources
 				source.stop actx.currentTime + 1.0
@@ -42,8 +40,7 @@ class @AudioEditor extends E.Component
 		@setState
 			playing: no
 			track_sources: []
-			iid: -1
-		@update_position_indicator()
+		@update_position_indicator @state.start_time
 	
 	componentDidMount: =>
 		window.addEventListener "keypress", (e)=>
