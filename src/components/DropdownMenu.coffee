@@ -11,6 +11,7 @@ class @DropdownMenu extends E.Component
 	componentDidMount: -> @updateOffset()
 	componentDidUpdate: -> @updateOffset()
 	updateOffset: ->
+		# @FIXME alternates offset during playback
 		el = React.findDOMNode @
 		rect = el.getBoundingClientRect()
 		if rect.right >= document.body.clientWidth

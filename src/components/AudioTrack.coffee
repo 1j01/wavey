@@ -1,7 +1,7 @@
 
 class @AudioTrack extends E.Component
 	render: ->
-		{track, selection} = @props
+		{track, position, selection} = @props
 		at_time = (t)-> t * scale
 		E ".track.audio-track",
 			E TrackControls
@@ -20,8 +20,11 @@ class @AudioTrack extends E.Component
 					E ".selection",
 						key: "selection"
 						style:
-							position: "absolute"
 							left: (at_time selection.start())
-							top: 0
 							width: (at_time selection.end()) - (at_time selection.start())
-							height: "100%"
+				if position
+					E ".position",
+						key: "position"
+						style:
+							position: "absolute"
+							left: (at_time position)

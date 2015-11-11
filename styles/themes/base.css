@@ -22,6 +22,7 @@
 .track {
 	padding: 5px;
 }
+
 .beat-marking {
 	border-left: 1px solid currentColor;
 	height: 100%;
@@ -30,6 +31,10 @@
 .beat-marking.sub {
 	height: 50%;
 	opacity: 0.3;
+}
+
+.position {
+	border-left: 1px solid currentColor;
 }
 
 .audio-editor button:focus {

@@ -31,3 +31,7 @@
 	background: rgba(0, 193, 255, 0.25);
 	box-shadow: 0 0 0px 1px rgba(0, 193, 255, 0.5);
 }
+.position {
+	border-left: 1px solid white;
+	border-right: 1px solid black;
+}

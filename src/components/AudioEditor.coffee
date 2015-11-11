@@ -1,7 +1,10 @@
 
 class @AudioEditor extends E.Component
 	constructor: ->
-		@state = playing: no, track_sources: []
+		@state = playing: no, track_sources: [], position: null
+	
+	update_position_indicator: (start_time = @state.start_time)=>
+		@setState position: actx.currentTime - start_time + 0.001, alternate_hack: not @state.alternate_hack
 	
 	play: =>
 		{tracks} = @props
@@ -12,8 +15,12 @@ class @AudioEditor extends E.Component
 					alert "Not all tracks have finished loading."
 					return
 		
+		# @TODO: end playback after all of the clips have played
+		
 		@setState
+			start_time: actx.currentTime
 			playing: yes
+			iid: setInterval @update_position_indicator, 500
 			track_sources:
 				for track in tracks
 					for clip in track.clips
@@ -24,8 +31,10 @@ class @AudioEditor extends E.Component
 						source.gain.connect actx.destination
 						source.start actx.currentTime + clip.time
 						source
+		@update_position_indicator actx.currentTime
 
 	pause: =>
+		clearInterval @state.iid
 		for track_sources in @state.track_sources
 			for source in track_sources
 				source.stop actx.currentTime + 1.0
@@ -33,10 +42,12 @@ class @AudioEditor extends E.Component
 		@setState
 			playing: no
 			track_sources: []
+			iid: -1
+		@update_position_indicator()
 	
 	componentDidMount: =>
 		window.addEventListener "keypress", (e)=>
-			if e.keyCode is 32
+			if e.keyCode is 32 # Spacebar
 				unless e.target.tagName.match /button/i
 					e.preventDefault()
 					if @state.playing
@@ -45,7 +56,7 @@ class @AudioEditor extends E.Component
 						@play()
 	
 	render: ->
-		{playing} = @state
+		{playing, position, alternate_hack} = @state
 		{document_id, tracks, themes, set_theme} = @props
 		
 		window.alert = (message)=>
@@ -56,6 +67,8 @@ class @AudioEditor extends E.Component
 				@setState alert_message: null
 		
 		E ".audio-editor",
+			# @FIXME buttons "shimmer" once every second due to this hack (and when you hit spacebar)
+			className: {playing, alternate_hack}
 			tabIndex: 0
 			style: outline: "none"
 			onMouseDown: (e)=>
@@ -86,4 +99,4 @@ class @AudioEditor extends E.Component
 						E "button.button",
 							onClick: => @setState alert_message: null
 							E "GtkLabel", "Dismiss"
-			E Tracks, {tracks}
+			E Tracks, {tracks, position}

@@ -3,7 +3,7 @@ class @Tracks extends E.Component
 	constructor: ->
 		@state = selection: null
 	render: ->
-		{tracks} = @props
+		{tracks, position} = @props
 		E ".tracks",
 			onMouseDown: (e)=>
 				return unless e.button is 0
@@ -47,4 +47,5 @@ class @Tracks extends E.Component
 				E AudioTrack,
 					key: ti
 					track: track
+					position: position
 					selection: (@state.selection if @state.selection?.containsTrack ti)
