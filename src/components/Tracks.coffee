@@ -3,8 +3,9 @@ class @Tracks extends E.Component
 	constructor: ->
 		@state = selection: null
 	render: ->
-		{tracks, position, playing, seek, mute_track, unmute_track, pin_track, unpin_track} = @props
+		{tracks, position, playing, seek, mute_track, unmute_track, pin_track, unpin_track, remove_track} = @props
 		E ".tracks",
+			# @TODO: touch support
 			onMouseDown: (e)=>
 				return unless e.button is 0
 				el = closest e.target, ".track-content"
@@ -51,11 +52,11 @@ class @Tracks extends E.Component
 						@props.seek t
 						@setState selection: null
 			
-			E BeatTrack, {key: "beat-track", mute_track, unmute_track, pin_track, unpin_track, track_index: "beat-track"}
+			E BeatTrack, {key: "beat-track", mute_track, unmute_track, pin_track, unpin_track, remove_track, track_index: "beat-track"}
 			for track, track_index in tracks
 				E AudioTrack, {
 					key: track_index
 					track, position, playing
-					mute_track, unmute_track, pin_track, unpin_track, track_index
+					mute_track, unmute_track, pin_track, unpin_track, remove_track, track_index
 					selection: (@state.selection if @state.selection?.containsTrack track_index)
 				}

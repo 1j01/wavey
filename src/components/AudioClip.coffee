@@ -30,13 +30,16 @@ class @AudioClip extends E.Component
 	componentDidUpdate: ->
 		@renderCanvas()
 	
+	componentWillUnmount: ->
+		clearTimeout @tid
+		cancelAnimationFrame @animation_frame
+	
 	shouldComponentUpdate: (nextProps, nextState)->
 		nextProps.data isnt @props.data
 	
 	rerenderCanvasWhenTheStylesChange: ->
-		# @TODO: clearTimeout on componentWillUnmount
-		setTimeout =>
-			requestAnimationFrame =>
+		@tid = setTimeout =>
+			@animation_frame = requestAnimationFrame =>
 				canvas = React.findDOMNode @refs.canvas
 				ctx = canvas.getContext "2d"
 				@renderCanvas() if getComputedStyle(canvas).color isnt @color

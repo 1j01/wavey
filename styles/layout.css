@@ -30,10 +30,18 @@
 
 .track-controls {
 	float: left;
-	width: 4em; /* = .track-content {margin-left} */
+	width: 6em; /* = .track-content {margin-left} */
+}
+.track-controls {
+	white-space: nowrap;
+}
+.track-controls > .linked {
+	display: inline-block;
+	vertical-align: top;
+	margin-left: 4px;
 }
 .track-content {
-	margin-left: 4em; /* = .track-controls {width} */
+	margin-left: 6em; /* = .track-controls {width} */
 }
 /* @TODO: scrollable track content */
 

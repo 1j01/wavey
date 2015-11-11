@@ -1,12 +1,12 @@
 
 class @AudioTrack extends E.Component
 	render: ->
-		{track, selection, position, playing, mute_track, unmute_track, pin_track, unpin_track, track_index} = @props
+		{track, selection, position, playing, mute_track, unmute_track, pin_track, unpin_track, remove_track, track_index} = @props
 		{clips, muted, pinned} = track
 		
 		E ".track.audio-track",
 			classes: {muted, pinned}
-			E TrackControls, {muted, pinned, mute_track, unmute_track, pin_track, unpin_track, track_index}
+			E TrackControls, {muted, pinned, mute_track, unmute_track, pin_track, unpin_track, remove_track, track_index}
 			E ".track-content",
 				ref: "content"
 				style:
@@ -35,7 +35,7 @@ class @AudioTrack extends E.Component
 							left: scale * position
 	
 	animate: ->
-		@animation = requestAnimationFrame => @animate()
+		@animation_frame = requestAnimationFrame => @animate()
 		if @props.playing
 			if @position_indicator
 				@position_indicator.getDOMNode().style.left =
@@ -49,4 +49,4 @@ class @AudioTrack extends E.Component
 		@animate()
 	
 	componentWillUnmount: ->
-		cancelAnimationFrame @animation
+		cancelAnimationFrame @animation_frame

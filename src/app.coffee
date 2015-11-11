@@ -54,7 +54,6 @@ tracks = [
 document_id = (location.hash.match(/document=([\w\-./]*)/) ? [0, "d1"])[1]
 
 save_tracks = ->
-	#console.log "save_tracks", tracks
 	render()
 	localforage.setItem "#{document_id}/tracks", tracks, (err)=>
 		if err

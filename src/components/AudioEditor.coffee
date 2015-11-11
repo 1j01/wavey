@@ -37,7 +37,7 @@ class @AudioEditor extends E.Component
 			@setState position: Math.min(time, max_length)
 	
 	play: (from_time)=>
-		{tracks} = @props
+		@pause() if @state.playing
 		
 		max_length = @get_max_length()
 		return unless max_length?
@@ -45,6 +45,8 @@ class @AudioEditor extends E.Component
 		from_time ?= @state.position ? 0
 		if from_time >= max_length
 			from_time = 0
+		
+		{tracks} = @props
 		
 		@setState
 			tid: setTimeout @pause, (max_length - from_time) * 1000 + 20
@@ -84,8 +86,11 @@ class @AudioEditor extends E.Component
 			playing: no
 			track_sources: []
 	
+	update_playback: =>
+		if @state.playing
+			@seek actx.currentTime - @state.start_time
+	
 	set_track_prop: (track_index, prop, value)->
-		#console.log "set_track_prop", track_index, prop, value
 		{tracks, save_tracks} = @props
 		tracks[track_index][prop] = value
 		save_tracks()
@@ -107,7 +112,7 @@ class @AudioEditor extends E.Component
 	
 	render: ->
 		{playing, position} = @state
-		{tracks, themes, set_theme} = @props
+		{tracks, save_tracks, themes, set_theme} = @props
 		
 		window.alert = (message)=>
 			@setState alert_message: message
@@ -133,6 +138,11 @@ class @AudioEditor extends E.Component
 		
 		unpin_track = (track_index)=>
 			@set_track_prop track_index, "pinned", off
+		
+		remove_track = (track_index)=>
+			tracks.splice track_index, 1
+			save_tracks()
+			@update_playback()
 		
 		E ".audio-editor",
 			className: {playing}
@@ -165,4 +175,4 @@ class @AudioEditor extends E.Component
 						E "button.button",
 							onClick: => @setState alert_message: null
 							E "GtkLabel", "Dismiss"
-			E Tracks, {tracks, position, playing, seek, mute_track, unmute_track, pin_track, unpin_track, key: "tracks"}
+			E Tracks, {tracks, position, playing, seek, mute_track, unmute_track, pin_track, unpin_track, remove_track, key: "tracks"}
