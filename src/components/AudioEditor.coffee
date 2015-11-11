@@ -9,15 +9,21 @@ class @AudioEditor extends E.Component
 	play: =>
 		{tracks} = @props
 		
+		max_length = 0
 		for track in tracks
 			for clip in track.clips
-				unless audio_buffer_for_clip clip.id
+				audio_buffer = audio_buffer_for_clip clip.id
+				if audio_buffer
+					max_length = Math.max max_length, clip.time + audio_buffer.length / audio_buffer.sampleRate
+				else
 					alert "Not all tracks have finished loading."
 					return
 		
-		# @TODO: end playback after all of the clips have played
-		
 		@setState
+			tid: setTimeout @pause, max_length * 1000 + 20
+			# NOTE: an extra few ms because it shouldn't fade out prematurely
+			# (even though might sound better, it might lead you to believe
+			# your audio doesn't need a brief fade out at the end when it does)
 			start_time: actx.currentTime
 			playing: yes
 			track_sources:
@@ -30,9 +36,11 @@ class @AudioEditor extends E.Component
 						source.gain.connect actx.destination
 						source.start actx.currentTime + clip.time
 						source
+		
 		@update_position_indicator actx.currentTime
 
 	pause: =>
+		clearTimeout @state.tid
 		for track_sources in @state.track_sources
 			for source in track_sources
 				source.stop actx.currentTime + 1.0
