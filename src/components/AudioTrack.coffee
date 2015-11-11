@@ -19,13 +19,13 @@ class @AudioTrack extends E.Component
 						style:
 							position: "absolute"
 							left: clip.time * scale
-				if selection
+				if selection?
 					E ".selection",
 						key: "selection"
 						style:
 							left: (at_time selection.start())
 							width: (at_time selection.end()) - (at_time selection.start())
-				if position
+				if position?
 					E ".position",
 						ref: (c)=> @position_indicator = c
 						key: "position"

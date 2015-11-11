@@ -3,7 +3,7 @@ class @AudioEditor extends E.Component
 	constructor: ->
 		@state = playing: no, track_sources: [], position: null
 	
-	play: (from_time)=>
+	get_max_length: ->
 		{tracks} = @props
 		
 		max_length = 0
@@ -16,6 +16,24 @@ class @AudioEditor extends E.Component
 					alert "Not all tracks have finished loading."
 					return
 		
+		max_length
+	
+	seek: (time)=>
+		max_length = @get_max_length()
+		return unless max_length?
+		if @state.playing and time < max_length
+			@pause()
+			@play time
+		else
+			@pause()
+			@setState position: Math.min(time, max_length)
+	
+	play: (from_time)=>
+		{tracks} = @props
+		
+		max_length = @get_max_length()
+		return unless max_length?
+		
 		from_time ?= @state.position ? 0
 		if from_time >= max_length
 			from_time = 0
@@ -25,8 +43,15 @@ class @AudioEditor extends E.Component
 			# NOTE: an extra few ms because it shouldn't fade out prematurely
 			# (even though might sound better, it might lead you to believe
 			# your audio doesn't need a brief fade out at the end when it does)
+			
 			start_time: actx.currentTime - from_time
-			position: from_time + 0.00001
+			
+			alternate_hack: not @state.alternate_hack
+			position: from_time + if @state.alternate_hack then 0.00001 else 0.00002
+			# HACK/NOTE: AudioTrack::componentDidUpdate checks whether position has changed
+			# and we need it to update when seeking to 0 when we've given it 0 (it maintains it's own state)
+			# NOTE/HACK: adding a small number is necessary, 0 doesn't work
+			
 			playing: yes
 			track_sources:
 				for track in tracks
@@ -71,6 +96,11 @@ class @AudioEditor extends E.Component
 			if @state.alert_message is message
 				@setState alert_message: null
 		
+		play = => @play()
+		pause = => @pause()
+		go_to_start = => @seek 0
+		go_to_end = => @seek Infinity
+		
 		E ".audio-editor",
 			className: {playing}
 			tabIndex: 0
@@ -91,9 +121,7 @@ class @AudioEditor extends E.Component
 				for file in e.dataTransfer.files
 					add_clip track_index, file
 			
-			play = => @play()
-			pause = => @pause()
-			E Controls, {playing, play, pause, themes, set_theme, key: "controls"}
+			E Controls, {playing, play, pause, go_to_start, go_to_end, themes, set_theme, key: "controls"}
 			E "div",
 				key: "infobar",
 				if @state.alert_message
