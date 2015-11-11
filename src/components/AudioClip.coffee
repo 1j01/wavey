@@ -2,7 +2,11 @@
 class @AudioClip extends E.Component
 	render: ->
 		E ".audio-clip", style: @props.style,
-			E "canvas", ref: "canvas", height: 80, width: 2000 # 80 = .track-content {height}
+			E "canvas",
+				ref: "canvas"
+				height: 80 # = .track-content {height}
+				width: 2000
+	
 	renderCanvas: ->
 		audio_buffer = @props.data
 		canvas = React.findDOMNode @refs.canvas
@@ -18,10 +22,17 @@ class @AudioClip extends E.Component
 			for x in [0..canvas.width] by 0.1
 				ctx.lineTo x, canvas.height/2 + canvas.height/2 * (data[~~(x/scale*audio_buffer.sampleRate)])
 			ctx.stroke()
-	componentDidMount: -> @renderCanvas(); @rerenderCanvasWhenTheStylesChange()
-	componentDidUpdate: -> @renderCanvas()
+	
+	componentDidMount: ->
+		@renderCanvas()
+		@rerenderCanvasWhenTheStylesChange()
+	
+	componentDidUpdate: ->
+		@renderCanvas()
+	
 	shouldComponentUpdate: (nextProps, nextState)->
 		nextProps.data isnt @props.data
+	
 	rerenderCanvasWhenTheStylesChange: ->
 		# @TODO: clearTimeout on componentWillUnmount
 		setTimeout =>

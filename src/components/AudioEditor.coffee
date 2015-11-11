@@ -19,8 +19,13 @@ class @AudioEditor extends E.Component
 		max_length
 	
 	seek: (time)=>
+		if isNaN time
+			alert "Tried to seek to invalid time: #{time}"
+			return
+		
 		max_length = @get_max_length()
 		return unless max_length?
+		
 		if @state.playing and time < max_length
 			@pause()
 			@play time
@@ -100,6 +105,7 @@ class @AudioEditor extends E.Component
 		pause = => @pause()
 		go_to_start = => @seek 0
 		go_to_end = => @seek Infinity
+		seek = (t)=> @seek t
 		
 		E ".audio-editor",
 			className: {playing}
@@ -132,4 +138,4 @@ class @AudioEditor extends E.Component
 						E "button.button",
 							onClick: => @setState alert_message: null
 							E "GtkLabel", "Dismiss"
-			E Tracks, {tracks, position, playing, key: "tracks"}
+			E Tracks, {tracks, position, playing, seek, key: "tracks"}

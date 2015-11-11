@@ -3,7 +3,7 @@ class @Tracks extends E.Component
 	constructor: ->
 		@state = selection: null
 	render: ->
-		{tracks, position, playing} = @props
+		{tracks, position, playing, seek} = @props
 		E ".tracks",
 			onMouseDown: (e)=>
 				return unless e.button is 0
@@ -32,16 +32,31 @@ class @Tracks extends E.Component
 				ti = track_index_at e
 				@setState selection: new Selection t, t, ti, ti
 				
+				mouse_moved = no
+				#mouse_moved_from = e
+				mouse_move_from_clientX = e.clientX
 				window.addEventListener "mousemove", onMouseMove = (e)=>
-					if @state.selection
-						@setState selection: Selection.drag @state.selection,
-							to: time_at e
-							toTrackIndex: track_index_at e
-						e.preventDefault()
+					#dx = e.clientX - mouse_moved_from.clientX
+					#dy = e.clientY - mouse_moved_from.clientY
+					#if Math.sqrt(dx*dx + dy*dy) > 5
+					#console.log e.clientX, mouse_moved_from.clientX
+					#if Math.abs(dx) > 100
+					if Math.abs(e.clientX - mouse_move_from_clientX) > 5
+						mouse_moved = yes
+					if mouse_moved
+						if @state.selection
+							@setState selection: Selection.drag @state.selection,
+								to: time_at e
+								toTrackIndex: track_index_at e
+							e.preventDefault()
 				
 				window.addEventListener "mouseup", onMouseUp = (e)=>
 					window.removeEventListener "mouseup", onMouseUp
 					window.removeEventListener "mousemove", onMouseMove
+					unless mouse_moved
+						@props.seek t
+						@setState selection: null
+			
 			E BeatTrack, key: "beat-track"
 			for track, ti in tracks
 				E AudioTrack, {
