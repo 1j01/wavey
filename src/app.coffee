@@ -86,7 +86,6 @@ localforage.getItem "#{document_id}/tracks", (err, trax)=>
 			for clip in track.clips
 				load_clip_data clip
 
-
 @add_clip = (track_index, file)->
 	reader = new FileReader
 	reader.onload = (e)=>
