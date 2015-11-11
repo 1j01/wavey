@@ -57,6 +57,7 @@ class @AudioEditor extends E.Component
 		
 		E ".audio-editor",
 			tabIndex: 0
+			style: outline: "none"
 			onMouseDown: (e)=>
 				e.preventDefault()
 				React.findDOMNode(@).focus()
