@@ -48,8 +48,6 @@
 	height: 100%;
 }
 
-/* @TODO: make the position indicator look decent when there are multiple tracks */
-
 GtkInfoBar {
 	display: flex;
 	align-items: center;

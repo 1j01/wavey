@@ -36,6 +36,9 @@
 .position {
 	border-left: 1px solid currentColor;
 }
+.track:not(:last-child) .position {
+	height: 150%;
+}
 
 .audio-editor button:focus {
 	outline: 0;
