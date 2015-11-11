@@ -3,10 +3,7 @@ class @AudioEditor extends E.Component
 	constructor: ->
 		@state = playing: no, track_sources: [], position: null
 	
-	update_position_indicator: (start_time)=>
-		@setState position: actx.currentTime - start_time + 0.00001
-	
-	play: =>
+	play: (from_time)=>
 		{tracks} = @props
 		
 		max_length = 0
@@ -19,12 +16,17 @@ class @AudioEditor extends E.Component
 					alert "Not all tracks have finished loading."
 					return
 		
+		from_time ?= @state.position ? 0
+		if from_time >= max_length
+			from_time = 0
+		
 		@setState
-			tid: setTimeout @pause, max_length * 1000 + 20
+			tid: setTimeout @pause, (max_length - from_time) * 1000 + 20
 			# NOTE: an extra few ms because it shouldn't fade out prematurely
 			# (even though might sound better, it might lead you to believe
 			# your audio doesn't need a brief fade out at the end when it does)
-			start_time: actx.currentTime
+			start_time: actx.currentTime - from_time
+			position: from_time + 0.00001
 			playing: yes
 			track_sources:
 				for track in tracks
@@ -34,10 +36,8 @@ class @AudioEditor extends E.Component
 						source.buffer = audio_buffer_for_clip clip.id
 						source.connect source.gain
 						source.gain.connect actx.destination
-						source.start actx.currentTime + clip.time
+						source.start actx.currentTime + clip.time, from_time
 						source
-		
-		@update_position_indicator actx.currentTime
 
 	pause: =>
 		clearTimeout @state.tid
@@ -46,9 +46,9 @@ class @AudioEditor extends E.Component
 				source.stop actx.currentTime + 1.0
 				source.gain.gain.value = 0
 		@setState
+			position: actx.currentTime - @state.start_time
 			playing: no
 			track_sources: []
-		@update_position_indicator @state.start_time
 	
 	componentDidMount: =>
 		window.addEventListener "keypress", (e)=>
