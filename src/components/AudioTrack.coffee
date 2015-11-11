@@ -1,8 +1,11 @@
 
 class @AudioTrack extends E.Component
+	
+	at_time = (t)-> t * scale
+	
 	render: ->
-		{track, position, selection} = @props
-		at_time = (t)-> t * scale
+		{track, selection, position, playing} = @props
+		
 		E ".track.audio-track",
 			E TrackControls
 			E ".track-content",
@@ -24,7 +27,24 @@ class @AudioTrack extends E.Component
 							width: (at_time selection.end()) - (at_time selection.start())
 				if position
 					E ".position",
+						ref: (c)=> @position_indicator = c
 						key: "position"
 						style:
-							position: "absolute"
 							left: (at_time position)
+	
+	animate: ->
+		@animation = requestAnimationFrame => @animate()
+		if @props.playing
+			if @position_indicator
+				@position_indicator.getDOMNode().style.left =
+					"#{(at_time actx.currentTime - @last_position_update_time)}px"
+	
+	componentDidUpdate: (last_props)->
+		if @props.position isnt last_props.position
+			@last_position_update_time = actx.currentTime - @props.position
+	
+	componentDidMount: ->
+		@animate()
+	
+	componentWillUnmount: ->
+		cancelAnimationFrame @animation

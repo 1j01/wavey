@@ -20,10 +20,6 @@ patch_elementary_classes = ->
 	requestAnimationFrame ->
 		for el in document.querySelectorAll ".track-content"
 			el.classList.add "notebook"
-		for el in document.querySelectorAll ".audio-editor"
-			el.classList.add "window-frame"
-			el.classList.add "active"
-			el.style.borderRadius = "0"
 		for el in document.querySelectorAll ".audio-editor .controls"
 			el.classList.add "titlebar"
 		for el in document.querySelectorAll ".menu-item"

@@ -4,7 +4,7 @@ class @AudioEditor extends E.Component
 		@state = playing: no, track_sources: [], position: null
 	
 	update_position_indicator: (start_time = @state.start_time)=>
-		@setState position: actx.currentTime - start_time + 0.001, alternate_hack: not @state.alternate_hack
+		@setState position: actx.currentTime - start_time + 0.00001
 	
 	play: =>
 		{tracks} = @props
@@ -56,7 +56,7 @@ class @AudioEditor extends E.Component
 						@play()
 	
 	render: ->
-		{playing, position, alternate_hack} = @state
+		{playing, position} = @state
 		{document_id, tracks, themes, set_theme} = @props
 		
 		window.alert = (message)=>
@@ -67,8 +67,7 @@ class @AudioEditor extends E.Component
 				@setState alert_message: null
 		
 		E ".audio-editor",
-			# @FIXME buttons "shimmer" once every second due to this hack (and when you hit spacebar)
-			className: {playing, alternate_hack}
+			className: {playing}
 			tabIndex: 0
 			style: outline: "none"
 			onMouseDown: (e)=>
@@ -89,8 +88,9 @@ class @AudioEditor extends E.Component
 			
 			play = => @play()
 			pause = => @pause()
-			E Controls, {playing, play, pause, themes, set_theme}
+			E Controls, {playing, play, pause, themes, set_theme, key: "controls"}
 			E "div",
+				key: "infobar",
 				if @state.alert_message
 					# @TODO: remove Gtk-isms
 					# @TODO: animate appearing/disappearing
@@ -99,4 +99,4 @@ class @AudioEditor extends E.Component
 						E "button.button",
 							onClick: => @setState alert_message: null
 							E "GtkLabel", "Dismiss"
-			E Tracks, {tracks, position}
+			E Tracks, {tracks, position, playing, key: "tracks"}

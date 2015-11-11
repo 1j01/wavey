@@ -3,7 +3,7 @@ class @Tracks extends E.Component
 	constructor: ->
 		@state = selection: null
 	render: ->
-		{tracks, position} = @props
+		{tracks, position, playing} = @props
 		E ".tracks",
 			onMouseDown: (e)=>
 				return unless e.button is 0
@@ -44,8 +44,8 @@ class @Tracks extends E.Component
 					window.removeEventListener "mousemove", onMouseMove
 			E BeatTrack, key: "beat-track"
 			for track, ti in tracks
-				E AudioTrack,
+				E AudioTrack, {
 					key: ti
-					track: track
-					position: position
+					track, position, playing
 					selection: (@state.selection if @state.selection?.containsTrack ti)
+				}

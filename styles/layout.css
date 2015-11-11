@@ -35,7 +35,7 @@
 .track-content {
 	margin-left: 4em; /* = .track-controls {width} */
 }
-/* @TODO: scrollable track content*/
+/* @TODO: scrollable track content */
 
 .beat-markings {
 	height: 1em;
@@ -49,23 +49,6 @@
 }
 
 /* @TODO: make the position indicator look decent when there are multiple tracks */
-.position {
-	transform: translateX(0px);
-}
-.playing .position {
-	animation: moving-playback-indicator 1s linear infinite;
-}
-.alternate-hack.playing .position {
-	animation: moving-playback-indicator-alternate-hack 1s linear infinite;
-}
-@keyframes moving-playback-indicator {
-	from { transform: translateX(0px); }
-	to { transform: translateX(90px); } /* @FIXME hardcoded and duplicated / @TODO zooming */
-}
-@keyframes moving-playback-indicator-alternate-hack {
-	from { transform: translateX(0px); }
-	to { transform: translateX(90px); } /* @FIXME hardcoded and duplicated / @TODO zooming */
-}
 
 GtkInfoBar {
 	display: flex;
