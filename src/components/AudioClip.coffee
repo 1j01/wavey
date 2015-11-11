@@ -5,13 +5,15 @@ class @AudioClip extends E.Component
 			E "canvas", ref: "canvas", height: 80, width: 2000 # 80 = .track-content {height}
 	renderCanvas: ->
 		audio_buffer = @props.data
+		canvas = React.findDOMNode @refs.canvas
+		ctx = canvas.getContext "2d"
+		ctx.clearRect 0, 0, canvas.width, canvas.height
+		ctx.strokeStyle = @color = getComputedStyle(canvas).color
+		
 		if audio_buffer
-			data = audio_buffer.getChannelData 0
 			# @TODO: visualize multiple channels?
-			canvas = React.findDOMNode @refs.canvas
-			ctx = canvas.getContext "2d"
-			ctx.clearRect 0, 0, canvas.width, canvas.height
-			ctx.strokeStyle = getComputedStyle(canvas).color
+			data = audio_buffer.getChannelData 0
+			
 			ctx.beginPath()
 			for x in [0..canvas.width] by 0.1
 				ctx.lineTo x, canvas.height/2 + canvas.height/2 * (data[~~(x/scale*audio_buffer.sampleRate)])
@@ -26,6 +28,6 @@ class @AudioClip extends E.Component
 			requestAnimationFrame =>
 				canvas = React.findDOMNode @refs.canvas
 				ctx = canvas.getContext "2d"
-				@renderCanvas() if getComputedStyle(canvas).color isnt ctx.strokeStyle
+				@renderCanvas() if getComputedStyle(canvas).color isnt @color
 				@rerenderCanvasWhenTheStylesChange()
 		, 100
