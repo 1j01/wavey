@@ -1,17 +1,19 @@
 
 class @AudioTrack extends E.Component
 	render: ->
-		{track, selection, position, playing} = @props
+		{track, selection, position, playing, mute_track, unmute_track, pin_track, unpin_track, track_index} = @props
+		{clips, muted, pinned} = track
 		
 		E ".track.audio-track",
-			E TrackControls
+			classes: {muted, pinned}
+			E TrackControls, {muted, pinned, mute_track, unmute_track, pin_track, unpin_track, track_index}
 			E ".track-content",
 				ref: "content"
 				style:
 					position: "relative"
 					height: 80 # = canvas height
 					boxSizing: "content-box"
-				for clip in track.clips
+				for clip in clips
 					E AudioClip,
 						key: clip.id
 						id: clip.id

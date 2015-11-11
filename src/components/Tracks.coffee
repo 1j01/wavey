@@ -3,7 +3,7 @@ class @Tracks extends E.Component
 	constructor: ->
 		@state = selection: null
 	render: ->
-		{tracks, position, playing, seek} = @props
+		{tracks, position, playing, seek, mute_track, unmute_track, pin_track, unpin_track} = @props
 		E ".tracks",
 			onMouseDown: (e)=>
 				return unless e.button is 0
@@ -29,8 +29,8 @@ class @Tracks extends E.Component
 					track_index
 				
 				t = time_at e
-				ti = track_index_at e
-				@setState selection: new Selection t, t, ti, ti
+				track_index = track_index_at e
+				@setState selection: new Selection t, t, track_index, track_index
 				
 				mouse_moved = no
 				mouse_move_from_clientX = e.clientX
@@ -51,10 +51,11 @@ class @Tracks extends E.Component
 						@props.seek t
 						@setState selection: null
 			
-			E BeatTrack, key: "beat-track"
-			for track, ti in tracks
+			E BeatTrack, {key: "beat-track", mute_track, unmute_track, pin_track, unpin_track, track_index: "beat-track"}
+			for track, track_index in tracks
 				E AudioTrack, {
-					key: ti
+					key: track_index
 					track, position, playing
-					selection: (@state.selection if @state.selection?.containsTrack ti)
+					mute_track, unmute_track, pin_track, unpin_track, track_index
+					selection: (@state.selection if @state.selection?.containsTrack track_index)
 				}

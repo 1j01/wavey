@@ -23,6 +23,10 @@
 	padding: 5px;
 }
 
+.muted.audio-track canvas {
+	opacity: 0.3;
+}
+
 .beat-marking {
 	border-left: 1px solid currentColor;
 	height: 100%;

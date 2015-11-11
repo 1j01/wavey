@@ -53,13 +53,23 @@ tracks = [
 ]
 document_id = (location.hash.match(/document=([\w\-./]*)/) ? [0, "d1"])[1]
 
+save_tracks = ->
+	#console.log "save_tracks", tracks
+	render()
+	localforage.setItem "#{document_id}/tracks", tracks, (err)=>
+		if err
+			alert "Failed to store track metadata.\n#{err.message}"
+			console.error err
+		else
+			render()
+
 audio_buffers_by_clip_id = {}
 
 @audio_buffer_for_clip = (clip_id)->
 	audio_buffers_by_clip_id[clip_id]
 
 do render = ->
-	React.render (E AudioEditor, {tracks, themes, set_theme}), document.body
+	React.render (E AudioEditor, {tracks, save_tracks, themes, set_theme}), document.body
 
 load_clip_data = (clip)->
 	localforage.getItem "#{document_id}/#{clip.id}", (err, array_buffer)=>
@@ -97,7 +107,7 @@ localforage.getItem "#{document_id}/tracks", (err, trax)=>
 				alert "Failed to store audio data.\n#{err.message}"
 				console.error err
 			else
-				# TODO: optimize by parallelizing decoding and storing, but keep good error handling
+				# TODO: optimize by decoding and storing in parallel, but keep good error handling
 				actx.decodeAudioData array_buffer, (buffer)=>
 					audio_buffers_by_clip_id[id] = buffer
 					clip = {
@@ -105,12 +115,7 @@ localforage.getItem "#{document_id}/tracks", (err, trax)=>
 						id: id
 					}
 					tracks[track_index].clips.push clip
-					localforage.setItem "#{document_id}/tracks", tracks, (err)=>
-						if err
-							alert "Failed to store track metadata.\n#{err.message}"
-							console.error err
-						else
-							render()
+					save_tracks()
 		, (e)=>
 			alert "Audio not playable or not supported."
 			console.error e

@@ -69,6 +69,7 @@ class @AudioEditor extends E.Component
 						source.buffer = audio_buffer_for_clip clip.id
 						source.connect source.gain
 						source.gain.connect actx.destination
+						source.gain.gain.value = if track.muted then 0 else 1
 						source.start actx.currentTime + clip.time, from_time
 						source
 
@@ -83,6 +84,16 @@ class @AudioEditor extends E.Component
 			playing: no
 			track_sources: []
 	
+	set_track_prop: (track_index, prop, value)->
+		#console.log "set_track_prop", track_index, prop, value
+		{tracks, save_tracks} = @props
+		tracks[track_index][prop] = value
+		save_tracks()
+		
+		if prop is "muted" and @state.playing
+			for source in @state.track_sources[track_index]
+				source.gain.gain.value = if value then 0 else 1
+	
 	componentDidMount: =>
 		window.addEventListener "keypress", (e)=>
 			if e.keyCode is 32 # Spacebar
@@ -92,10 +103,11 @@ class @AudioEditor extends E.Component
 						@pause()
 					else
 						@play()
+			# @TODO: other keyboard shortcuts (arrow keys, Home, End, R...)
 	
 	render: ->
 		{playing, position} = @state
-		{document_id, tracks, themes, set_theme} = @props
+		{tracks, themes, set_theme} = @props
 		
 		window.alert = (message)=>
 			@setState alert_message: message
@@ -109,6 +121,18 @@ class @AudioEditor extends E.Component
 		go_to_start = => @seek 0
 		go_to_end = => @seek Infinity
 		seek = (t)=> @seek t
+		
+		mute_track = (track_index)=>
+			@set_track_prop track_index, "muted", on
+		
+		unmute_track = (track_index)=>
+			@set_track_prop track_index, "muted", off
+		
+		pin_track = (track_index)=>
+			@set_track_prop track_index, "pinned", on
+		
+		unpin_track = (track_index)=>
+			@set_track_prop track_index, "pinned", off
 		
 		E ".audio-editor",
 			className: {playing}
@@ -141,4 +165,4 @@ class @AudioEditor extends E.Component
 						E "button.button",
 							onClick: => @setState alert_message: null
 							E "GtkLabel", "Dismiss"
-			E Tracks, {tracks, position, playing, seek, key: "tracks"}
+			E Tracks, {tracks, position, playing, seek, mute_track, unmute_track, pin_track, unpin_track, key: "tracks"}
