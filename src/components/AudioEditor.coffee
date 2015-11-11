@@ -1,7 +1,10 @@
 
 class @AudioEditor extends E.Component
 	constructor: ->
-		@state = playing: no, track_sources: [], position: null
+		@state =
+			playing: no
+			track_sources: []
+			position: null
 	
 	get_max_length: ->
 		{tracks} = @props

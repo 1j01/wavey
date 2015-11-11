@@ -33,14 +33,8 @@ class @Tracks extends E.Component
 				@setState selection: new Selection t, t, ti, ti
 				
 				mouse_moved = no
-				#mouse_moved_from = e
 				mouse_move_from_clientX = e.clientX
 				window.addEventListener "mousemove", onMouseMove = (e)=>
-					#dx = e.clientX - mouse_moved_from.clientX
-					#dy = e.clientY - mouse_moved_from.clientY
-					#if Math.sqrt(dx*dx + dy*dy) > 5
-					#console.log e.clientX, mouse_moved_from.clientX
-					#if Math.abs(dx) > 100
 					if Math.abs(e.clientX - mouse_move_from_clientX) > 5
 						mouse_moved = yes
 					if mouse_moved

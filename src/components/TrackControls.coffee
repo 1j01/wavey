@@ -1,7 +1,9 @@
 
 class @TrackControls extends E.Component
 	constructor: ->
-		@state = muted: null, pinned: null
+		@state =
+			muted: null
+			pinned: null
 	render: ->
 		muted = @state.muted ? @props.muted
 		pinned = @state.pinned ? @props.pinned
