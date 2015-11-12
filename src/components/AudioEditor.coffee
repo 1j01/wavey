@@ -106,6 +106,7 @@ class @AudioEditor extends E.Component
 	
 	set_track_prop: (track_index, prop, value)->
 		{tracks, save_tracks} = @props
+		undoable()
 		tracks[track_index][prop] = value
 		save_tracks()
 		

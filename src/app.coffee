@@ -67,16 +67,18 @@ save_tracks = ->
 	localforage.setItem "#{document_id}/undos", undos
 	localforage.setItem "#{document_id}/redos", redos
 	# @TODO: error handling
-	# @TODO: load these back for persistant undos/redos
 
 @undoable = ->
+	redos = []
 	undos.push JSON.parse JSON.stringify tracks
+	save_tracks()
 
 @undo = ->
 	return unless undos.length
 	redos.push JSON.parse JSON.stringify tracks
 	tracks = undos.pop()
 	save_tracks()
+	load_clips()
 	# @TODO: AudioEditor#update_playback()
 
 @redo = ->
@@ -84,6 +86,7 @@ save_tracks = ->
 	undos.push JSON.parse JSON.stringify tracks
 	tracks = redos.pop()
 	save_tracks()
+	load_clips()
 	# @TODO: AudioEditor#update_playback()
 
 
@@ -93,10 +96,8 @@ audio_buffers_by_clip_id = {}
 	audio_buffers_by_clip_id[clip_id]
 
 
-do render = ->
-	React.render (E AudioEditor, {tracks, save_tracks, themes, set_theme}), document.body
-
 load_clip = (clip)->
+	return if audio_buffers_by_clip_id[clip.id]?
 	localforage.getItem "#{document_id}/#{clip.id}", (err, array_buffer)=>
 		if err
 			alert "Failed to load audio data.\n#{err.message}"
@@ -110,16 +111,38 @@ load_clip = (clip)->
 			alert "An audio clip is missing from storage."
 			console.warn "An audio clip is missing from storage.", clip
 
-localforage.getItem "#{document_id}/tracks", (err, trax)=>
+load_clips = ->
+	for track in tracks
+		for clip in track.clips
+			load_clip clip
+
+do render = ->
+	React.render (E AudioEditor, {tracks, save_tracks, themes, set_theme}), document.body
+
+localforage.getItem "#{document_id}/tracks", (err, _tracks)=>
 	if err
 		alert "Failed to load the document.\n#{err.message}"
 		console.error err
-	else if trax
-		tracks = trax
+	else if _tracks
+		tracks = _tracks
 		render()
-		for track in tracks
-			for clip in track.clips
-				load_clip clip
+		load_clips()
+		
+		localforage.getItem "#{document_id}/undos", (err, _undos)=>
+			if err
+				alert "Failed to load undo history.\n#{err.message}"
+				console.error err
+			else if _undos
+				undos = _undos
+				render()
+		
+		localforage.getItem "#{document_id}/redos", (err, _redos)=>
+			if err
+				alert "Failed to load redo history.\n#{err.message}"
+				console.error err
+			else if _redos
+				redos = _redos
+				render()
 
 @add_clip = (file, track_index, time=0)->
 	reader = new FileReader
