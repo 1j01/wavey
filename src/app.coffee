@@ -95,7 +95,7 @@ localforage.getItem "#{document_id}/tracks", (err, trax)=>
 			for clip in track.clips
 				load_clip_data clip
 
-@add_clip = (track_index, file)->
+@add_clip = (file, track_index, time=0)->
 	reader = new FileReader
 	reader.onload = (e)=>
 		array_buffer = e.target.result
@@ -109,10 +109,16 @@ localforage.getItem "#{document_id}/tracks", (err, trax)=>
 				# TODO: optimize by decoding and storing in parallel, but keep good error handling
 				actx.decodeAudioData array_buffer, (buffer)=>
 					audio_buffers_by_clip_id[id] = buffer
-					clip = {
-						time: 0
-						id: id
-					}
+					clip = {time, id}
+					
+					# @TODO: add tracks earlier with a loading indicator and remove them if an error occurs
+					# and make it so you can't edit them while they're loading (e.g. pasting audio where audio is already going to be)
+					unless track_index?
+						track_index = tracks.length - 1
+						if tracks[track_index].clips.length > 0
+							tracks.push {clips: []}
+							track_index = tracks.length - 1
+					
 					tracks[track_index].clips.push clip
 					save_tracks()
 		, (e)=>

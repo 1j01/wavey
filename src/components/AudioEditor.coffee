@@ -85,7 +85,7 @@ class @AudioEditor extends E.Component
 						source.connect source.gain
 						source.gain.connect actx.destination
 						source.gain.gain.value = if track.muted then 0 else 1
-						source.start actx.currentTime + clip.time, from_time
+						source.start actx.currentTime + Math.max(0, clip.time - from_time), Math.max(0, from_time - clip.time)
 						source
 	
 	pause: =>
@@ -200,20 +200,15 @@ class @AudioEditor extends E.Component
 			onDragOver: (e)=>
 				e.preventDefault()
 			onDrop: (e)=>
+				return if e.isDefaultPrevented()
 				e.preventDefault()
-				
-				track_index = tracks.length - 1
-				if tracks[track_index].clips.length > 0
-					tracks.push {clips: []}
-					track_index = tracks.length - 1
-				
 				for file in e.dataTransfer.files
-					add_clip track_index, file
-			
+					add_clip file
 			E Controls, {playing, play, pause, go_to_start, go_to_end, themes, set_theme, key: "controls"}
 			E "div",
 				key: "infobar",
 				if @state.alert_message
+					# @TODO: separate component
 					# @TODO: remove Gtk-isms
 					# @TODO: animate appearing/disappearing
 					E "GtkInfoBar.warning",

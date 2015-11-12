@@ -6,6 +6,26 @@ class @AudioTrack extends E.Component
 		
 		E ".track.audio-track",
 			classes: {muted, pinned}
+			onDragOver: (e)=>
+				e.preventDefault()
+			onDrop: (e)=>
+				# @FIXME: WET, @TODO: DRY, this was copy/pasted from Tracks.coffee
+				el = closest e.target, ".track-content"
+				unless el
+					unless closest e.target, ".track-controls"
+						e.preventDefault()
+						@setState selection: null
+					return
+				e.preventDefault()
+				
+				time_at = (e)->
+					rect = el.getBoundingClientRect()
+					(e.clientX - rect.left) / scale
+				
+				e.preventDefault()
+				# @TODO: add multiple files in sequence, not on top of each other
+				for file in e.dataTransfer.files
+					add_clip file, track_index, time_at e
 			E TrackControls, {muted, pinned, mute_track, unmute_track, pin_track, unpin_track, remove_track, track_index}
 			E ".track-content",
 				ref: "content"
