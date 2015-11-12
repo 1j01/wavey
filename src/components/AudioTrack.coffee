@@ -25,7 +25,7 @@ class @AudioTrack extends E.Component
 				e.preventDefault()
 				# @TODO: add multiple files in sequence, not on top of each other
 				for file in e.dataTransfer.files
-					add_clip file, track_index, time_at e
+					editor.add_clip file, track_index, time_at e
 			E TrackControls, {muted, pinned, track_index, editor}
 			E ".track-content",
 				ref: "content"
