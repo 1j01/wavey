@@ -88,10 +88,8 @@ class @AudioEditor extends E.Component
 			return
 		
 		max_length = @get_max_length()
-		return unless max_length?
 		
-		if @state.playing and time < max_length
-			@pause()
+		if @state.playing and max_length? and time < max_length
 			@play_from time
 		else
 			@pause()
