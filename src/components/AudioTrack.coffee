@@ -1,7 +1,7 @@
 
 class @AudioTrack extends E.Component
 	render: ->
-		{track, selection, position, playing, mute_track, unmute_track, pin_track, unpin_track, remove_track, track_index} = @props
+		{track, selection, position, playing, mute_track, unmute_track, pin_track, unpin_track, remove_track, add_clip, track_index} = @props
 		{clips, muted, pinned} = track
 		
 		E ".track.audio-track",
@@ -37,7 +37,7 @@ class @AudioTrack extends E.Component
 					E AudioClip,
 						key: clip.id
 						id: clip.id
-						data: audio_buffer_for_clip clip.id
+						data: AudioClip.audio_buffers_by_clip_id[clip.id]
 						style:
 							position: "absolute"
 							left: clip.time * scale

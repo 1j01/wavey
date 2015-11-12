@@ -13,7 +13,7 @@ class @AudioEditor extends E.Component
 		max_length = 0
 		for track in tracks
 			for clip in track.clips
-				audio_buffer = audio_buffer_for_clip clip.id
+				audio_buffer = AudioClip.audio_buffers_by_clip_id[clip.id]
 				if audio_buffer
 					max_length = Math.max max_length, clip.time + audio_buffer.length / audio_buffer.sampleRate
 				else
@@ -81,7 +81,7 @@ class @AudioEditor extends E.Component
 					for clip in track.clips
 						source = actx.createBufferSource()
 						source.gain = actx.createGain()
-						source.buffer = audio_buffer_for_clip clip.id
+						source.buffer = AudioClip.audio_buffers_by_clip_id[clip.id]
 						source.connect source.gain
 						source.gain.connect actx.destination
 						source.gain.gain.value = if track.muted then 0 else 1
@@ -114,6 +114,46 @@ class @AudioEditor extends E.Component
 			for source in @state.track_sources[track_index]
 				source.gain.gain.value = if value then 0 else 1
 	
+	add_clip: (file, track_index, time=0)->
+		{document_id, tracks, save_tracks} = @props
+		reader = new FileReader
+		reader.onload = (e)=>
+			array_buffer = e.target.result
+			id = GUID()
+			
+			localforage.setItem "#{document_id}/#{id}", array_buffer, (err)=>
+				if err
+					alert "Failed to store audio data.\n#{err.message}"
+					console.error err
+				else
+					# TODO: optimize by decoding and storing in parallel, but keep good error handling
+					actx.decodeAudioData array_buffer, (buffer)=>
+						AudioClip.audio_buffers_by_clip_id[id] = buffer
+						clip = {time, id}
+						
+						undoable()
+						
+						# @TODO: add tracks earlier with a loading indicator and remove them if an error occurs
+						# and make it so you can't edit them while they're loading (e.g. pasting audio where audio is already going to be)
+						unless track_index?
+							track_index = tracks.length - 1
+							if tracks[track_index].clips.length > 0
+								tracks.push {clips: []}
+								track_index = tracks.length - 1
+						
+						tracks[track_index].clips.push clip
+						save_tracks()
+						@update_playback()
+			, (e)=>
+				alert "Audio not playable or not supported."
+				console.error e
+		
+		reader.onerror = (e)=>
+			alert "Failed to read audio file."
+			console.error e
+		
+		reader.readAsArrayBuffer file
+
 	componentDidMount: =>
 		window.addEventListener "keydown", (e)=>
 			return if e.defaultPrevented
@@ -202,6 +242,8 @@ class @AudioEditor extends E.Component
 			save_tracks()
 			@update_playback()
 		
+		add_clip = @add_clip
+		
 		E ".audio-editor",
 			className: {playing}
 			tabIndex: 0
@@ -215,7 +257,7 @@ class @AudioEditor extends E.Component
 				return if e.isDefaultPrevented()
 				e.preventDefault()
 				for file in e.dataTransfer.files
-					add_clip file
+					@add_clip file
 			E Controls, {playing, play, pause, go_to_start, go_to_end, themes, set_theme, key: "controls"}
 			E "div",
 				key: "infobar",
@@ -228,4 +270,4 @@ class @AudioEditor extends E.Component
 						E "button.button",
 							onClick: => @setState alert_message: null
 							E "GtkLabel", "Dismiss"
-			E Tracks, {tracks, position, position_time, playing, seek, mute_track, unmute_track, pin_track, unpin_track, remove_track, key: "tracks"}
+			E Tracks, {tracks, position, position_time, playing, seek, mute_track, unmute_track, pin_track, unpin_track, remove_track, add_clip, key: "tracks"}

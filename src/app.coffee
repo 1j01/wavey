@@ -78,7 +78,7 @@ save_tracks = ->
 	redos.push JSON.parse JSON.stringify tracks
 	tracks = undos.pop()
 	save_tracks()
-	load_clips()
+	AudioClip.load_clips(tracks, document_id)
 	# @TODO: AudioEditor#update_playback()
 
 @redo = ->
@@ -86,38 +86,12 @@ save_tracks = ->
 	undos.push JSON.parse JSON.stringify tracks
 	tracks = redos.pop()
 	save_tracks()
-	load_clips()
+	AudioClip.load_clips(tracks, document_id)
 	# @TODO: AudioEditor#update_playback()
 
 
-audio_buffers_by_clip_id = {}
-
-@audio_buffer_for_clip = (clip_id)->
-	audio_buffers_by_clip_id[clip_id]
-
-
-load_clip = (clip)->
-	return if audio_buffers_by_clip_id[clip.id]?
-	localforage.getItem "#{document_id}/#{clip.id}", (err, array_buffer)=>
-		if err
-			alert "Failed to load audio data.\n#{err.message}"
-			console.error err
-		else if array_buffer
-			actx.decodeAudioData array_buffer, (buffer)=>
-				audio_buffers_by_clip_id[clip.id] = buffer
-				remove_alert "Not all tracks have finished loading."
-				render()
-		else
-			alert "An audio clip is missing from storage."
-			console.warn "An audio clip is missing from storage.", clip
-
-load_clips = ->
-	for track in tracks
-		for clip in track.clips
-			load_clip clip
-
-do render = ->
-	React.render (E AudioEditor, {tracks, save_tracks, themes, set_theme}), document.body
+do @render = ->
+	React.render (E AudioEditor, {document_id, tracks, save_tracks, themes, set_theme}), document.body
 
 localforage.getItem "#{document_id}/tracks", (err, _tracks)=>
 	if err
@@ -126,7 +100,7 @@ localforage.getItem "#{document_id}/tracks", (err, _tracks)=>
 	else if _tracks
 		tracks = _tracks
 		render()
-		load_clips()
+		AudioClip.load_clips(tracks, document_id)
 		
 		localforage.getItem "#{document_id}/undos", (err, _undos)=>
 			if err
@@ -143,41 +117,3 @@ localforage.getItem "#{document_id}/tracks", (err, _tracks)=>
 			else if _redos
 				redos = _redos
 				render()
-
-@add_clip = (file, track_index, time=0)->
-	reader = new FileReader
-	reader.onload = (e)=>
-		array_buffer = e.target.result
-		id = GUID()
-		
-		localforage.setItem "#{document_id}/#{id}", array_buffer, (err)=>
-			if err
-				alert "Failed to store audio data.\n#{err.message}"
-				console.error err
-			else
-				# TODO: optimize by decoding and storing in parallel, but keep good error handling
-				actx.decodeAudioData array_buffer, (buffer)=>
-					audio_buffers_by_clip_id[id] = buffer
-					clip = {time, id}
-					
-					# @TODO: add tracks earlier with a loading indicator and remove them if an error occurs
-					# and make it so you can't edit them while they're loading (e.g. pasting audio where audio is already going to be)
-					unless track_index?
-						track_index = tracks.length - 1
-						if tracks[track_index].clips.length > 0
-							tracks.push {clips: []}
-							track_index = tracks.length - 1
-					
-					undoable()
-					tracks[track_index].clips.push clip
-					save_tracks()
-					# @TODO: AudioEditor#update_playback()
-		, (e)=>
-			alert "Audio not playable or not supported."
-			console.error e
-	
-	reader.onerror = (e)=>
-		alert "Failed to read audio file."
-		console.error e
-	
-	reader.readAsArrayBuffer file
