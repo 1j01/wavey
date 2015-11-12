@@ -36,9 +36,9 @@ class @InfoBar extends E.Component
 		# @TODO: remove Gtk-isms
 		E "GtkInfoBar.warning",
 			classes: [message_class, if visible then "visible"]
-			E "GtkLabel", InfoBar.state.alert_message
+			E "GtkLabel", message
 			E "button.button",
-				onClick: => InfoBar.setState alert_message: null
+				onClick: => InfoBar.setState visible: no
 				E "GtkLabel", "Dismiss"
 
 ###

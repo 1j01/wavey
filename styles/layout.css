@@ -58,14 +58,16 @@
 
 /* @TODO: remove Gtk-isms */
 GtkInfoBar:not(.visible) {
-	display: none;
-	/* @TODO: animate appearing/disappearing */
+	height: 0px;
+	border-width: 0px;
+	overflow: hidden;
 }
 GtkInfoBar {
 	display: flex;
 	align-items: center;
 	height: 40px;
 	padding: 0 5px;
+	transition: height 0.2s ease;
 }
 GtkInfoBar > GtkLabel {
 	flex: 1;
