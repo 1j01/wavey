@@ -28,6 +28,8 @@
 	height: 100%;
 }
 
+/* @TODO: pinned tracks */
+
 .track-controls {
 	float: left;
 	width: 6em; /* = .track-content {margin-left} */

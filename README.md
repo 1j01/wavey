@@ -5,11 +5,16 @@
 
 And by that, I partially mean that it will *be* an audio editor *in* the future.
 
+
 ### Features
+
 * Drag and drop audio files
 * Always saved locally
 * Persistent undo/redo
 * Oohy-guiy
+
+
+### Future Features
 
 Note how the bar with beat markings is a track. It would become a metronome when unmuted.
 
@@ -17,7 +22,9 @@ Tracks will be able to be pinned to the top, which should easy the pain when you
 
 You will be able to "precord" up to five minutes or as long as precording has been enabled. 
 
+
 ### Themes
+
 * [elementary](http://1j01.github.io/audio-editor/#theme=elementary) ([elementary.css](https://github.com/1j01/elementary.css/))
 * [elementary Dark](http://1j01.github.io/audio-editor/#theme=elementary-dark) ([elementary.css](https://github.com/1j01/elementary.css/))
 * [Monochrome Aqua](http://1j01.github.io/audio-editor/#theme=retro/aqua)
@@ -25,6 +32,7 @@ You will be able to "precord" up to five minutes or as long as precording has be
 * [Monochrome Amber](http://1j01.github.io/audio-editor/#theme=retro/amber)
 * [Ambergine](http://1j01.github.io/audio-editor/#theme=retro/ambergine) (amber + eggplant)
 * [Chroma](http://1j01.github.io/audio-editor/#theme=retro/chroma) (the current default)
+
 
 -------
 

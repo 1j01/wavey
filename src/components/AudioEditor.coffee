@@ -5,9 +5,12 @@ class @AudioEditor extends E.Component
 	
 	constructor: ->
 		@state =
-			tracks: [
-				{clips: []}
-			]
+			tracks: {
+				"beat-track": {
+					muted: yes
+					pinned: yes
+				}
+			}
 			undos: []
 			redos: []
 			playing: no
@@ -61,7 +64,7 @@ class @AudioEditor extends E.Component
 		{tracks} = @state
 		
 		max_length = 0
-		for track in tracks
+		for track_id, track of tracks when track.clips
 			for clip in track.clips
 				audio_buffer = AudioClip.audio_buffers_by_clip_id[clip.id]
 				if audio_buffer
@@ -89,7 +92,7 @@ class @AudioEditor extends E.Component
 		
 		if @state.playing and time < max_length
 			@pause()
-			@play time
+			@play_from time
 		else
 			@pause()
 			@setState
@@ -104,13 +107,15 @@ class @AudioEditor extends E.Component
 		return unless end?
 		@seek end
 	
-	play: (from_time)=>
+	play: =>
+		@play_from @state.position ? 0
+	
+	play_from: (from_time)=>
 		@pause() if @state.playing
 		
 		max_length = @get_max_length()
 		return unless max_length?
 		
-		from_time ?= @state.position ? 0
 		if from_time >= max_length or from_time < 0
 			from_time = 0
 		
@@ -127,7 +132,8 @@ class @AudioEditor extends E.Component
 			
 			playing: yes
 			track_sources:
-				for track in tracks
+				# @TODO: metronome when beat track is unmuted
+				for track_id, track of tracks when track.clips
 					for clip in track.clips
 						source = actx.createBufferSource()
 						source.gain = actx.createGain()
@@ -154,27 +160,28 @@ class @AudioEditor extends E.Component
 		if @state.playing
 			@seek @get_current_position()
 	
-	set_track_prop: (track_index, prop, value)->
+	set_track_prop: (track_id, prop, value)->
 		@undoable (tracks)=>
-			tracks[track_index][prop] = value
+			tracks[track_id][prop] = value
 	
-	mute_track: (track_index)=>
-		@set_track_prop track_index, "muted", on
+	mute_track: (track_id)=>
+		@set_track_prop track_id, "muted", on
 	
-	unmute_track: (track_index)=>
-		@set_track_prop track_index, "muted", off
+	unmute_track: (track_id)=>
+		@set_track_prop track_id, "muted", off
 	
-	pin_track: (track_index)=>
-		@set_track_prop track_index, "pinned", on
+	pin_track: (track_id)=>
+		@set_track_prop track_id, "pinned", on
 	
-	unpin_track: (track_index)=>
-		@set_track_prop track_index, "pinned", off
+	unpin_track: (track_id)=>
+		@set_track_prop track_id, "pinned", off
 	
-	remove_track: (track_index)=>
+	remove_track: (track_id)=>
 		@undoable (tracks)=>
-			tracks.splice track_index, 1
+			delete tracks[track_id]
+			# @TODO: splice from track_order?
 	
-	add_clip: (file, track_index, time=0)->
+	add_clip: (file, track_id, time=0)->
 		{document_id} = @props
 		reader = new FileReader
 		reader.onload = (e)=>
@@ -194,13 +201,17 @@ class @AudioEditor extends E.Component
 						@undoable (tracks)=>
 							# @TODO: add tracks earlier with a loading indicator and remove them if an error occurs
 							# and make it so you can't edit them while they're loading (e.g. pasting audio where audio is already going to be)
-							unless track_index?
-								track_index = tracks.length - 1
-								if tracks[track_index].clips.length > 0
-									tracks.push {clips: []}
-									track_index = tracks.length - 1
+							unless track_id?
+								for _track_id, _track of tracks
+									last_track = _track
+									last_track_id = _track_id
+								if last_track?.clips?.length is 0
+									track_id = last_track_id
+								else
+									track_id = GUID()
+									tracks[track_id] = {clips: []}
 							
-							tracks[track_index].clips.push clip
+							tracks[track_id].clips.push clip
 			, (e)=>
 				InfoBar.warn "Audio not playable or not supported."
 				console.error e

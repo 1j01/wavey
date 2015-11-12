@@ -1,12 +1,10 @@
 
 class @BeatTrack extends E.Component
 	render: ->
-		{editor, track_index} = @props
-		[muted, pinned] = [on, on]
-		# @TODO: allow unmuting the beat track (making it a metronome)
-		# and unpinning it
+		{track, editor, track_id} = @props
+		{muted, pinned} = track
 		E ".track.beat-track",
 			classes: {muted, pinned}
-			E TrackControls, {muted, pinned, editor, track_index}
+			E TrackControls, {muted, pinned, editor, track_id}
 			E ".track-content",
 				E BeatMarkings

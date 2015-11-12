@@ -4,6 +4,22 @@ class @Tracks extends E.Component
 		@state = selection: null
 	render: ->
 		{tracks, position, position_time, playing, editor} = @props
+		
+		track_index = 0
+		track_components = []
+		for track_id, track of tracks
+			track_components.push (
+				if track_id is "beat-track"
+					E BeatTrack, {key: track_id, track, track_id, editor}
+				else
+					E AudioTrack, {
+						key: track_id, track, track_id
+						position, position_time, playing, editor
+						selection: (@state.selection if @state.selection?.containsTrackIndex track_index)
+					}
+			)
+			track_index += 1
+
 		E ".tracks",
 			# @TODO: touch support
 			onMouseDown: (e)=>
@@ -22,7 +38,7 @@ class @Tracks extends E.Component
 				
 				tracks_el = closest e.target, ".tracks"
 				track_index_at = (e)->
-					track_index = -1
+					track_index = 0
 					for track_el in tracks_el.children
 						rect = track_el.getBoundingClientRect()
 						if e.clientY > rect.bottom
@@ -52,10 +68,4 @@ class @Tracks extends E.Component
 						editor.seek t
 						@setState selection: null
 			
-			E BeatTrack, {key: "beat-track", editor, track_index: "beat-track"}
-			for track, track_index in tracks
-				E AudioTrack, {
-					key: track_index
-					track, track_index, position, position_time, playing, editor
-					selection: (@state.selection if @state.selection?.containsTrack track_index)
-				}
+			track_components

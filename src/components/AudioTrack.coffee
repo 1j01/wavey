@@ -1,7 +1,7 @@
 
 class @AudioTrack extends E.Component
 	render: ->
-		{track, selection, position, playing, editor, track_index} = @props
+		{track, selection, position, playing, editor, track_id} = @props
 		{clips, muted, pinned} = track
 		
 		E ".track.audio-track",
@@ -25,8 +25,8 @@ class @AudioTrack extends E.Component
 				e.preventDefault()
 				# @TODO: add multiple files in sequence, not on top of each other
 				for file in e.dataTransfer.files
-					editor.add_clip file, track_index, time_at e
-			E TrackControls, {muted, pinned, track_index, editor}
+					editor.add_clip file, track_id, time_at e
+			E TrackControls, {muted, pinned, track_id, editor}
 			E ".track-content",
 				ref: "content"
 				style:
