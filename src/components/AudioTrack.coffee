@@ -38,12 +38,8 @@ class @AudioTrack extends E.Component
 		@animation_frame = requestAnimationFrame => @animate()
 		if @props.playing
 			if @position_indicator
-				@position_indicator.getDOMNode().style.left =
-					"#{(scale * (actx.currentTime - @last_position_update_time))}px"
-	
-	componentDidUpdate: (last_props)->
-		if @props.position isnt last_props.position
-			@last_position_update_time = actx.currentTime - @props.position
+				position = @props.position + actx.currentTime - @props.position_time
+				@position_indicator.getDOMNode().style.left = "#{scale * position}px"
 	
 	componentDidMount: ->
 		@animate()

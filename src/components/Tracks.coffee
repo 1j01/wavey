@@ -3,7 +3,7 @@ class @Tracks extends E.Component
 	constructor: ->
 		@state = selection: null
 	render: ->
-		{tracks, position, playing, seek, mute_track, unmute_track, pin_track, unpin_track, remove_track} = @props
+		{tracks, position, position_time, playing, seek, mute_track, unmute_track, pin_track, unpin_track, remove_track} = @props
 		E ".tracks",
 			# @TODO: touch support
 			onMouseDown: (e)=>
@@ -56,7 +56,7 @@ class @Tracks extends E.Component
 			for track, track_index in tracks
 				E AudioTrack, {
 					key: track_index
-					track, position, playing
+					track, position, position_time, playing
 					mute_track, unmute_track, pin_track, unpin_track, remove_track, track_index
 					selection: (@state.selection if @state.selection?.containsTrack track_index)
 				}
