@@ -56,6 +56,11 @@
 	height: 100%;
 }
 
+/* @TODO: remove Gtk-isms */
+GtkInfoBar:not(.visible) {
+	display: none;
+	/* @TODO: animate appearing/disappearing */
+}
 GtkInfoBar {
 	display: flex;
 	align-items: center;

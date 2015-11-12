@@ -20,7 +20,7 @@ class @AudioEditor extends E.Component
 		{tracks, undos, redos} = @state
 		localforage.setItem "#{document_id}/tracks", tracks, (err)=>
 			if err
-				alert "Failed to store track metadata.\n#{err.message}"
+				InfoBar.warn "Failed to store track metadata.\n#{err.message}"
 				console.error err
 			else
 				render()
@@ -67,7 +67,7 @@ class @AudioEditor extends E.Component
 				if audio_buffer
 					max_length = Math.max max_length, clip.time + audio_buffer.length / audio_buffer.sampleRate
 				else
-					alert "Not all tracks have finished loading."
+					InfoBar.warn "Not all tracks have finished loading."
 					return
 		
 		max_length
@@ -81,7 +81,7 @@ class @AudioEditor extends E.Component
 	
 	seek: (time)=>
 		if isNaN time
-			alert "Tried to seek to invalid time: #{time}"
+			InfoBar.warn "Tried to seek to invalid time: #{time}"
 			return
 		
 		max_length = @get_max_length()
@@ -157,10 +157,22 @@ class @AudioEditor extends E.Component
 	set_track_prop: (track_index, prop, value)->
 		@undoable (tracks)=>
 			tracks[track_index][prop] = value
-		
-		if prop is "muted" and @state.playing
-			for source in @state.track_sources[track_index]
-				source.gain.gain.value = if value then 0 else 1
+	
+	mute_track: (track_index)=>
+		@set_track_prop track_index, "muted", on
+	
+	unmute_track: (track_index)=>
+		@set_track_prop track_index, "muted", off
+	
+	pin_track: (track_index)=>
+		@set_track_prop track_index, "pinned", on
+	
+	unpin_track: (track_index)=>
+		@set_track_prop track_index, "pinned", off
+	
+	remove_track: (track_index)=>
+		@undoable (tracks)=>
+			tracks.splice track_index, 1
 	
 	add_clip: (file, track_index, time=0)->
 		{document_id} = @props
@@ -171,7 +183,7 @@ class @AudioEditor extends E.Component
 			
 			localforage.setItem "#{document_id}/#{id}", array_buffer, (err)=>
 				if err
-					alert "Failed to store audio data.\n#{err.message}"
+					InfoBar.warn "Failed to store audio data.\n#{err.message}"
 					console.error err
 				else
 					# TODO: optimize by decoding and storing in parallel, but keep good error handling
@@ -190,11 +202,11 @@ class @AudioEditor extends E.Component
 							
 							tracks[track_index].clips.push clip
 			, (e)=>
-				alert "Audio not playable or not supported."
+				InfoBar.warn "Audio not playable or not supported."
 				console.error e
 		
 		reader.onerror = (e)=>
-			alert "Failed to read audio file."
+			InfoBar.warn "Failed to read audio file."
 			console.error e
 		
 		reader.readAsArrayBuffer file
@@ -216,21 +228,21 @@ class @AudioEditor extends E.Component
 		
 		localforage.getItem "#{document_id}/tracks", (err, tracks)=>
 			if err
-				alert "Failed to load the document.\n#{err.message}"
+				InfoBar.warn "Failed to load the document.\n#{err.message}"
 				console.error err
 			else if tracks
 				@setState {tracks}
 				
 				localforage.getItem "#{document_id}/undos", (err, undos)=>
 					if err
-						alert "Failed to load undo history.\n#{err.message}"
+						InfoBar.warn "Failed to load undo history.\n#{err.message}"
 						console.error err
 					else if undos
 						@setState {undos}
 				
 				localforage.getItem "#{document_id}/redos", (err, redos)=>
 					if err
-						alert "Failed to load redo history.\n#{err.message}"
+						InfoBar.warn "Failed to load redo history.\n#{err.message}"
 						console.error err
 					else if redos
 						@setState {redos}
@@ -291,37 +303,6 @@ class @AudioEditor extends E.Component
 		{tracks, playing, position, position_time} = @state
 		{themes, set_theme} = @props
 		
-		window.alert = (message)=>
-			@setState alert_message: message
-		
-		window.remove_alert = (message)=>
-			if @state.alert_message is message
-				@setState alert_message: null
-		
-		play = => @play()
-		pause = => @pause()
-		go_to_start = => @seek_to_start()
-		go_to_end = => @seek_to_end()
-		seek = (t)=> @seek t
-		
-		mute_track = (track_index)=>
-			@set_track_prop track_index, "muted", on
-		
-		unmute_track = (track_index)=>
-			@set_track_prop track_index, "muted", off
-		
-		pin_track = (track_index)=>
-			@set_track_prop track_index, "pinned", on
-		
-		unpin_track = (track_index)=>
-			@set_track_prop track_index, "pinned", off
-		
-		remove_track = (track_index)=>
-			@undoable (tracks)=>
-				tracks.splice track_index, 1
-		
-		add_clip = @add_clip
-		
 		E ".audio-editor",
 			className: {playing}
 			tabIndex: 0
@@ -336,16 +317,8 @@ class @AudioEditor extends E.Component
 				e.preventDefault()
 				for file in e.dataTransfer.files
 					@add_clip file
-			E Controls, {playing, play, pause, go_to_start, go_to_end, themes, set_theme, key: "controls"}
+			E Controls, {playing, editor: @, themes, set_theme, key: "controls"}
 			E "div",
-				key: "infobar",
-				if @state.alert_message
-					# @TODO: separate component
-					# @TODO: remove Gtk-isms
-					# @TODO: animate appearing/disappearing
-					E "GtkInfoBar.warning",
-						E "GtkLabel", @state.alert_message
-						E "button.button",
-							onClick: => @setState alert_message: null
-							E "GtkLabel", "Dismiss"
-			E Tracks, {tracks, position, position_time, playing, seek, mute_track, unmute_track, pin_track, unpin_track, remove_track, add_clip, key: "tracks"}
+				key: "infobar"
+				E InfoBar # @TODO, ref: (@infobar)=>
+			E Tracks, {tracks, position, position_time, playing, editor: @, key: "tracks"}

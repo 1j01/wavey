@@ -1,7 +1,8 @@
 
 class @Controls extends E.Component
 	render: ->
-		{playing, play, pause, go_to_start, go_to_end, record, themes, set_theme} = @props
+		{playing, themes, set_theme, editor} = @props
+		{play, pause, seek_to_start, seek_to_end, record} = editor
 		E ".controls",
 			if themes and set_theme
 				E "span",
@@ -21,11 +22,11 @@ class @Controls extends E.Component
 				E "i.icon-#{if playing then "pause" else "play"}"
 			E "span.linked",
 				E "button.button.go-to-start",
-					onClick: go_to_start
+					onClick: seek_to_start
 					title: "Go to start"
 					E "i.icon-go-to-start"
 				E "button.button.go-to-end",
-					onClick: go_to_end
+					onClick: seek_to_end
 					title: "Go to end"
 					E "i.icon-go-to-end"
 			E DropdownButton,
