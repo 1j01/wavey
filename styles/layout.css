@@ -60,7 +60,6 @@
 GtkInfoBar:not(.visible) {
 	height: 0px;
 	border-width: 0px;
-	overflow: hidden;
 }
 GtkInfoBar {
 	display: flex;
@@ -68,6 +67,7 @@ GtkInfoBar {
 	height: 40px;
 	padding: 0 5px;
 	transition: height 0.2s ease;
+	overflow: hidden;
 }
 GtkInfoBar > GtkLabel {
 	flex: 1;
