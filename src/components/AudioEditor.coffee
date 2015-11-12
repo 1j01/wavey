@@ -296,6 +296,8 @@ class @AudioEditor extends E.Component
 						@seek_to_start()
 					when 35 # End
 						@seek_to_end()
+					else
+						return # don't prevent default
 			
 			e.preventDefault()
 	
