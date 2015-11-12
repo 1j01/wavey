@@ -1,14 +1,64 @@
 
 class @AudioEditor extends E.Component
+	
+	copy_of = (o)-> JSON.parse JSON.stringify o
+	
 	constructor: ->
 		@state =
+			tracks: [
+				{clips: []}
+			]
+			undos: []
+			redos: []
 			playing: no
 			track_sources: []
 			position: null
 			position_time: null
 	
+	save: ->
+		{document_id} = @props
+		{tracks, undos, redos} = @state
+		localforage.setItem "#{document_id}/tracks", tracks, (err)=>
+			if err
+				alert "Failed to store track metadata.\n#{err.message}"
+				console.error err
+			else
+				render()
+		localforage.setItem "#{document_id}/undos", undos
+		localforage.setItem "#{document_id}/redos", redos
+		# @TODO: error handling
+	
+	undoable: (fn)->
+		{tracks, undos, redos} = @state
+		tracks = copy_of tracks
+		undos = copy_of undos
+		redos = []
+		undos.push copy_of tracks
+		fn tracks
+		@setState {tracks, undos, redos}
+	
+	undo: ->
+		{tracks, undos, redos} = @state
+		return unless undos.length
+		tracks = copy_of tracks
+		undos = copy_of undos
+		redos = copy_of redos
+		redos.push copy_of tracks
+		tracks = undos.pop()
+		@setState {tracks, undos, redos}
+	
+	redo: ->
+		{tracks, undos, redos} = @state
+		return unless redos.length
+		tracks = copy_of tracks
+		undos = copy_of undos
+		redos = copy_of redos
+		undos.push copy_of tracks
+		tracks = redos.pop()
+		@setState {tracks, undos, redos}
+	
 	get_max_length: ->
-		{tracks} = @props
+		{tracks} = @state
 		
 		max_length = 0
 		for track in tracks
@@ -64,7 +114,7 @@ class @AudioEditor extends E.Component
 		if from_time >= max_length or from_time < 0
 			from_time = 0
 		
-		{tracks} = @props
+		{tracks} = @state
 		
 		@setState
 			tid: setTimeout @pause, (max_length - from_time) * 1000 + 20
@@ -105,17 +155,15 @@ class @AudioEditor extends E.Component
 			@seek @get_current_position()
 	
 	set_track_prop: (track_index, prop, value)->
-		{tracks, save_tracks} = @props
-		undoable()
-		tracks[track_index][prop] = value
-		save_tracks()
+		@undoable (tracks)=>
+			tracks[track_index][prop] = value
 		
 		if prop is "muted" and @state.playing
 			for source in @state.track_sources[track_index]
 				source.gain.gain.value = if value then 0 else 1
 	
 	add_clip: (file, track_index, time=0)->
-		{document_id, tracks, save_tracks} = @props
+		{document_id} = @props
 		reader = new FileReader
 		reader.onload = (e)=>
 			array_buffer = e.target.result
@@ -131,19 +179,16 @@ class @AudioEditor extends E.Component
 						AudioClip.audio_buffers_by_clip_id[id] = buffer
 						clip = {time, id}
 						
-						undoable()
-						
-						# @TODO: add tracks earlier with a loading indicator and remove them if an error occurs
-						# and make it so you can't edit them while they're loading (e.g. pasting audio where audio is already going to be)
-						unless track_index?
-							track_index = tracks.length - 1
-							if tracks[track_index].clips.length > 0
-								tracks.push {clips: []}
+						@undoable (tracks)=>
+							# @TODO: add tracks earlier with a loading indicator and remove them if an error occurs
+							# and make it so you can't edit them while they're loading (e.g. pasting audio where audio is already going to be)
+							unless track_index?
 								track_index = tracks.length - 1
-						
-						tracks[track_index].clips.push clip
-						save_tracks()
-						@update_playback()
+								if tracks[track_index].clips.length > 0
+									tracks.push {clips: []}
+									track_index = tracks.length - 1
+							
+							tracks[track_index].clips.push clip
 			, (e)=>
 				alert "Audio not playable or not supported."
 				console.error e
@@ -153,8 +198,43 @@ class @AudioEditor extends E.Component
 			console.error e
 		
 		reader.readAsArrayBuffer file
-
+	
+	componentDidUpdate: (last_props, last_state)=>
+		{document_id} = @props
+		{tracks, undos, redos} = @state
+		if (
+			tracks isnt last_state.tracks or
+			undos isnt last_state.undos or
+			redos isnt last_state.redos
+		)
+			@save()
+			@update_playback()
+			AudioClip.load_clips(tracks, document_id)
+	
 	componentDidMount: =>
+		{document_id} = @props
+		
+		localforage.getItem "#{document_id}/tracks", (err, tracks)=>
+			if err
+				alert "Failed to load the document.\n#{err.message}"
+				console.error err
+			else if tracks
+				@setState {tracks}
+				
+				localforage.getItem "#{document_id}/undos", (err, undos)=>
+					if err
+						alert "Failed to load undo history.\n#{err.message}"
+						console.error err
+					else if undos
+						@setState {undos}
+				
+				localforage.getItem "#{document_id}/redos", (err, redos)=>
+					if err
+						alert "Failed to load redo history.\n#{err.message}"
+						console.error err
+					else if redos
+						@setState {redos}
+		
 		window.addEventListener "keydown", (e)=>
 			return if e.defaultPrevented
 			return if e.altKey
@@ -176,9 +256,9 @@ class @AudioEditor extends E.Component
 					when 86 # V
 						@TODO.paste() unless e.shiftKey
 					when 90 # Z
-						if e.shiftKey then redo() else undo()
+						if e.shiftKey then @redo() else @undo()
 					when 89 # Y
-						redo() unless e.shiftKey
+						@redo() unless e.shiftKey
 					else
 						return # don't prevent default
 			else
@@ -208,8 +288,8 @@ class @AudioEditor extends E.Component
 			e.preventDefault()
 	
 	render: ->
-		{playing, position, position_time} = @state
-		{tracks, save_tracks, themes, set_theme} = @props
+		{tracks, playing, position, position_time} = @state
+		{themes, set_theme} = @props
 		
 		window.alert = (message)=>
 			@setState alert_message: message
@@ -237,10 +317,8 @@ class @AudioEditor extends E.Component
 			@set_track_prop track_index, "pinned", off
 		
 		remove_track = (track_index)=>
-			undoable()
-			tracks.splice track_index, 1
-			save_tracks()
-			@update_playback()
+			@undoable (tracks)=>
+				tracks.splice track_index, 1
 		
 		add_clip = @add_clip
 		

@@ -48,72 +48,7 @@ update_from_hash()
 set_theme = (theme)->
 	location.hash = "theme=#{theme}"
 
-tracks = [
-	{clips: []}
-]
 document_id = (location.hash.match(/document=([\w\-./]*)/) ? [0, "d1"])[1]
 
-undos = []
-redos = []
-
-save_tracks = ->
-	render()
-	localforage.setItem "#{document_id}/tracks", tracks, (err)=>
-		if err
-			alert "Failed to store track metadata.\n#{err.message}"
-			console.error err
-		else
-			render()
-	localforage.setItem "#{document_id}/undos", undos
-	localforage.setItem "#{document_id}/redos", redos
-	# @TODO: error handling
-
-@undoable = ->
-	redos = []
-	undos.push JSON.parse JSON.stringify tracks
-	save_tracks()
-
-@undo = ->
-	return unless undos.length
-	redos.push JSON.parse JSON.stringify tracks
-	tracks = undos.pop()
-	save_tracks()
-	AudioClip.load_clips(tracks, document_id)
-	# @TODO: AudioEditor#update_playback()
-
-@redo = ->
-	return unless redos.length
-	undos.push JSON.parse JSON.stringify tracks
-	tracks = redos.pop()
-	save_tracks()
-	AudioClip.load_clips(tracks, document_id)
-	# @TODO: AudioEditor#update_playback()
-
-
 do @render = ->
-	React.render (E AudioEditor, {document_id, tracks, save_tracks, themes, set_theme}), document.body
-
-localforage.getItem "#{document_id}/tracks", (err, _tracks)=>
-	if err
-		alert "Failed to load the document.\n#{err.message}"
-		console.error err
-	else if _tracks
-		tracks = _tracks
-		render()
-		AudioClip.load_clips(tracks, document_id)
-		
-		localforage.getItem "#{document_id}/undos", (err, _undos)=>
-			if err
-				alert "Failed to load undo history.\n#{err.message}"
-				console.error err
-			else if _undos
-				undos = _undos
-				render()
-		
-		localforage.getItem "#{document_id}/redos", (err, _redos)=>
-			if err
-				alert "Failed to load redo history.\n#{err.message}"
-				console.error err
-			else if _redos
-				redos = _redos
-				render()
+	React.render (E AudioEditor, {document_id, themes, set_theme}), document.body
