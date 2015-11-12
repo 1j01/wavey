@@ -117,10 +117,17 @@ class @AudioEditor extends E.Component
 		window.addEventListener "keydown", (e)=>
 			return if e.defaultPrevented
 			return if e.altKey
+			
 			if e.ctrlKey
 				switch e.keyCode
 					when 65 # A
 						@TODO.select_all() unless e.shiftKey
+					when 83 # S
+						if e.shiftKey then @TODO.save_as() else @TODO.save()
+					when 79 # O
+						@TODO.open() unless e.shiftKey
+					when 78 # N
+						@TODO.new() unless e.shiftKey
 					when 88 # X
 						@TODO.cut() unless e.shiftKey
 					when 67 # C
@@ -128,14 +135,15 @@ class @AudioEditor extends E.Component
 					when 86 # V
 						@TODO.paste() unless e.shiftKey
 					when 90 # Z
-						if e.shiftKey then @TODO.redo() else @TODO.undo()
+						if e.shiftKey then redo() else undo()
 					when 89 # Y
-						@TODO.redo() unless e.shiftKey
+						redo() unless e.shiftKey
+					else
+						return # don't prevent default
 			else
 				switch e.keyCode
 					when 32 # Spacebar
 						unless e.target.tagName.match /button/i
-							e.preventDefault()
 							if @state.playing
 								@pause()
 							else
@@ -155,6 +163,8 @@ class @AudioEditor extends E.Component
 						@seek_to_start()
 					when 35 # End
 						@seek_to_end()
+			
+			e.preventDefault()
 	
 	render: ->
 		{playing, position, position_time} = @state
@@ -186,6 +196,7 @@ class @AudioEditor extends E.Component
 			@set_track_prop track_index, "pinned", off
 		
 		remove_track = (track_index)=>
+			undoable()
 			tracks.splice track_index, 1
 			save_tracks()
 			@update_playback()

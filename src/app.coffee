@@ -53,6 +53,9 @@ tracks = [
 ]
 document_id = (location.hash.match(/document=([\w\-./]*)/) ? [0, "d1"])[1]
 
+undos = []
+redos = []
+
 save_tracks = ->
 	render()
 	localforage.setItem "#{document_id}/tracks", tracks, (err)=>
@@ -61,16 +64,39 @@ save_tracks = ->
 			console.error err
 		else
 			render()
+	localforage.setItem "#{document_id}/undos", undos
+	localforage.setItem "#{document_id}/redos", redos
+	# @TODO: error handling
+	# @TODO: load these back for persistant undos/redos
+
+@undoable = ->
+	undos.push JSON.parse JSON.stringify tracks
+
+@undo = ->
+	return unless undos.length
+	redos.push JSON.parse JSON.stringify tracks
+	tracks = undos.pop()
+	save_tracks()
+	# @TODO: AudioEditor#update_playback()
+
+@redo = ->
+	return unless redos.length
+	undos.push JSON.parse JSON.stringify tracks
+	tracks = redos.pop()
+	save_tracks()
+	# @TODO: AudioEditor#update_playback()
+
 
 audio_buffers_by_clip_id = {}
 
 @audio_buffer_for_clip = (clip_id)->
 	audio_buffers_by_clip_id[clip_id]
 
+
 do render = ->
 	React.render (E AudioEditor, {tracks, save_tracks, themes, set_theme}), document.body
 
-load_clip_data = (clip)->
+load_clip = (clip)->
 	localforage.getItem "#{document_id}/#{clip.id}", (err, array_buffer)=>
 		if err
 			alert "Failed to load audio data.\n#{err.message}"
@@ -93,7 +119,7 @@ localforage.getItem "#{document_id}/tracks", (err, trax)=>
 		render()
 		for track in tracks
 			for clip in track.clips
-				load_clip_data clip
+				load_clip clip
 
 @add_clip = (file, track_index, time=0)->
 	reader = new FileReader
@@ -119,8 +145,10 @@ localforage.getItem "#{document_id}/tracks", (err, trax)=>
 							tracks.push {clips: []}
 							track_index = tracks.length - 1
 					
+					undoable()
 					tracks[track_index].clips.push clip
 					save_tracks()
+					# @TODO: AudioEditor#update_playback()
 		, (e)=>
 			alert "Audio not playable or not supported."
 			console.error e
