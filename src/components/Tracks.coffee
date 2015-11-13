@@ -5,24 +5,6 @@ class @Tracks extends E.Component
 	render: ->
 		{tracks, position, position_time, playing, editor} = @props
 		
-		track_index = 0
-		track_components = []
-		for track_id, track of tracks
-			track_components.push (
-				switch track.type
-					when "beat"
-						E BeatTrack, {key: track_id, track, track_id, editor}
-					when "audio"
-						E AudioTrack, {
-							key: track_id, track, track_id
-							position, position_time, playing, editor
-							selection: (@state.selection if @state.selection?.containsTrackIndex track_index)
-						}
-					else
-						E UnknownTrack, {key: track_id, track, track_id, editor}
-			)
-			track_index += 1
-
 		E ".tracks",
 			# @TODO: touch support
 			onMouseDown: (e)=>
@@ -70,4 +52,15 @@ class @Tracks extends E.Component
 					unless mouse_moved
 						editor.seek t
 			
-			track_components
+			for track, track_index in tracks
+				switch track.type
+					when "beat"
+						E BeatTrack, {key: track.id, track, editor}
+					when "audio"
+						E AudioTrack, {
+							key: track.id, track
+							position, position_time, playing, editor
+							selection: (@state.selection if @state.selection?.containsTrackIndex track_index)
+						}
+					else
+						E UnknownTrack, {key: track.id, track, editor}

@@ -5,13 +5,14 @@ class @AudioEditor extends E.Component
 	
 	constructor: ->
 		@state =
-			tracks: {
-				"beat-track": {
+			tracks: [
+				{
+					id: "beat-track"
 					type: "beat"
 					muted: yes
 					pinned: yes
 				}
-			}
+			]
 			undos: []
 			redos: []
 			playing: no
@@ -73,7 +74,7 @@ class @AudioEditor extends E.Component
 		{tracks} = @state
 		
 		max_length = 0
-		for track_id, track of tracks when track.type is "audio"
+		for track in tracks when track.type is "audio"
 			for clip in track.clips
 				audio_buffer = AudioClip.audio_buffers_by_clip_id[clip.id]
 				if audio_buffer
@@ -140,7 +141,7 @@ class @AudioEditor extends E.Component
 			playing: yes
 			track_sources:
 				# @TODO: metronome when beat track is unmuted
-				for track_id, track of tracks when track.type is "audio"
+				for track in tracks when track.type is "audio"
 					for clip in track.clips
 						source = actx.createBufferSource()
 						source.gain = actx.createGain()
@@ -169,7 +170,8 @@ class @AudioEditor extends E.Component
 	
 	set_track_prop: (track_id, prop, value)->
 		@undoable (tracks)=>
-			tracks[track_id][prop] = value
+			for track in tracks when track.id is track_id
+				track[prop] = value
 	
 	mute_track: (track_id)=>
 		@set_track_prop track_id, "muted", on
@@ -185,8 +187,8 @@ class @AudioEditor extends E.Component
 	
 	remove_track: (track_id)=>
 		@undoable (tracks)=>
-			delete tracks[track_id]
-			# @TODO: splice from track_order?
+			for track, i in tracks when track.id is track_id
+				tracks.splice i, 1
 	
 	add_clip: (file, track_id, time=0)->
 		{document_id} = @props
@@ -208,17 +210,17 @@ class @AudioEditor extends E.Component
 						@undoable (tracks)=>
 							# @TODO: add tracks earlier with a loading indicator and remove them if an error occurs
 							# and make it so you can't edit them while they're loading (e.g. pasting audio where audio is already going to be)
-							unless track_id?
-								for _track_id, _track of tracks when _track.type is "audio"
-									last_track = _track
-									last_track_id = _track_id
+							if track_id?
+								track = _track for _track in tracks when _track.id is track_id
+							else
+								last_track = _track for _track in tracks when _track.type is "audio"
 								if last_track?.clips?.length is 0
-									track_id = last_track_id
+									track = last_track
 								else
-									track_id = GUID()
-									tracks[track_id] = {type: "audio", clips: []}
+									track = {id: GUID(), type: "audio", clips: []}
+									tracks.push track
 							
-							tracks[track_id].clips.push clip
+							track.clips.push clip
 			, (e)=>
 				InfoBar.warn "Audio not playable or not supported."
 				console.error e
