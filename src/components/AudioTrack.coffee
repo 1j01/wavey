@@ -45,12 +45,13 @@ class @AudioTrack extends E.Component
 				if selection?
 					E ".selection",
 						key: "selection"
+						className: ("cursor" if selection.end() is selection.start())
 						style:
 							left: scale * selection.start()
 							width: scale * (selection.end() - selection.start())
 				if position?
 					E ".position",
-						ref: (c)=> @position_indicator = c
+						ref: (@position_indicator)=>
 						key: "position"
 						style:
 							left: scale * position

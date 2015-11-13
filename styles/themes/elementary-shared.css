@@ -38,6 +38,7 @@
 	box-shadow: 0 0 0px 1px rgba(0, 193, 255, 0.5);
 }
 .position {
+	transform: translateX(-1px);
 	border-left: 1px solid white;
 	border-right: 1px solid black;
 }

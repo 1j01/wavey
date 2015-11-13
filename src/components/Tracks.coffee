@@ -69,6 +69,5 @@ class @Tracks extends E.Component
 					window.removeEventListener "mousemove", onMouseMove
 					unless mouse_moved
 						editor.seek t
-						@setState selection: null
 			
 			track_components

@@ -51,11 +51,21 @@
 	height: 1em;
 }
 
+.audio-clip {
+	height: 100%;
+}
+
 .selection,
 .position {
 	position: absolute;
 	top: 0;
 	height: 100%;
+}
+.selection {
+	z-index: 1;
+}
+.position {
+	pointer-events: none;
 }
 
 /* @TODO: remove Gtk-isms */

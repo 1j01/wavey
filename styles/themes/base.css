@@ -39,9 +39,15 @@
 
 .position {
 	border-left: 1px solid currentColor;
+	opacity: 0.5;
 }
+/* This would be if we were doing an Audacity sort of thing.
+.audio-editor:not(.playing) .position {
+	opacity: 0;
+}
+*/
 .track:not(:last-child) .position {
-	height: 150%;
+	height: calc(100% + 10px); /* = .track{height} + .track{padding-top} + .track{padding-bottom} */
 }
 
 .audio-editor button:focus {

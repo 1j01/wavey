@@ -67,3 +67,8 @@
 .selection {
 	box-shadow: 0 0 0px 1px currentColor;
 }
+.selection.cursor { /* 0-width selection */
+	box-shadow: none;
+	border-left: 1px solid currentColor;
+	opacity: 0.7;
+}
