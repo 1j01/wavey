@@ -22,8 +22,14 @@
 	height: 24px;
 }
 
-.beat-track .track-content {
+.beat-track .track-content,
+.unknown-track .track-content {
 	height: 24px; /* = height of buttons */
+}
+.unknown-track .track-content {
+	display: flex;
+	align-items: center;
+	padding: 0 3px;
 }
 
 .selection {

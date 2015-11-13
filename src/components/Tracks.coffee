@@ -9,14 +9,17 @@ class @Tracks extends E.Component
 		track_components = []
 		for track_id, track of tracks
 			track_components.push (
-				if track_id is "beat-track"
-					E BeatTrack, {key: track_id, track, track_id, editor}
-				else
-					E AudioTrack, {
-						key: track_id, track, track_id
-						position, position_time, playing, editor
-						selection: (@state.selection if @state.selection?.containsTrackIndex track_index)
-					}
+				switch track.type
+					when "beat"
+						E BeatTrack, {key: track_id, track, track_id, editor}
+					when "audio"
+						E AudioTrack, {
+							key: track_id, track, track_id
+							position, position_time, playing, editor
+							selection: (@state.selection if @state.selection?.containsTrackIndex track_index)
+						}
+					else
+						E UnknownTrack, {key: track_id, track, track_id, editor}
 			)
 			track_index += 1
 

@@ -7,6 +7,7 @@ class @AudioEditor extends E.Component
 		@state =
 			tracks: {
 				"beat-track": {
+					type: "beat"
 					muted: yes
 					pinned: yes
 				}
@@ -64,7 +65,7 @@ class @AudioEditor extends E.Component
 		{tracks} = @state
 		
 		max_length = 0
-		for track_id, track of tracks when track.clips
+		for track_id, track of tracks when track.type is "audio"
 			for clip in track.clips
 				audio_buffer = AudioClip.audio_buffers_by_clip_id[clip.id]
 				if audio_buffer
@@ -131,7 +132,7 @@ class @AudioEditor extends E.Component
 			playing: yes
 			track_sources:
 				# @TODO: metronome when beat track is unmuted
-				for track_id, track of tracks when track.clips
+				for track_id, track of tracks when track.type is "audio"
 					for clip in track.clips
 						source = actx.createBufferSource()
 						source.gain = actx.createGain()
@@ -200,14 +201,14 @@ class @AudioEditor extends E.Component
 							# @TODO: add tracks earlier with a loading indicator and remove them if an error occurs
 							# and make it so you can't edit them while they're loading (e.g. pasting audio where audio is already going to be)
 							unless track_id?
-								for _track_id, _track of tracks
+								for _track_id, _track of tracks when _track.type is "audio"
 									last_track = _track
 									last_track_id = _track_id
 								if last_track?.clips?.length is 0
 									track_id = last_track_id
 								else
 									track_id = GUID()
-									tracks[track_id] = {clips: []}
+									tracks[track_id] = {type: "audio", clips: []}
 							
 							tracks[track_id].clips.push clip
 			, (e)=>

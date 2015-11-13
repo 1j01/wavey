@@ -19,7 +19,7 @@ class @AudioClip extends E.Component
 				console.warn "An audio clip is missing from storage.", clip_id
 	
 	@load_clips = (tracks, document_id)->
-		for track_id, track of tracks when track.clips
+		for track_id, track of tracks when track.type is "audio"
 			for clip in track.clips
 				@load_clip clip.id, document_id
 	
