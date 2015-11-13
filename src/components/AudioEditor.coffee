@@ -247,7 +247,7 @@ class @AudioEditor extends E.Component
 		
 		@load()
 		
-		window.addEventListener "keydown", (e)=>
+		window.addEventListener "keydown", @keydown_listener = (e)=>
 			return if e.defaultPrevented
 			return if e.altKey
 			
@@ -300,6 +300,10 @@ class @AudioEditor extends E.Component
 						return # don't prevent default
 			
 			e.preventDefault()
+	
+	componentWillUnmount: ->
+		@pause()
+		window.removeEventListener "keydown", @keydown_listener
 	
 	render: ->
 		{tracks, playing, position, position_time} = @state
