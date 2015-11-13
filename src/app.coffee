@@ -29,38 +29,27 @@ patch_elementary_classes = ->
 			el.classList.add "active"
 			el.classList.add "csd"
 
+hacky_interval = null
+
 set_theme = (theme)->
-	# @TODO: store this outside of the URL
-	if location.hash.match(/theme=([\w\-./]*)/)
-		location.hash = location.hash.replace /theme=([\w\-./]*)/, "theme=#{theme}"
-	else if location.hash.match(/document=([\w\-./]*)/)
-		location.hash += ";theme=#{theme}"
-	else
-		location.hash = "theme=#{theme}"
+	localforage.setItem "theme", theme
+	
+	theme_link = document.getElementById "theme"
+	theme_link.href = "styles/themes/#{theme}.css"
+	
+	if theme.match /elementary/
+		unless hacky_interval
+			hacky_interval = setInterval patch_elementary_classes, 150
+			window.addEventListener "mousedown", patch_elementary_classes
+			window.addEventListener "mouseup", patch_elementary_classes
+			window.addEventListener "keydown", patch_elementary_classes
 
-get_document_id = ->
-	(location.hash.match(/document=([\w\-./]*)/) ? [0, "default"])[1]
-
-document_id = get_document_id()
+localforage.getItem "theme", (err, theme)->
+	set_theme theme if theme
 
 @render = ->
+	document_id = (location.hash.match(/document=([\w\-./]*)/) ? [0, "default"])[1]
 	React.render (E AudioEditor, {key: document_id, document_id, themes, set_theme}), document.body
 
-hacky_interval = null
-update_from_hash = ->
-	document_id = get_document_id()
-	if m = location.hash.match /theme=([\w\-./]*)/
-		theme = m[1]
-		theme_link = document.getElementById "theme"
-		theme_link.href = "styles/themes/#{theme}.css"
-		
-		if theme.match /elementary/
-			unless hacky_interval
-				hacky_interval = setInterval patch_elementary_classes, 150
-				window.addEventListener "mousedown", patch_elementary_classes
-				window.addEventListener "mouseup", patch_elementary_classes
-				window.addEventListener "keydown", patch_elementary_classes
-	render()
-
-window.addEventListener "hashchange", update_from_hash
-update_from_hash()
+window.addEventListener "hashchange", render
+render()
