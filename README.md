@@ -1,9 +1,9 @@
 
-# [![](images/icon-32.png) Audio Editor](http://1j01.github.io/audio-editor/)
+# [![](images/icon-32.png) Audio Editor][app]
 
-[This is the audio editor of the future.](http://1j01.github.io/audio-editor/)
+[This is the audio editor of the future.][app]
 
-And by that, I partially mean that it will *be* an audio editor *in* the future.
+And by that, I partially mean that it will be an audio editor *in* the future.
 
 
 ### Features
@@ -11,7 +11,7 @@ And by that, I partially mean that it will *be* an audio editor *in* the future.
 * Drag and drop audio files
 * Always saved locally
 * Persistent undo/redo
-* Oohy-guiy
+* Several themes, including light and dark [elementary OS][] themes via [elementary.css][], and some retro themes
 
 
 ### Future Features
@@ -23,17 +23,10 @@ Tracks will be able to be pinned to the top, which should easy the pain when you
 You will be able to "precord" up to five minutes or as long as precording has been enabled. 
 
 
-### Themes
-
-* [elementary](http://1j01.github.io/audio-editor/#theme=elementary) ([elementary.css](https://github.com/1j01/elementary.css/))
-* [elementary Dark](http://1j01.github.io/audio-editor/#theme=elementary-dark) ([elementary.css](https://github.com/1j01/elementary.css/))
-* [Monochrome Aqua](http://1j01.github.io/audio-editor/#theme=retro/aqua)
-* [Monochrome Green](http://1j01.github.io/audio-editor/#theme=retro/green)
-* [Monochrome Amber](http://1j01.github.io/audio-editor/#theme=retro/amber)
-* [Ambergine](http://1j01.github.io/audio-editor/#theme=retro/ambergine) (amber + eggplant)
-* [Chroma](http://1j01.github.io/audio-editor/#theme=retro/chroma) (the current default)
-
-
 -------
 
 What do you think of the name Wavey editor? (not "Wavy" editor)
+
+[app]: http://1j01.github.io/audio-editor/
+[elementary OS]: https://elementary.io/
+[elementary.css]: https://github.com/1j01/elementary.css/
