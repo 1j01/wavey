@@ -22,15 +22,23 @@ class @AudioEditor extends E.Component
 	save: ->
 		{document_id} = @props
 		{tracks, undos, redos} = @state
-		localforage.setItem "#{document_id}/tracks", tracks, (err)=>
+		doc = {tracks, undos, redos}
+		localforage.setItem "#{document_id}", doc, (err)=>
 			if err
-				InfoBar.warn "Failed to store track metadata.\n#{err.message}"
+				InfoBar.warn "Failed to save the document.\n#{err.message}"
 				console.error err
 			else
 				render()
-		localforage.setItem "#{document_id}/undos", undos
-		localforage.setItem "#{document_id}/redos", redos
-		# @TODO: error handling
+	
+	load: ->
+		{document_id} = @props
+		localforage.getItem "#{document_id}", (err, doc)=>
+			if err
+				InfoBar.warn "Failed to load the document.\n#{err.message}"
+				console.error err
+			else if doc
+				{tracks, undos, redos} = doc
+				@setState {tracks, undos, redos}
 	
 	undoable: (fn)->
 		{tracks, undos, redos} = @state
@@ -234,28 +242,8 @@ class @AudioEditor extends E.Component
 			AudioClip.load_clips(tracks, document_id)
 	
 	componentDidMount: =>
-		{document_id} = @props
 		
-		localforage.getItem "#{document_id}/tracks", (err, tracks)=>
-			if err
-				InfoBar.warn "Failed to load the document.\n#{err.message}"
-				console.error err
-			else if tracks
-				@setState {tracks}
-				
-				localforage.getItem "#{document_id}/undos", (err, undos)=>
-					if err
-						InfoBar.warn "Failed to load undo history.\n#{err.message}"
-						console.error err
-					else if undos
-						@setState {undos}
-				
-				localforage.getItem "#{document_id}/redos", (err, redos)=>
-					if err
-						InfoBar.warn "Failed to load redo history.\n#{err.message}"
-						console.error err
-					else if redos
-						@setState {redos}
+		@load()
 		
 		window.addEventListener "keydown", (e)=>
 			return if e.defaultPrevented
