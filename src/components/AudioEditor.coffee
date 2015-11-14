@@ -330,7 +330,7 @@ class @AudioEditor extends E.Component
 					
 					for clips, i in clipboard
 						track = tracks[insertion_track_start_index + i]
-						if not track?
+						if not track? and clips.length
 							track = {id: GUID(), type: "audio", clips: []}
 							tracks.push track
 						for clip in clips
