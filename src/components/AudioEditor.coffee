@@ -196,7 +196,7 @@ class @AudioEditor extends E.Component
 				for clip in track.clips
 					buffer = AudioClip.audio_buffers[clip.audio_id]
 					unless buffer?
-						InfoBar.warn "Not all tracks have finished loading."
+						InfoBar.warn "Not all selected tracks have finished loading."
 						return
 					clip_length = clip.length ? buffer.length / buffer.sampleRate
 					clip_end = clip.time + clip_length
@@ -225,14 +225,93 @@ class @AudioEditor extends E.Component
 				track.clips = clips
 	
 	copy: =>
+		{selection, tracks} = @state
+		return unless selection?.length()
 		
+		clipboard = []
+		for track, track_index in tracks when track.type is "audio" and selection.containsTrackIndex track_index
+			clips = []
+			# x = null
+			for clip in track.clips
+				buffer = AudioClip.audio_buffers[clip.audio_id]
+				unless buffer?
+					InfoBar.warn "Not all selected tracks have finished loading."
+					return
+				clip_length = clip.length ? buffer.length / buffer.sampleRate
+				clip_end = clip.time + clip_length
+				clip_start = clip.time
+				if selection.start() < clip_end and selection.end() > clip_start
+					if selection.start() <= clip_start and selection.end() >= clip_end
+						# clip is entirely contained within selection
+						clips.push
+							id: GUID()
+							audio_id: clip.audio_id
+							time: clip_start - selection.start()
+							length: clip_length
+							offset: (clip.offset ? 0)
+					else if selection.start() > clip_start and selection.end() < clip_end
+						# selection is entirely within clip 
+						clips.push
+							id: GUID()
+							audio_id: clip.audio_id
+							time: 0
+							length: selection.length()
+							offset: (clip.offset ? 0) - clip_start + selection.start()
+					else if selection.start() < clip_end < selection.end()
+						# selection overlaps end of clip
+						clips.push
+							id: GUID()
+							audio_id: clip.audio_id
+							time: 0
+							length: clip_end - selection.start()
+							offset: (clip.offset ? 0) - clip_start + selection.start()
+					else if selection.start() < clip_start < selection.end()
+						# selection overlaps start of clip
+						clips.push
+							id: GUID()
+							audio_id: clip.audio_id
+							time: clip_start - selection.start()
+							length: selection.end() - clip_start
+							offset: (clip.offset ? 0)
+					
+					# clips.push
+					# 	id: GUID()
+					# 	audio_id: clip.audio_id
+					# 	time: if x? then clip_start - selection.start() - x else 0
+					# 	length: clip_length # Math.min(clip_length, Math.abs(selection.start() - clip_end), Math.abs(selection.end() - clip_start), selection.length())
+					# 	offset: (clip.offset ? 0) #+ selection.start() - clip_start
+					# x ?= clip_start - selection.start()
+			clipboard.push clips
+		
+		localforage.setItem "clipboard", clipboard, (err)=>
+			if err
+				InfoBar.warn "Failed to store clipboard data.\n#{err.message}"
+				console.error err
 	
 	cut: =>
 		@copy()
 		@delete()
 	
 	paste: =>
-		
+		localforage.getItem "clipboard", (err, clipboard)=>
+			if err
+				InfoBar.warn "Failed to load clipboard data.\n#{err.message}"
+				console.error err
+			else
+				{selection} = @state
+				@undoable (tracks)=>
+					# @TODO: delete selection (just calling @delete() would create an extra undoable)
+					for clips, i in clipboard
+						track = tracks[selection.startTrackIndex() + i]
+						if not track?
+							track = {id: GUID(), type: "audio", clips: []}
+							tracks.push track
+						for clip in clips
+							clip.time += selection.start()
+							clip.id = GUID()
+							track.clips.push clip
+						# @TODO: push things forward
+						# @TODO: select end
 	
 	set_track_prop: (track_id, prop, value)->
 		@undoable (tracks)=>

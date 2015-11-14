@@ -5,7 +5,9 @@
 
 And by that, I partially mean that it will be an audio editor *in* the future.
 
-Well, so far you can *delete* audio, but that's about it as far as editing goes.
+Currently pasting is only partially implemented.
+Recording is not yet implemented.
+There is no way to export the audio to a file yet.
 
 
 ### Features
@@ -23,6 +25,8 @@ Note how the bar with beat markings is a track. It would become a metronome when
 Tracks will be able to be pinned to the top, which should easy the pain when you have many tracks with audio clips you want to line up with some main audio track(s).
 
 You will be able to "precord" up to five minutes or as long as precording has been enabled. 
+
+MIDI is a distinct possibility but not a priority.
 
 
 -------
