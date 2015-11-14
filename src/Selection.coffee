@@ -10,3 +10,5 @@ class @Selection
 	containsTrackIndex: (track_index)-> @startTrackIndex() <= track_index <= @endTrackIndex()
 	@drag: (selection, {to, toTrackIndex})->
 		new Selection selection.a, Math.max(0, to), selection.track_a, Math.max(0, toTrackIndex)
+	@fromJSON: (selection)->
+		new Selection selection.a, selection.b, selection.track_a, selection.track_b

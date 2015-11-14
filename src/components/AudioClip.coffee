@@ -4,6 +4,8 @@ class @AudioClip extends E.Component
 	@audio_buffers = {}
 	@audio_buffers_loading = {}
 	
+	# @TODO: support copying/pasting audio clips between documents
+	
 	@load_clip = (clip, document_id)=>
 		return if AudioClip.audio_buffers[clip.audio_id]?
 		return if AudioClip.audio_buffers_loading[clip.audio_id]?

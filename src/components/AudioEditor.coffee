@@ -23,8 +23,8 @@ class @AudioEditor extends E.Component
 	
 	save: ->
 		{document_id} = @props
-		{tracks, undos, redos} = @state
-		doc = {tracks, undos, redos}
+		{tracks, selection, undos, redos} = @state
+		doc = {state: {tracks, selection}, undos, redos}
 		localforage.setItem "#{document_id}", doc, (err)=>
 			if err
 				InfoBar.warn "Failed to save the document.\n#{err.message}"
@@ -39,39 +39,49 @@ class @AudioEditor extends E.Component
 				InfoBar.warn "Failed to load the document.\n#{err.message}"
 				console.error err
 			else if doc
-				{tracks, undos, redos} = doc
+				{state, undos, redos} = doc
+				{tracks, selection} = state
 				@setState {tracks, undos, redos}
+				@select Selection.fromJSON selection if selection?
 	
 	undoable: (fn)->
-		{tracks, undos, redos} = @state
+		{tracks, selection, undos, redos} = @state
 		tracks = copy_of tracks
 		undos = copy_of undos
 		redos = []
-		undos.push copy_of tracks
+		undos.push
+			tracks: copy_of tracks
+			selection: copy_of selection
 		fn tracks
 		@setState {tracks, undos, redos}
 	
 	undo: ->
-		{tracks, undos, redos} = @state
+		{tracks, selection, undos, redos} = @state
 		return unless undos.length
 		tracks = copy_of tracks
 		undos = copy_of undos
 		redos = copy_of redos
-		redos.push copy_of tracks
-		tracks = undos.pop()
+		redos.push
+			tracks: copy_of tracks
+			selection: copy_of selection
+		{tracks, selection} = undos.pop()
 		@setState {tracks, undos, redos}
+		@select Selection.fromJSON selection if selection?
 	
 	redo: ->
-		{tracks, undos, redos} = @state
+		{tracks, selection, undos, redos} = @state
 		return unless redos.length
 		tracks = copy_of tracks
 		undos = copy_of undos
 		redos = copy_of redos
-		undos.push copy_of tracks
-		tracks = redos.pop()
+		undos.push
+			tracks: copy_of tracks
+			selection: copy_of selection
+		{tracks, selection} = redos.pop()
 		@setState {tracks, undos, redos}
+		@select Selection.fromJSON selection if selection?
 	
-	# @TODO: include selection in undo/redo, soft undo/redo
+	# @TODO: soft undo/redo
 	
 	get_max_length: ->
 		{tracks} = @state
