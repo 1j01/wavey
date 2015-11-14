@@ -71,6 +71,8 @@ class @AudioEditor extends E.Component
 		tracks = redos.pop()
 		@setState {tracks, undos, redos}
 	
+	# @TODO: include selection in undo/redo, soft undo/redo
+	
 	get_max_length: ->
 		{tracks} = @state
 		
@@ -79,7 +81,7 @@ class @AudioEditor extends E.Component
 			for clip in track.clips
 				audio_buffer = AudioClip.audio_buffers[clip.audio_id]
 				if audio_buffer
-					max_length = Math.max max_length, clip.time + audio_buffer.length / audio_buffer.sampleRate
+					max_length = Math.max max_length, clip.time + clip.length
 				else
 					InfoBar.warn "Not all tracks have finished loading."
 					return
@@ -151,14 +153,10 @@ class @AudioEditor extends E.Component
 						source.gain.connect actx.destination
 						source.gain.gain.value = if track.muted then 0 else 1
 						
-						# @TODO: always have clip.length and clip.offset defined
-						# also maybe rename clip.time to clip.start_time or clip.start
-						clip_length = clip.length ? source.buffer.length / source.buffer.sampleRate
-						clip_offset = clip.offset ? 0
-						
+						# @TODO: maybe rename clip.time to clip.start_time or clip.start
 						start_time = Math.max(0, clip.time - from_time)
-						starting_offset_into_clip = Math.max(0, from_time - clip.time) + clip_offset
-						length_to_play_of_clip = clip_length - Math.max(0, from_time - clip.time)
+						starting_offset_into_clip = Math.max(0, from_time - clip.time) + clip.offset
+						length_to_play_of_clip = clip.length - Math.max(0, from_time - clip.time)
 						
 						if length_to_play_of_clip > 0
 							source.start actx.currentTime + start_time, starting_offset_into_clip, length_to_play_of_clip
@@ -198,8 +196,7 @@ class @AudioEditor extends E.Component
 					unless buffer?
 						InfoBar.warn "Not all selected tracks have finished loading."
 						return
-					clip_length = clip.length ? buffer.length / buffer.sampleRate
-					clip_end = clip.time + clip_length
+					clip_end = clip.time + clip.length
 					clip_start = clip.time
 					if selection.start() < clip_end and selection.end() > clip_start
 						if selection.start() > clip_start
@@ -208,18 +205,18 @@ class @AudioEditor extends E.Component
 								audio_id: clip.audio_id
 								time: clip_start
 								length: selection.start() - clip_start
-								offset: (clip.offset ? 0)
+								offset: clip.offset
 						if selection.end() < clip_end
 							clips.push
 								id: GUID()
 								audio_id: clip.audio_id
 								time: selection.start()
 								length: clip_end - selection.end()
-								offset: (clip.offset ? 0) + selection.end() - clip_start
+								offset: clip.offset + selection.end() - clip_start
 						@select new Selection selection.start(), selection.start(), selection.startTrackIndex(), selection.endTrackIndex()
 						@seek selection.start()
 					else
-						if clip_start > selection.end()
+						if clip_start >= selection.end()
 							clip.time -= selection.length()
 						clips.push clip
 				track.clips = clips
@@ -231,14 +228,12 @@ class @AudioEditor extends E.Component
 		clipboard = []
 		for track, track_index in tracks when track.type is "audio" and selection.containsTrackIndex track_index
 			clips = []
-			# x = null
 			for clip in track.clips
 				buffer = AudioClip.audio_buffers[clip.audio_id]
 				unless buffer?
 					InfoBar.warn "Not all selected tracks have finished loading."
 					return
-				clip_length = clip.length ? buffer.length / buffer.sampleRate
-				clip_end = clip.time + clip_length
+				clip_end = clip.time + clip.length
 				clip_start = clip.time
 				if selection.start() < clip_end and selection.end() > clip_start
 					if selection.start() <= clip_start and selection.end() >= clip_end
@@ -247,8 +242,8 @@ class @AudioEditor extends E.Component
 							id: GUID()
 							audio_id: clip.audio_id
 							time: clip_start - selection.start()
-							length: clip_length
-							offset: (clip.offset ? 0)
+							length: clip.length
+							offset: clip.offset
 					else if selection.start() > clip_start and selection.end() < clip_end
 						# selection is entirely within clip 
 						clips.push
@@ -256,7 +251,7 @@ class @AudioEditor extends E.Component
 							audio_id: clip.audio_id
 							time: 0
 							length: selection.length()
-							offset: (clip.offset ? 0) - clip_start + selection.start()
+							offset: clip.offset - clip_start + selection.start()
 					else if selection.start() < clip_end < selection.end()
 						# selection overlaps end of clip
 						clips.push
@@ -264,7 +259,7 @@ class @AudioEditor extends E.Component
 							audio_id: clip.audio_id
 							time: 0
 							length: clip_end - selection.start()
-							offset: (clip.offset ? 0) - clip_start + selection.start()
+							offset: clip.offset - clip_start + selection.start()
 					else if selection.start() < clip_start < selection.end()
 						# selection overlaps start of clip
 						clips.push
@@ -272,15 +267,7 @@ class @AudioEditor extends E.Component
 							audio_id: clip.audio_id
 							time: clip_start - selection.start()
 							length: selection.end() - clip_start
-							offset: (clip.offset ? 0)
-					
-					# clips.push
-					# 	id: GUID()
-					# 	audio_id: clip.audio_id
-					# 	time: if x? then clip_start - selection.start() - x else 0
-					# 	length: clip_length # Math.min(clip_length, Math.abs(selection.start() - clip_end), Math.abs(selection.end() - clip_start), selection.length())
-					# 	offset: (clip.offset ? 0) #+ selection.start() - clip_start
-					# x ?= clip_start - selection.start()
+							offset: clip.offset
 			clipboard.push clips
 		
 		localforage.setItem "clipboard", clipboard, (err)=>
@@ -300,18 +287,57 @@ class @AudioEditor extends E.Component
 			else
 				{selection} = @state
 				@undoable (tracks)=>
+					clipboard_length = 0
+					for clips in clipboard
+						for clip in clips
+							clipboard_length = Math.max(clipboard_length, clip.time + clip.length)
+					
 					# @TODO: delete selection (just calling @delete() would create an extra undoable)
+					
+					if selection?
+						insertion_point = selection.start()
+						insertion_track_start_index = selection.startTrackIndex()
+					else
+						insertion_point = 0
+						insertion_track_start_index = tracks.length
+					
+					insertion_track_end_index = insertion_track_start_index + clipboard.length
+					
+					for track in tracks.slice(insertion_track_start_index, insertion_track_end_index + 1) when track.type is "audio"
+						clips = []
+						for clip in track.clips
+							if clip.time >= insertion_point
+								clip.time += clipboard_length
+								clips.push clip
+							else if clip.time + clip.length >= insertion_point
+								clips.push
+									id: GUID()
+									audio_id: clip.audio_id
+									time: clip.time
+									length: insertion_point - clip.time
+									offset: clip.offset
+								clips.push
+									id: GUID()
+									audio_id: clip.audio_id
+									time: insertion_point + clipboard_length
+									length: clip.length - (insertion_point - clip.time)
+									offset: clip.offset + insertion_point - clip.time
+							else
+								clips.push clip
+						track.clips = clips
+					
 					for clips, i in clipboard
-						track = tracks[selection.startTrackIndex() + i]
+						track = tracks[insertion_track_start_index + i]
 						if not track?
 							track = {id: GUID(), type: "audio", clips: []}
 							tracks.push track
 						for clip in clips
-							clip.time += selection.start()
+							clip.time += insertion_point
 							clip.id = GUID()
 							track.clips.push clip
-						# @TODO: push things forward
-						# @TODO: select end
+					
+					end = insertion_point + clipboard_length
+					@select new Selection end, end, insertion_track_start_index, insertion_track_end_index
 	
 	set_track_prop: (track_id, prop, value)->
 		@undoable (tracks)=>
@@ -334,6 +360,7 @@ class @AudioEditor extends E.Component
 		@undoable (tracks)=>
 			for track, i in tracks when track.id is track_id by -1
 				tracks.splice i, 1
+				# @TODO: remove track from selection
 	
 	add_clip: (file, track_id, time=0)->
 		{document_id} = @props
@@ -350,6 +377,9 @@ class @AudioEditor extends E.Component
 					# TODO: optimize by decoding and storing in parallel, but keep good error handling
 					actx.decodeAudioData array_buffer, (buffer)=>
 						AudioClip.audio_buffers[clip.audio_id] = buffer
+						
+						clip.length = buffer.length / buffer.sampleRate
+						clip.offset = 0
 						
 						@undoable (tracks)=>
 							# @TODO: add tracks earlier with a loading indicator and remove them if an error occurs

@@ -39,7 +39,7 @@ class @AudioTrack extends E.Component
 						style:
 							position: "absolute"
 							left: clip.time * scale
-							# marginTop: (i + 1) * 5
+							# marginTop: (i + 1) * 2
 							# border: "2px dotted ##{clip.id.match /[0-9A-F]{6}/i}"
 				if selection?
 					E ".selection",

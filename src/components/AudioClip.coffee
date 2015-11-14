@@ -24,17 +24,11 @@ class @AudioClip extends E.Component
 				@load_clip clip, document_id
 	
 	render: ->
-		length = 1
-		if @props.clip.length?
-			length = @props.clip.length
-		else if @props.data
-			length = @props.data.length / @props.data.sampleRate
-			
 		E ".audio-clip", style: @props.style,
 			E "canvas",
 				ref: "canvas"
 				height: 80 # = .track-content {height}
-				width: length * scale
+				width: @props.clip.length * scale
 	
 	renderCanvas: ->
 		audio_buffer = @props.data
@@ -46,7 +40,7 @@ class @AudioClip extends E.Component
 		if audio_buffer
 			# @TODO: visualize multiple channels?
 			data = audio_buffer.getChannelData 0
-			offset = @props.clip.offset ? 0
+			offset = @props.clip.offset
 			
 			ctx.beginPath()
 			for x in [0..canvas.width] by 0.1
@@ -59,6 +53,7 @@ class @AudioClip extends E.Component
 	
 	componentDidUpdate: ->
 		@renderCanvas()
+		# @TODO: rerender only when data changed (shouldComponentUpdate can go)
 	
 	componentWillUnmount: ->
 		clearTimeout @tid

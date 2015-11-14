@@ -5,7 +5,7 @@
 
 And by that, I partially mean that it will be an audio editor *in* the future.
 
-Currently pasting is only partially implemented.
+Currently pasting doesn't delete the selection first.
 Recording is not yet implemented.
 There is no way to export the audio to a file yet.
 
