@@ -1,34 +1,40 @@
 
 class @AudioClip extends E.Component
 	
-	@audio_buffers_by_clip_id = {}
+	@audio_buffers = {}
 	
-	@load_clip = (clip_id, document_id)=>
-		return if AudioClip.audio_buffers_by_clip_id[clip_id]?
-		localforage.getItem "#{document_id}/#{clip_id}", (err, array_buffer)=>
+	@load_clip = (clip, document_id)=>
+		return if AudioClip.audio_buffers[clip.audio_id]?
+		localforage.getItem "#{document_id}/#{clip.audio_id}", (err, array_buffer)=>
 			if err
 				InfoBar.error "Failed to load audio data.\n#{err.message}"
 				console.error err
 			else if array_buffer
 				actx.decodeAudioData array_buffer, (buffer)=>
-					AudioClip.audio_buffers_by_clip_id[clip_id] = buffer
+					AudioClip.audio_buffers[clip.audio_id] = buffer
 					InfoBar.hide "Not all tracks have finished loading."
 					render()
 			else
 				InfoBar.warn "An audio clip is missing from storage."
-				console.warn "An audio clip is missing from storage.", clip_id
+				console.warn "An audio clip is missing from storage.", clip
 	
 	@load_clips = (tracks, document_id)->
 		for track in tracks when track.type is "audio"
 			for clip in track.clips
-				@load_clip clip.id, document_id
+				@load_clip clip, document_id
 	
 	render: ->
+		length = 1
+		if @props.clip.length?
+			length = @props.clip.length
+		else if @props.data
+			length = @props.data.length / @props.data.sampleRate
+			
 		E ".audio-clip", style: @props.style,
 			E "canvas",
 				ref: "canvas"
 				height: 80 # = .track-content {height}
-				width: 2000
+				width: length * scale
 	
 	renderCanvas: ->
 		audio_buffer = @props.data
@@ -40,10 +46,11 @@ class @AudioClip extends E.Component
 		if audio_buffer
 			# @TODO: visualize multiple channels?
 			data = audio_buffer.getChannelData 0
+			offset = @props.clip.offset ? 0
 			
 			ctx.beginPath()
 			for x in [0..canvas.width] by 0.1
-				ctx.lineTo x, canvas.height/2 + canvas.height/2 * (data[~~(x/scale*audio_buffer.sampleRate)])
+				ctx.lineTo x, canvas.height/2 + canvas.height/2 * (data[~~((x/scale + offset)*audio_buffer.sampleRate)])
 			ctx.stroke()
 	
 	componentDidMount: ->

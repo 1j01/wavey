@@ -30,15 +30,17 @@ class @AudioTrack extends E.Component
 					# @TODO: add multiple files in sequence, not on top of each other
 					for file in e.dataTransfer.files
 						editor.add_clip file, track.id, time_at e
-				for clip in clips
+				for clip, i in clips
 					E AudioClip,
 						key: clip.id
-						id: clip.id
-						data: AudioClip.audio_buffers_by_clip_id[clip.id]
+						clip: clip
+						data: AudioClip.audio_buffers[clip.audio_id]
 						editor: editor
 						style:
 							position: "absolute"
 							left: clip.time * scale
+							# marginTop: (i + 1) * 5
+							# border: "2px dotted ##{clip.id.match /[0-9A-F]{6}/i}"
 				if selection?
 					E ".selection",
 						key: "selection"

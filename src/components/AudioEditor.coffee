@@ -19,6 +19,7 @@ class @AudioEditor extends E.Component
 			track_sources: []
 			position: null
 			position_time: null
+			selection: null
 	
 	save: ->
 		{document_id} = @props
@@ -76,7 +77,7 @@ class @AudioEditor extends E.Component
 		max_length = 0
 		for track in tracks when track.type is "audio"
 			for clip in track.clips
-				audio_buffer = AudioClip.audio_buffers_by_clip_id[clip.id]
+				audio_buffer = AudioClip.audio_buffers[clip.audio_id]
 				if audio_buffer
 					max_length = Math.max max_length, clip.time + audio_buffer.length / audio_buffer.sampleRate
 				else
@@ -145,19 +146,35 @@ class @AudioEditor extends E.Component
 					for clip in track.clips
 						source = actx.createBufferSource()
 						source.gain = actx.createGain()
-						source.buffer = AudioClip.audio_buffers_by_clip_id[clip.id]
+						source.buffer = AudioClip.audio_buffers[clip.audio_id]
 						source.connect source.gain
 						source.gain.connect actx.destination
 						source.gain.gain.value = if track.muted then 0 else 1
-						source.start actx.currentTime + Math.max(0, clip.time - from_time), Math.max(0, from_time - clip.time)
-						source
+						
+						# @TODO: always have clip.length and clip.offset defined
+						# also maybe rename clip.time to clip.start_time or clip.start
+						clip_length = clip.length ? source.buffer.length / source.buffer.sampleRate
+						clip_offset = clip.offset ? 0
+						
+						start_time = Math.max(0, clip.time - from_time)
+						starting_offset_into_clip = Math.max(0, from_time - clip.time) + clip_offset
+						# length_to_play_of_clip = Math.min(clip_length, offset_into_clip)
+						length_to_play_of_clip = clip_length - Math.max(0, from_time - clip.time)
+						
+						if length_to_play_of_clip > 0
+							source.start actx.currentTime + start_time, starting_offset_into_clip, length_to_play_of_clip
+						
+						# console.log "source.start CT+", Math.max(0, clip.time - from_time), Math.max(0, from_time - clip.time + clip_offset), Math.max(0, clip_length - from_time)
+						# source.start actx.currentTime + Math.max(0, clip.time - from_time), Math.max(0, from_time - clip.time + clip_offset), Math.max(0, clip_length - from_time)
+						
+							source
 	
 	pause: =>
 		clearTimeout @state.tid
 		for track_sources in @state.track_sources
 			for source in track_sources
-				source.stop actx.currentTime + 1.0
-				source.gain.gain.value = 0
+				source?.stop actx.currentTime + 1.0
+				source?.gain.gain.value = 0
 		@setState
 			position_time: actx.currentTime
 			position: @get_current_position()
@@ -167,6 +184,59 @@ class @AudioEditor extends E.Component
 	update_playback: =>
 		if @state.playing
 			@seek @get_current_position()
+	
+	select: (selection)=>
+		@setState {selection}
+	
+	deselect: =>
+		@select null
+	
+	delete: =>
+		{selection} = @state
+		return unless selection?.length()
+		
+		@undoable (tracks)=>
+			for track in tracks when track.type is "audio" and selection.containsTrackIndex
+				# @TODO: slide things after selection.end() over by -selection.length()
+				clips = []
+				for clip in track.clips
+					buffer = AudioClip.audio_buffers[clip.audio_id]
+					unless buffer?
+						InfoBar.warn "Not all tracks have finished loading."
+						return
+					clip_length = clip.length ? buffer.length / buffer.sampleRate
+					clip_end = clip.time + clip_length
+					clip_start = clip.time
+					if selection.start() < clip_end and selection.end() > clip_start
+						if selection.start() > clip_start
+							clips.push
+								id: GUID()
+								audio_id: clip.audio_id
+								time: clip_start
+								length: selection.start() - clip_start
+								offset: (clip.offset ? 0)
+						if selection.end() < clip_end
+							clips.push
+								id: GUID()
+								audio_id: clip.audio_id
+								time: selection.start()
+								length: clip_end - selection.end()
+								offset: (clip.offset ? 0) + selection.end() - clip_start
+						@select new Selection selection.start(), selection.start(), selection.startTrackIndex(), selection.endTrackIndex()
+						@seek selection.start()
+					else
+						clips.push clip
+				track.clips = clips
+	
+	copy: =>
+		
+	
+	cut: =>
+		@copy()
+		@delete()
+	
+	paste: =>
+		
 	
 	set_track_prop: (track_id, prop, value)->
 		@undoable (tracks)=>
@@ -195,17 +265,16 @@ class @AudioEditor extends E.Component
 		reader = new FileReader
 		reader.onload = (e)=>
 			array_buffer = e.target.result
-			id = GUID()
+			clip = {time, id: GUID(), audio_id: GUID()}
 			
-			localforage.setItem "#{document_id}/#{id}", array_buffer, (err)=>
+			localforage.setItem "#{document_id}/#{clip.audio_id}", array_buffer, (err)=>
 				if err
 					InfoBar.warn "Failed to store audio data.\n#{err.message}"
 					console.error err
 				else
 					# TODO: optimize by decoding and storing in parallel, but keep good error handling
 					actx.decodeAudioData array_buffer, (buffer)=>
-						AudioClip.audio_buffers_by_clip_id[id] = buffer
-						clip = {time, id}
+						AudioClip.audio_buffers[clip.audio_id] = buffer
 						
 						@undoable (tracks)=>
 							# @TODO: add tracks earlier with a loading indicator and remove them if an error occurs
@@ -262,11 +331,11 @@ class @AudioEditor extends E.Component
 					when 78 # N
 						@TODO.new() unless e.shiftKey
 					when 88 # X
-						@TODO.cut() unless e.shiftKey
+						@cut() unless e.shiftKey
 					when 67 # C
-						@TODO.copy() unless e.shiftKey
+						@copy() unless e.shiftKey
 					when 86 # V
-						@TODO.paste() unless e.shiftKey
+						@paste() unless e.shiftKey
 					when 90 # Z
 						if e.shiftKey then @redo() else @undo()
 					when 89 # Y
@@ -275,12 +344,15 @@ class @AudioEditor extends E.Component
 						return # don't prevent default
 			else
 				switch e.keyCode
+					# @TODO: media keys?
 					when 32 # Spacebar
 						unless e.target.tagName.match /button/i
 							if @state.playing
 								@pause()
 							else
 								@play()
+					when 46, 8 # Delete, Backspace
+						@delete()
 					when 82 # R
 						@TODO.record()
 					when 37 # Left
@@ -288,9 +360,9 @@ class @AudioEditor extends E.Component
 						@seek @get_current_position() - 1
 					when 39 # Right
 						@seek @get_current_position() + 1
-					when 38 # Up
+					when 38, 33 # Up, Page Up
 						@TODO.up()
-					when 40 # Down
+					when 40, 34 # Down, Page Down
 						@TODO.down()
 					when 36 # Home
 						@seek_to_start()
@@ -306,7 +378,7 @@ class @AudioEditor extends E.Component
 		window.removeEventListener "keydown", @keydown_listener
 	
 	render: ->
-		{tracks, playing, position, position_time} = @state
+		{tracks, selection, position, position_time, playing} = @state
 		{themes, set_theme} = @props
 		
 		E ".audio-editor",
@@ -327,4 +399,4 @@ class @AudioEditor extends E.Component
 			E "div",
 				key: "infobar"
 				E InfoBar # @TODO, ref: (@infobar)=>
-			E Tracks, {tracks, position, position_time, playing, editor: @, key: "tracks"}
+			E Tracks, {tracks, selection, position, position_time, playing, editor: @, key: "tracks"}

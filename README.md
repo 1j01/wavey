@@ -5,6 +5,8 @@
 
 And by that, I partially mean that it will be an audio editor *in* the future.
 
+Well, so far you can *delete* audio, but that's about it as far as editing goes.
+
 
 ### Features
 

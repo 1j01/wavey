@@ -1,7 +1,5 @@
 
 class @Tracks extends E.Component
-	constructor: ->
-		@state = selection: null
 	render: ->
 		{tracks, position, position_time, playing, editor} = @props
 		
@@ -13,7 +11,7 @@ class @Tracks extends E.Component
 				unless el
 					unless closest e.target, ".track-controls"
 						e.preventDefault()
-						@setState selection: null
+						editor.deselect()
 					return
 				e.preventDefault()
 				
@@ -32,19 +30,19 @@ class @Tracks extends E.Component
 				
 				t = time_at e
 				track_index = track_index_at e
-				@setState selection: new Selection t, t, track_index, track_index
+				# @TODO: Shift click
+				editor.select new Selection t, t, track_index, track_index
 				
 				mouse_moved = no
 				mouse_move_from_clientX = e.clientX
 				window.addEventListener "mousemove", onMouseMove = (e)=>
 					if Math.abs(e.clientX - mouse_move_from_clientX) > 5
 						mouse_moved = yes
-					if mouse_moved
-						if @state.selection
-							@setState selection: Selection.drag @state.selection,
-								to: time_at e
-								toTrackIndex: track_index_at e
-							e.preventDefault()
+					if mouse_moved and @props.selection
+						editor.select Selection.drag @props.selection,
+							to: time_at e
+							toTrackIndex: track_index_at e
+						e.preventDefault()
 				
 				window.addEventListener "mouseup", onMouseUp = (e)=>
 					window.removeEventListener "mouseup", onMouseUp
@@ -60,7 +58,7 @@ class @Tracks extends E.Component
 						E AudioTrack, {
 							key: track.id, track
 							position, position_time, playing, editor
-							selection: (@state.selection if @state.selection?.containsTrackIndex track_index)
+							selection: (@props.selection if @props.selection?.containsTrackIndex track_index)
 						}
 					else
 						E UnknownTrack, {key: track.id, track, editor}
