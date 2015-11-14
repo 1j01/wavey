@@ -303,7 +303,7 @@ class @AudioEditor extends E.Component
 						insertion_point = 0
 						insertion_track_start_index = tracks.length
 					
-					insertion_track_end_index = insertion_track_start_index + clipboard.length
+					insertion_track_end_index = insertion_track_start_index + clipboard.length - 1
 					
 					for track in tracks.slice(insertion_track_start_index, insertion_track_end_index + 1) when track.type is "audio"
 						clips = []
