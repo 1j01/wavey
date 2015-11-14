@@ -360,9 +360,14 @@ class @AudioEditor extends E.Component
 	
 	remove_track: (track_id)=>
 		@undoable (tracks)=>
-			for track, i in tracks when track.id is track_id by -1
-				tracks.splice i, 1
-				# @TODO: remove track from selection
+			{selection} = @state
+			for track, track_index in tracks when track.id is track_id by -1
+				tracks.splice track_index, 1
+				if selection.containsTrackIndex track_index
+					if selection.startTrackIndex() is selection.endTrackIndex()
+						@deselect()
+					else
+						@select new Selection selection.start(), selection.end(), selection.startTrackIndex(), selection.endTrackIndex() - 1
 	
 	add_clip: (file, at_selection)->
 		{document_id} = @props
