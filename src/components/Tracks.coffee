@@ -30,8 +30,13 @@ class @Tracks extends E.Component
 				
 				t = time_at e
 				track_index = track_index_at e
-				# @TODO: Shift click
-				editor.select new Selection t, t, track_index, track_index
+				# @TODO: double click to select either to the bounds of adjacent audio clips or everything on the track
+				if e.shiftKey
+					editor.select Selection.drag @props.selection,
+						to: t
+						toTrackIndex: track_index
+				else
+					editor.select new Selection t, t, track_index, track_index
 				
 				mouse_moved = no
 				mouse_move_from_clientX = e.clientX

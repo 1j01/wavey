@@ -158,15 +158,10 @@ class @AudioEditor extends E.Component
 						
 						start_time = Math.max(0, clip.time - from_time)
 						starting_offset_into_clip = Math.max(0, from_time - clip.time) + clip_offset
-						# length_to_play_of_clip = Math.min(clip_length, offset_into_clip)
 						length_to_play_of_clip = clip_length - Math.max(0, from_time - clip.time)
 						
 						if length_to_play_of_clip > 0
 							source.start actx.currentTime + start_time, starting_offset_into_clip, length_to_play_of_clip
-						
-						# console.log "source.start CT+", Math.max(0, clip.time - from_time), Math.max(0, from_time - clip.time + clip_offset), Math.max(0, clip_length - from_time)
-						# source.start actx.currentTime + Math.max(0, clip.time - from_time), Math.max(0, from_time - clip.time + clip_offset), Math.max(0, clip_length - from_time)
-						
 							source
 	
 	pause: =>
