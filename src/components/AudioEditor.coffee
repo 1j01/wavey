@@ -253,7 +253,7 @@ class @AudioEditor extends E.Component
 	
 	remove_track: (track_id)=>
 		@undoable (tracks)=>
-			for track, i in tracks when track.id is track_id
+			for track, i in tracks when track.id is track_id by -1
 				tracks.splice i, 1
 	
 	add_clip: (file, track_id, time=0)->
