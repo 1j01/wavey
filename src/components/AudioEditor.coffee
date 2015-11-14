@@ -417,13 +417,17 @@ class @AudioEditor extends E.Component
 	
 	componentDidUpdate: (last_props, last_state)=>
 		{document_id} = @props
-		{tracks, undos, redos} = @state
+		{tracks, selection, undos, redos} = @state
+		
 		if (
 			tracks isnt last_state.tracks or
+			selection isnt last_state.selection or
 			undos isnt last_state.undos or
 			redos isnt last_state.redos
 		)
 			@save()
+		
+		if tracks isnt last_state.tracks
 			@update_playback()
 			AudioClip.load_clips(tracks, document_id)
 	

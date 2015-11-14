@@ -8,7 +8,7 @@
 
 * Drag and drop audio files
 * Always saved locally
-* Persistent undo/redo
+* Persistent undo/redo and selection
 * Several themes, including light and dark [elementary OS][] themes via [elementary.css][], and some retro themes
 
 
