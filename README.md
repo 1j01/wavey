@@ -3,12 +3,6 @@
 
 [This is the audio editor of the future.][app]
 
-And by that, I partially mean that it will be an audio editor *in* the future.
-
-Currently pasting doesn't delete the selection first.
-Recording is not yet implemented.
-There is no way to export the audio to a file yet.
-
 
 ### Features
 
@@ -27,6 +21,12 @@ Tracks will be able to be pinned to the top, which should easy the pain when you
 You will be able to "precord" up to five minutes or as long as precording has been enabled. 
 
 MIDI is a distinct possibility but not a priority.
+
+
+### TODO
+
+* Recording
+* Export audio to a file
 
 
 -------

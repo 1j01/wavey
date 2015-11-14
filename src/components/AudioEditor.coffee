@@ -287,8 +287,8 @@ class @AudioEditor extends E.Component
 			else
 				{selection} = @state
 				
-				# @TODO: delete selection (just calling @delete() would create an extra undoable)
-				# @delete()
+				# @FIXME: extra undoable
+				@delete()
 				
 				@undoable (tracks)=>
 					clipboard_length = 0
@@ -386,6 +386,7 @@ class @AudioEditor extends E.Component
 						@undoable (tracks)=>
 							# @TODO: add tracks earlier with a loading indicator and remove them if an error occurs
 							# and make it so you can't edit them while they're loading (e.g. pasting audio where audio is already going to be)
+							# @TODO: push audio forwards by clip.length
 							if track_id?
 								track = _track for _track in tracks when _track.id is track_id
 							else

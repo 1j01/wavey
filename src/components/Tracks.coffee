@@ -5,6 +5,7 @@ class @Tracks extends E.Component
 		
 		E ".tracks",
 			# @TODO: touch support
+			# @TODO: show where clips will be dropped
 			onMouseDown: (e)=>
 				return unless e.button is 0
 				el = closest e.target, ".track-content"
