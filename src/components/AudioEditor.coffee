@@ -192,7 +192,6 @@ class @AudioEditor extends E.Component
 		
 		@undoable (tracks)=>
 			for track, track_index in tracks when track.type is "audio" and selection.containsTrackIndex track_index
-				# @TODO: slide things after selection.end() over by -selection.length()
 				clips = []
 				for clip in track.clips
 					buffer = AudioClip.audio_buffers[clip.audio_id]
@@ -220,6 +219,8 @@ class @AudioEditor extends E.Component
 						@select new Selection selection.start(), selection.start(), selection.startTrackIndex(), selection.endTrackIndex()
 						@seek selection.start()
 					else
+						if clip_start > selection.end()
+							clip.time -= selection.length()
 						clips.push clip
 				track.clips = clips
 	

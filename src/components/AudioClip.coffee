@@ -65,7 +65,8 @@ class @AudioClip extends E.Component
 		cancelAnimationFrame @animation_frame
 	
 	shouldComponentUpdate: (nextProps, nextState)->
-		nextProps.data isnt @props.data
+		nextProps.data isnt @props.data or
+		nextProps.style.left isnt @props.style.left
 	
 	rerenderCanvasWhenTheStylesChange: ->
 		@tid = setTimeout =>
