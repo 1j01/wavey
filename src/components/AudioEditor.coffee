@@ -191,7 +191,7 @@ class @AudioEditor extends E.Component
 		return unless selection?.length()
 		
 		@undoable (tracks)=>
-			for track in tracks when track.type is "audio" and selection.containsTrackIndex
+			for track, track_index in tracks when track.type is "audio" and selection.containsTrackIndex track_index
 				# @TODO: slide things after selection.end() over by -selection.length()
 				clips = []
 				for clip in track.clips
