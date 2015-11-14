@@ -395,9 +395,6 @@ class @AudioEditor extends E.Component
 							@insert [[clip]], selection.start(), selection.startTrackIndex()
 						else
 							@insert [[clip]], 0, @state.tracks.length
-						
-						# @TODO: add tracks earlier with a loading indicator and remove them if an error occurs
-						# and make it so you can't edit them while they're loading (e.g. pasting audio where audio is already going to be)
 			, (e)=>
 				InfoBar.warn "Audio not playable or not supported."
 				console.error e

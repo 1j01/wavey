@@ -50,6 +50,15 @@ class @AudioClip extends E.Component
 			for x in [0..canvas.width] by 0.1
 				ctx.lineTo x, canvas.height/2 + canvas.height/2 * (data[~~((x/scale + offset)*audio_buffer.sampleRate)])
 			ctx.stroke()
+		else
+			ctx.save()
+			ctx.lineWidth = 5
+			ctx.setLineDash [5, 15]
+			ctx.beginPath()
+			ctx.moveTo 0, canvas.height/2
+			ctx.lineTo canvas.width, canvas.height/2
+			ctx.stroke()
+			ctx.restore()
 	
 	componentDidMount: ->
 		@renderCanvas()
