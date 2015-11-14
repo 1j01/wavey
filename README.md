@@ -20,7 +20,7 @@ Tracks will be able to be pinned to the top, which should easy the pain when you
 
 You will be able to "precord" up to five minutes or as long as precording has been enabled. 
 
-MIDI is a distinct possibility but not a priority.
+MIDI is a distinct possibility but certainly not a priority.
 
 
 ### TODO

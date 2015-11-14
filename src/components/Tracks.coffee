@@ -5,7 +5,8 @@ class @Tracks extends E.Component
 		
 		E ".tracks",
 			# @TODO: touch support
-			# @TODO: show where clips will be dropped
+			# @TODO: double click to select either to the bounds of adjacent audio clips or everything on the track
+			# @TODO: drag and drop the selection?
 			onMouseDown: (e)=>
 				return unless e.button is 0
 				el = closest e.target, ".track-content"
@@ -16,11 +17,12 @@ class @Tracks extends E.Component
 					return
 				e.preventDefault()
 				
+				tracks_el = closest e.target, ".tracks"
+				
 				time_at = (e)->
 					rect = el.getBoundingClientRect()
 					(e.clientX - rect.left) / scale
 				
-				tracks_el = closest e.target, ".tracks"
 				track_index_at = (e)->
 					track_index = 0
 					for track_el in tracks_el.children
@@ -31,7 +33,7 @@ class @Tracks extends E.Component
 				
 				t = time_at e
 				track_index = track_index_at e
-				# @TODO: double click to select either to the bounds of adjacent audio clips or everything on the track
+				
 				if e.shiftKey
 					editor.select Selection.drag @props.selection,
 						to: t

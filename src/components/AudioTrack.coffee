@@ -4,32 +4,51 @@ class @AudioTrack extends E.Component
 		{track, selection, position, playing, editor} = @props
 		{clips, muted, pinned} = track
 		
+		select_at_mouse = (e)=>
+			# @FIXME: WET, @TODO: DRY, this was copy/pasted from Tracks::onMouseMove
+			el = closest e.target, ".track-content"
+			return unless el?
+			
+			tracks_el = closest e.target, ".tracks"
+			
+			time_at = (e)->
+				rect = el.getBoundingClientRect()
+				(e.clientX - rect.left) / scale
+			
+			track_index_at = (e)->
+				track_index = 0
+				for track_el in tracks_el.children
+					rect = track_el.getBoundingClientRect()
+					if e.clientY > rect.bottom
+						track_index += 1
+				track_index
+			
+			t = time_at e
+			track_index = track_index_at e
+			editor.select new Selection t, t, track_index, track_index
+		
 		E Track, {track, editor},
-			E "div",
+			E ".audio-clips",
 				style:
 					position: "relative"
 					height: 80 # = canvas height
 					boxSizing: "content-box"
+				
 				onDragOver: (e)=>
 					e.preventDefault()
+					e.dataTransfer.dropEffect = "copy"
+					select_at_mouse e
+				
+				onDragLeave: (e)=>
+					editor.deselect()
+				
 				onDrop: (e)=>
-					# @FIXME: WET, @TODO: DRY, this was copy/pasted from Tracks.coffee
-					el = closest e.target, ".track-content"
-					unless el
-						unless closest e.target, ".track-controls"
-							e.preventDefault()
-							@setState selection: null
-						return
 					e.preventDefault()
-					
-					time_at = (e)->
-						rect = el.getBoundingClientRect()
-						(e.clientX - rect.left) / scale
-					
-					e.preventDefault()
-					# @TODO: add multiple files in sequence, not on top of each other
+					select_at_mouse e
+					# @TODO: order by position in this array, not by how long each clip takes to load
 					for file in e.dataTransfer.files
-						editor.add_clip file, track.id, time_at e
+						editor.add_clip file, yes
+				
 				for clip, i in clips
 					E AudioClip,
 						key: clip.id

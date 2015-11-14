@@ -225,6 +225,8 @@ class @AudioEditor extends E.Component
 		{selection, tracks} = @state
 		return unless selection?.length()
 		
+		# @TODO: copy and paste emptyness (include a length value in the clipboard)
+		
 		clipboard = []
 		for track, track_index in tracks when track.type is "audio" and selection.containsTrackIndex track_index
 			clips = []
@@ -245,14 +247,14 @@ class @AudioEditor extends E.Component
 							length: clip.length
 							offset: clip.offset
 					else if selection.start() > clip_start and selection.end() < clip_end
-						# selection is entirely within clip 
+						# selection is entirely within clip
 						clips.push
 							id: GUID()
 							audio_id: clip.audio_id
 							time: 0
 							length: selection.length()
 							offset: clip.offset - clip_start + selection.start()
-					else if selection.start() < clip_end < selection.end()
+					else if selection.start() < clip_end <= selection.end()
 						# selection overlaps end of clip
 						clips.push
 							id: GUID()
@@ -260,7 +262,7 @@ class @AudioEditor extends E.Component
 							time: 0
 							length: clip_end - selection.start()
 							offset: clip.offset - clip_start + selection.start()
-					else if selection.start() < clip_start < selection.end()
+					else if selection.start() <= clip_start < selection.end()
 						# selection overlaps start of clip
 						clips.push
 							id: GUID()
@@ -285,61 +287,59 @@ class @AudioEditor extends E.Component
 				InfoBar.warn "Failed to load clipboard data.\n#{err.message}"
 				console.error err
 			else
-				{selection} = @state
-				
 				# @FIXME: extra undoable
 				@delete()
-				
-				@undoable (tracks)=>
-					clipboard_length = 0
-					for clips in clipboard
-						for clip in clips
-							clipboard_length = Math.max(clipboard_length, clip.time + clip.length)
-					
-					if selection?
-						insertion_point = selection.start()
-						insertion_track_start_index = selection.startTrackIndex()
+				{tracks, selection} = @state
+				if selection?
+					@insert clipboard, selection.start(), selection.startTrackIndex()
+				else
+					@insert clipboard, 0, tracks.length
+	
+	insert: (stuff, insertion_position, insertion_track_start_index)->
+		@undoable (tracks)=>
+			
+			insertion_length = 0
+			for clips in stuff
+				for clip in clips
+					insertion_length = Math.max(insertion_length, clip.time + clip.length)
+			
+			insertion_track_end_index = insertion_track_start_index + stuff.length - 1
+			
+			for track in tracks.slice(insertion_track_start_index, insertion_track_end_index + 1) when track.type is "audio"
+				clips = []
+				for clip in track.clips
+					if clip.time >= insertion_position
+						clip.time += insertion_length
+						clips.push clip
+					else if clip.time + clip.length > insertion_position
+						clips.push
+							id: GUID()
+							audio_id: clip.audio_id
+							time: clip.time
+							length: insertion_position - clip.time
+							offset: clip.offset
+						clips.push
+							id: GUID()
+							audio_id: clip.audio_id
+							time: insertion_position + insertion_length
+							length: clip.length - (insertion_position - clip.time)
+							offset: clip.offset + insertion_position - clip.time
 					else
-						insertion_point = 0
-						insertion_track_start_index = tracks.length
-					
-					insertion_track_end_index = insertion_track_start_index + clipboard.length - 1
-					
-					for track in tracks.slice(insertion_track_start_index, insertion_track_end_index + 1) when track.type is "audio"
-						clips = []
-						for clip in track.clips
-							if clip.time >= insertion_point
-								clip.time += clipboard_length
-								clips.push clip
-							else if clip.time + clip.length >= insertion_point
-								clips.push
-									id: GUID()
-									audio_id: clip.audio_id
-									time: clip.time
-									length: insertion_point - clip.time
-									offset: clip.offset
-								clips.push
-									id: GUID()
-									audio_id: clip.audio_id
-									time: insertion_point + clipboard_length
-									length: clip.length - (insertion_point - clip.time)
-									offset: clip.offset + insertion_point - clip.time
-							else
-								clips.push clip
-						track.clips = clips
-					
-					for clips, i in clipboard
-						track = tracks[insertion_track_start_index + i]
-						if not track? and clips.length
-							track = {id: GUID(), type: "audio", clips: []}
-							tracks.push track
-						for clip in clips
-							clip.time += insertion_point
-							clip.id = GUID()
-							track.clips.push clip
-					
-					end = insertion_point + clipboard_length
-					@select new Selection end, end, insertion_track_start_index, insertion_track_end_index
+						clips.push clip
+				track.clips = clips
+			
+			for clips, i in stuff
+				track = tracks[insertion_track_start_index + i]
+				if not track? and clips.length
+					track = {id: GUID(), type: "audio", clips: []}
+					tracks.push track
+				for clip in clips
+					clip.time += insertion_position
+					clip.id = GUID()
+					track.clips.push clip
+			
+			end = insertion_position + insertion_length
+			@select new Selection end, end, insertion_track_start_index, insertion_track_end_index
 	
 	set_track_prop: (track_id, prop, value)->
 		@undoable (tracks)=>
@@ -364,12 +364,15 @@ class @AudioEditor extends E.Component
 				tracks.splice i, 1
 				# @TODO: remove track from selection
 	
-	add_clip: (file, track_id, time=0)->
+	add_clip: (file, at_selection)->
 		{document_id} = @props
+		if at_selection
+			{selection} = @state
+			return unless selection?
 		reader = new FileReader
 		reader.onload = (e)=>
 			array_buffer = e.target.result
-			clip = {time, id: GUID(), audio_id: GUID()}
+			clip = {id: GUID(), audio_id: GUID(), time: 0}
 			
 			localforage.setItem "#{document_id}/#{clip.audio_id}", array_buffer, (err)=>
 				if err
@@ -383,21 +386,13 @@ class @AudioEditor extends E.Component
 						clip.length = buffer.length / buffer.sampleRate
 						clip.offset = 0
 						
-						@undoable (tracks)=>
-							# @TODO: add tracks earlier with a loading indicator and remove them if an error occurs
-							# and make it so you can't edit them while they're loading (e.g. pasting audio where audio is already going to be)
-							# @TODO: push audio forwards by clip.length
-							if track_id?
-								track = _track for _track in tracks when _track.id is track_id
-							else
-								last_track = _track for _track in tracks when _track.type is "audio"
-								if last_track?.clips?.length is 0
-									track = last_track
-								else
-									track = {id: GUID(), type: "audio", clips: []}
-									tracks.push track
-							
-							track.clips.push clip
+						if at_selection
+							@insert [[clip]], selection.start(), selection.startTrackIndex()
+						else
+							@insert [[clip]], 0, @state.tracks.length
+						
+						# @TODO: add tracks earlier with a loading indicator and remove them if an error occurs
+						# and make it so you can't edit them while they're loading (e.g. pasting audio where audio is already going to be)
 			, (e)=>
 				InfoBar.warn "Audio not playable or not supported."
 				console.error e
@@ -494,10 +489,14 @@ class @AudioEditor extends E.Component
 			tabIndex: 0
 			style: outline: "none"
 			onMouseDown: (e)=>
+				return if e.isDefaultPrevented()
 				e.preventDefault()
 				React.findDOMNode(@).focus()
 			onDragOver: (e)=>
+				return if e.isDefaultPrevented()
 				e.preventDefault()
+				e.dataTransfer.dropEffect = "copy"
+				@deselect()
 			onDrop: (e)=>
 				return if e.isDefaultPrevented()
 				e.preventDefault()
