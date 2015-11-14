@@ -2,9 +2,13 @@
 class @AudioClip extends E.Component
 	
 	@audio_buffers = {}
+	@audio_buffers_loading = {}
 	
 	@load_clip = (clip, document_id)=>
 		return if AudioClip.audio_buffers[clip.audio_id]?
+		return if AudioClip.audio_buffers_loading[clip.audio_id]?
+		AudioClip.audio_buffers_loading[clip.audio_id] = yes
+		
 		localforage.getItem "#{document_id}/#{clip.audio_id}", (err, array_buffer)=>
 			if err
 				InfoBar.error "Failed to load audio data.\n#{err.message}"
@@ -51,17 +55,16 @@ class @AudioClip extends E.Component
 		@renderCanvas()
 		@rerenderCanvasWhenTheStylesChange()
 	
-	componentDidUpdate: ->
-		@renderCanvas()
-		# @TODO: rerender only when data changed (shouldComponentUpdate can go)
+	componentDidUpdate: (last_props)->
+		@renderCanvas() if (
+			@props.data isnt last_props.data or
+			@props.clip.offset isnt last_props.clip.offset or
+			@props.clip.length isnt last_props.clip.length
+		)
 	
 	componentWillUnmount: ->
 		clearTimeout @tid
 		cancelAnimationFrame @animation_frame
-	
-	shouldComponentUpdate: (nextProps, nextState)->
-		nextProps.data isnt @props.data or
-		nextProps.style.left isnt @props.style.left
 	
 	rerenderCanvasWhenTheStylesChange: ->
 		@tid = setTimeout =>

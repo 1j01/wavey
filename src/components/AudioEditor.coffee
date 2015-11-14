@@ -213,13 +213,13 @@ class @AudioEditor extends E.Component
 								time: selection.start()
 								length: clip_end - selection.end()
 								offset: clip.offset + selection.end() - clip_start
-						@select new Selection selection.start(), selection.start(), selection.startTrackIndex(), selection.endTrackIndex()
-						@seek selection.start()
 					else
 						if clip_start >= selection.end()
 							clip.time -= selection.length()
 						clips.push clip
 				track.clips = clips
+			@select new Selection selection.start(), selection.start(), selection.startTrackIndex(), selection.endTrackIndex()
+			@seek selection.start()
 	
 	copy: =>
 		{selection, tracks} = @state
@@ -286,13 +286,15 @@ class @AudioEditor extends E.Component
 				console.error err
 			else
 				{selection} = @state
+				
+				# @TODO: delete selection (just calling @delete() would create an extra undoable)
+				# @delete()
+				
 				@undoable (tracks)=>
 					clipboard_length = 0
 					for clips in clipboard
 						for clip in clips
 							clipboard_length = Math.max(clipboard_length, clip.time + clip.length)
-					
-					# @TODO: delete selection (just calling @delete() would create an extra undoable)
 					
 					if selection?
 						insertion_point = selection.start()
