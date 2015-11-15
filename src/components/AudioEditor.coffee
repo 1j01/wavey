@@ -25,7 +25,7 @@ class @AudioEditor extends E.Component
 		{document_id} = @props
 		{tracks, selection, undos, redos} = @state
 		doc = {state: {tracks, selection}, undos, redos}
-		localforage.setItem "#{document_id}", doc, (err)=>
+		localforage.setItem "document:#{document_id}", doc, (err)=>
 			if err
 				InfoBar.warn "Failed to save the document.\n#{err.message}"
 				console.error err
@@ -34,7 +34,7 @@ class @AudioEditor extends E.Component
 	
 	load: ->
 		{document_id} = @props
-		localforage.getItem "#{document_id}", (err, doc)=>
+		localforage.getItem "document:#{document_id}", (err, doc)=>
 			if err
 				InfoBar.warn "Failed to load the document.\n#{err.message}"
 				console.error err
@@ -297,6 +297,7 @@ class @AudioEditor extends E.Component
 				InfoBar.warn "Failed to load clipboard data.\n#{err.message}"
 				console.error err
 			else
+				# @FIXME: error when no clipboard
 				# @FIXME: extra undoable
 				@delete()
 				{tracks, selection} = @state
@@ -389,7 +390,7 @@ class @AudioEditor extends E.Component
 			array_buffer = e.target.result
 			clip = {id: GUID(), audio_id: GUID(), time: 0}
 			
-			localforage.setItem "clips/#{clip.audio_id}", array_buffer, (err)=>
+			localforage.setItem "audio:#{clip.audio_id}", array_buffer, (err)=>
 				if err
 					InfoBar.warn "Failed to store audio data.\n#{err.message}"
 					console.error err

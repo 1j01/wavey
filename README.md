@@ -30,6 +30,7 @@ Embedding. Plugins. Desktop apps.
 * Export audio to a file
 * Recording
 * Effects
+* Scrolling and zooming
 
 
 ### Contributing

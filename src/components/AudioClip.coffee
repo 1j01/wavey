@@ -9,7 +9,7 @@ class @AudioClip extends E.Component
 		return if AudioClip.audio_buffers_loading[clip.audio_id]?
 		AudioClip.audio_buffers_loading[clip.audio_id] = yes
 		
-		localforage.getItem "clips/#{clip.audio_id}", (err, array_buffer)=>
+		localforage.getItem "audio:#{clip.audio_id}", (err, array_buffer)=>
 			if err
 				InfoBar.error "Failed to load audio data.\n#{err.message}"
 				console.error err
