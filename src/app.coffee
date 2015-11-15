@@ -17,7 +17,7 @@ themes =
 	"Chroma": "retro/chroma"
 
 patch_elementary_classes = ->
-	requestAnimationFrame ->
+	unless document.hidden
 		for el in document.querySelectorAll ".track-content"
 			el.classList.add "notebook"
 		for el in document.querySelectorAll ".audio-editor .controls"
@@ -31,21 +31,31 @@ patch_elementary_classes = ->
 
 hacky_interval = null
 
+theme_link = document.createElement "link"
+theme_link.rel = "stylesheet"
+theme_link.type = "text/css"
+document.head.appendChild theme_link
+
 set_theme = (theme)->
 	localforage.setItem "theme", theme
 	
-	theme_link = document.getElementById "theme"
 	theme_link.href = "styles/themes/#{theme}.css"
 	
 	if theme.match /elementary/
-		unless hacky_interval
+		unless hacky_interval?
 			hacky_interval = setInterval patch_elementary_classes, 150
 			window.addEventListener "mousedown", patch_elementary_classes
 			window.addEventListener "mouseup", patch_elementary_classes
 			window.addEventListener "keydown", patch_elementary_classes
+	else if hacky_interval?
+		clearInterval hacky_interval
+		hacky_interval = null
+		window.removeEventListener "mousedown", patch_elementary_classes
+		window.removeEventListener "mouseup", patch_elementary_classes
+		window.removeEventListener "keydown", patch_elementary_classes
 
 localforage.getItem "theme", (err, theme)->
-	set_theme theme if theme
+	set_theme theme ? "elementary"
 
 @render = ->
 	document_id = (location.hash.match(/document=([\w\-./]*)/) ? [0, "default"])[1]
