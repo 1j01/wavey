@@ -313,8 +313,7 @@ class @AudioEditor extends E.Component
 			if err
 				InfoBar.warn "Failed to load clipboard data.\n#{err.message}"
 				console.error err
-			else
-				# @FIXME: error when no clipboard
+			else if clipboard?
 				# @FIXME: extra undoable
 				@delete()
 				{tracks, selection} = @state
