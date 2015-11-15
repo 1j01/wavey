@@ -21,10 +21,16 @@ class @AudioEditor extends E.Component
 			position_time: null
 			selection: null
 	
+	document_version: 1
+	
 	save: ->
 		{document_id} = @props
 		{tracks, selection, undos, redos} = @state
-		doc = {state: {tracks, selection}, undos, redos}
+		doc = {
+			version: @document_version
+			state: {tracks, selection}
+			undos, redos
+		}
 		localforage.setItem "document:#{document_id}", doc, (err)=>
 			if err
 				InfoBar.warn "Failed to save the document.\n#{err.message}"
@@ -39,6 +45,17 @@ class @AudioEditor extends E.Component
 				InfoBar.warn "Failed to load the document.\n#{err.message}"
 				console.error err
 			else if doc
+				if not doc.version?
+					InfoBar.warn "This document was created before document storage was even versioned. It cannot be loaded."
+					return
+				if doc.version > @document_version
+					InfoBar.warn "This document was created with a later version of the editor. Reload to get the latest version."
+					return
+				if doc.version < @document_version
+					# upgrading code should go here
+					# for backwards compatible changes, the version number can simply be bumped
+					InfoBar.warn "This document was created with an earlier version of the editor. There is no upgrade path as of yet, sorry."
+					return
 				{state, undos, redos} = doc
 				{tracks, selection} = state
 				@setState {tracks, undos, redos}
