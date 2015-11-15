@@ -389,7 +389,7 @@ class @AudioEditor extends E.Component
 			array_buffer = e.target.result
 			clip = {id: GUID(), audio_id: GUID(), time: 0}
 			
-			localforage.setItem "#{document_id}/#{clip.audio_id}", array_buffer, (err)=>
+			localforage.setItem "clips/#{clip.audio_id}", array_buffer, (err)=>
 				if err
 					InfoBar.warn "Failed to store audio data.\n#{err.message}"
 					console.error err
@@ -429,7 +429,7 @@ class @AudioEditor extends E.Component
 		
 		if tracks isnt last_state.tracks
 			@update_playback()
-			AudioClip.load_clips(tracks, document_id)
+			AudioClip.load_clips tracks
 	
 	componentDidMount: =>
 		

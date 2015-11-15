@@ -4,14 +4,12 @@ class @AudioClip extends E.Component
 	@audio_buffers = {}
 	@audio_buffers_loading = {}
 	
-	# @TODO: support copying/pasting audio clips between documents
-	
-	@load_clip = (clip, document_id)=>
+	@load_clip = (clip)=>
 		return if AudioClip.audio_buffers[clip.audio_id]?
 		return if AudioClip.audio_buffers_loading[clip.audio_id]?
 		AudioClip.audio_buffers_loading[clip.audio_id] = yes
 		
-		localforage.getItem "#{document_id}/#{clip.audio_id}", (err, array_buffer)=>
+		localforage.getItem "clips/#{clip.audio_id}", (err, array_buffer)=>
 			if err
 				InfoBar.error "Failed to load audio data.\n#{err.message}"
 				console.error err
@@ -24,10 +22,10 @@ class @AudioClip extends E.Component
 				InfoBar.warn "An audio clip is missing from storage."
 				console.warn "An audio clip is missing from storage.", clip
 	
-	@load_clips = (tracks, document_id)->
+	@load_clips = (tracks)->
 		for track in tracks when track.type is "audio"
 			for clip in track.clips
-				@load_clip clip, document_id
+				@load_clip clip
 	
 	render: ->
 		E ".audio-clip", style: @props.style,
