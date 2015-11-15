@@ -7,6 +7,9 @@
 .track-content {
 	padding: 2px;
 }
+.track:not(:last-child) .position {
+	height: calc(100% + 10px + 2px * 2); /* = .track{height} + .track{padding-top} + .track{padding-bottom} + .track-content{padding-top} + .track-content{padding-bottom} */
+}
 
 .audio-editor button {
 	background: transparent;
