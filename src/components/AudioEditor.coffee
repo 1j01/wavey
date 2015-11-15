@@ -391,6 +391,7 @@ class @AudioEditor extends E.Component
 			{selection} = @state
 			for track, track_index in tracks when track.id is track_id by -1
 				tracks.splice track_index, 1
+				# @FIXME: error when no selection
 				if selection.containsTrackIndex track_index
 					if selection.startTrackIndex() is selection.endTrackIndex()
 						@deselect()
@@ -412,7 +413,7 @@ class @AudioEditor extends E.Component
 					InfoBar.warn "Failed to store audio data.\n#{err.message}"
 					console.error err
 				else
-					# TODO: optimize by decoding and storing in parallel, but keep good error handling
+					# @TODO: optimize by decoding and storing in parallel, but keep good error handling
 					actx.decodeAudioData array_buffer, (buffer)=>
 						AudioClip.audio_buffers[clip.audio_id] = buffer
 						

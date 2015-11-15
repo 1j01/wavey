@@ -7,7 +7,8 @@
 .track-content {
 	padding: 2px;
 }
-.track:not(:last-child) .position {
+/* @TODO: make .position be one element that spans multiple tracks */
+.track:not(:last-child):not(:nth-last-child(2)) .position {
 	height: calc(100% + 10px + 2px * 2); /* = .track{height} + .track{padding-top} + .track{padding-bottom} + .track-content{padding-top} + .track-content{padding-bottom} */
 }
 

@@ -7,9 +7,14 @@ class @Tracks extends E.Component
 			# @TODO: touch support
 			# @TODO: double click to select either to the bounds of adjacent audio clips or everything on the track
 			# @TODO: drag and drop the selection?
+			# @TODO: better overall drag and drop feedback
 			onMouseDown: (e)=>
 				return unless e.button is 0
 				el = closest e.target, ".track-content"
+				if closest el, ".add-track, .unknown-track"
+					e.preventDefault()
+					editor.deselect()
+					return
 				unless el
 					unless closest e.target, ".track-controls"
 						e.preventDefault()
@@ -70,3 +75,5 @@ class @Tracks extends E.Component
 						}
 					else
 						E UnknownTrack, {key: track.id, track, editor}
+			
+			E AddTrack, {key: "add-track", editor}

@@ -23,7 +23,11 @@
 	padding: 5px;
 }
 
-.muted.audio-track canvas {
+.add-track .track-content {
+	padding: 5px;
+}
+
+.muted .audio-clip {
 	opacity: 0.3;
 }
 
@@ -46,7 +50,8 @@
 	opacity: 0;
 }
 */
-.track:not(:last-child) .position {
+/* @TODO: make .position be one element that spans multiple tracks */
+.track:not(:last-child):not(:nth-last-child(2)) .position {
 	height: calc(100% + 10px); /* = .track{height} + .track{padding-top} + .track{padding-bottom} */
 }
 
