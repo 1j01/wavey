@@ -14,7 +14,6 @@ themes =
 	"Monochrome Green": "retro/green"
 	"Monochrome Amber": "retro/amber"
 	"Ambergine (aubergine + amber)": "retro/ambergine"
-	"Chroma": "retro/chroma"
 
 patch_elementary_classes = ->
 	requestAnimationFrame ->
