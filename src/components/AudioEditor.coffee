@@ -391,8 +391,7 @@ class @AudioEditor extends E.Component
 			{selection} = @state
 			for track, track_index in tracks when track.id is track_id by -1
 				tracks.splice track_index, 1
-				# @FIXME: error when no selection
-				if selection.containsTrackIndex track_index
+				if selection?.containsTrackIndex track_index
 					if selection.startTrackIndex() is selection.endTrackIndex()
 						@deselect()
 					else
