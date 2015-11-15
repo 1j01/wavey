@@ -17,7 +17,7 @@ themes =
 	"Chroma": "retro/chroma"
 
 patch_elementary_classes = ->
-	unless document.hidden
+	requestAnimationFrame ->
 		for el in document.querySelectorAll ".track-content"
 			el.classList.add "notebook"
 		for el in document.querySelectorAll ".audio-editor .controls"
