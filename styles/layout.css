@@ -28,6 +28,11 @@
 	height: 100%;
 }
 
+.add-track button ~ span {
+	cursor: default;
+	user-select: none;
+}
+
 /* @TODO: pinned tracks */
 
 .track-controls {
