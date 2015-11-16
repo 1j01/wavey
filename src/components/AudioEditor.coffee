@@ -21,13 +21,14 @@ class @AudioEditor extends E.Component
 			position_time: null
 			selection: null
 	
-	document_version: 1
+	@document_version: 1
+	@stuff_version: 1
 	
 	save: ->
 		{document_id} = @props
 		{tracks, selection, undos, redos} = @state
 		doc = {
-			version: @document_version
+			version: AudioEditor.document_version
 			state: {tracks, selection}
 			undos, redos
 		}
@@ -48,10 +49,10 @@ class @AudioEditor extends E.Component
 				if not doc.version?
 					InfoBar.warn "This document was created before document storage was even versioned. It cannot be loaded."
 					return
-				if doc.version > @document_version
+				if doc.version > AudioEditor.document_version
 					InfoBar.warn "This document was created with a later version of the editor. Reload to get the latest version."
 					return
-				if doc.version < @document_version
+				if doc.version < AudioEditor.document_version
 					# upgrading code should go here
 					# for backwards compatible changes, the version number can simply be bumped
 					InfoBar.warn "This document was created with an earlier version of the editor. There is no upgrade path as of yet, sorry."
@@ -59,7 +60,7 @@ class @AudioEditor extends E.Component
 				{state, undos, redos} = doc
 				{tracks, selection} = state
 				@setState {tracks, undos, redos}
-				@select Selection.fromJSON selection if selection?
+				@select Range.fromJSON selection if selection?
 	
 	undoable: (fn)->
 		{tracks, selection, undos, redos} = @state
@@ -83,7 +84,7 @@ class @AudioEditor extends E.Component
 			selection: copy_of selection
 		{tracks, selection} = undos.pop()
 		@setState {tracks, undos, redos}
-		@select Selection.fromJSON selection if selection?
+		@select Range.fromJSON selection if selection?
 	
 	redo: ->
 		{tracks, selection, undos, redos} = @state
@@ -96,7 +97,7 @@ class @AudioEditor extends E.Component
 			selection: copy_of selection
 		{tracks, selection} = redos.pop()
 		@setState {tracks, undos, redos}
-		@select Selection.fromJSON selection if selection?
+		@select Range.fromJSON selection if selection?
 	
 	# @TODO: soft undo/redo
 	
@@ -216,90 +217,15 @@ class @AudioEditor extends E.Component
 		return unless selection?.length()
 		
 		@undoable (tracks)=>
-			for track, track_index in tracks when track.type is "audio" and selection.containsTrackIndex track_index
-				clips = []
-				for clip in track.clips
-					buffer = AudioClip.audio_buffers[clip.audio_id]
-					unless buffer?
-						InfoBar.warn "Not all selected tracks have finished loading."
-						return
-					clip_end = clip.time + clip.length
-					clip_start = clip.time
-					if selection.start() < clip_end and selection.end() > clip_start
-						if selection.start() > clip_start
-							clips.push
-								id: GUID()
-								audio_id: clip.audio_id
-								time: clip_start
-								length: selection.start() - clip_start
-								offset: clip.offset
-						if selection.end() < clip_end
-							clips.push
-								id: GUID()
-								audio_id: clip.audio_id
-								time: selection.start()
-								length: clip_end - selection.end()
-								offset: clip.offset + selection.end() - clip_start
-					else
-						if clip_start >= selection.end()
-							clip.time -= selection.length()
-						clips.push clip
-				track.clips = clips
-			@select new Selection selection.start(), selection.start(), selection.startTrackIndex(), selection.endTrackIndex()
-			@seek selection.start()
+			collapsed = selection.collapse tracks
+			@select collapsed
+			@seek collapsed.start()
 	
 	copy: =>
 		{selection, tracks} = @state
 		return unless selection?.length()
-		
-		# @TODO: copy and paste emptyness (include a length value in the clipboard)
-		
-		clipboard = []
-		for track, track_index in tracks when track.type is "audio" and selection.containsTrackIndex track_index
-			clips = []
-			for clip in track.clips
-				buffer = AudioClip.audio_buffers[clip.audio_id]
-				unless buffer?
-					InfoBar.warn "Not all selected tracks have finished loading."
-					return
-				clip_end = clip.time + clip.length
-				clip_start = clip.time
-				if selection.start() < clip_end and selection.end() > clip_start
-					if selection.start() <= clip_start and selection.end() >= clip_end
-						# clip is entirely contained within selection
-						clips.push
-							id: GUID()
-							audio_id: clip.audio_id
-							time: clip_start - selection.start()
-							length: clip.length
-							offset: clip.offset
-					else if selection.start() > clip_start and selection.end() < clip_end
-						# selection is entirely within clip
-						clips.push
-							id: GUID()
-							audio_id: clip.audio_id
-							time: 0
-							length: selection.length()
-							offset: clip.offset - clip_start + selection.start()
-					else if selection.start() < clip_end <= selection.end()
-						# selection overlaps end of clip
-						clips.push
-							id: GUID()
-							audio_id: clip.audio_id
-							time: 0
-							length: clip_end - selection.start()
-							offset: clip.offset - clip_start + selection.start()
-					else if selection.start() <= clip_start < selection.end()
-						# selection overlaps start of clip
-						clips.push
-							id: GUID()
-							audio_id: clip.audio_id
-							time: clip_start - selection.start()
-							length: selection.end() - clip_start
-							offset: clip.offset
-			clipboard.push clips
-		
-		localforage.setItem "clipboard", clipboard, (err)=>
+		console.log selection.contents(tracks)
+		localforage.setItem "clipboard", selection.contents(tracks), (err)=>
 			if err
 				InfoBar.warn "Failed to store clipboard data.\n#{err.message}"
 				console.error err
@@ -314,59 +240,33 @@ class @AudioEditor extends E.Component
 				InfoBar.warn "Failed to load clipboard data.\n#{err.message}"
 				console.error err
 			else if clipboard?
-				# @FIXME: extra undoable
-				@delete()
-				{tracks, selection} = @state
-				if selection?
-					@insert clipboard, selection.start(), selection.startTrackIndex()
-				else
-					@insert clipboard, 0, tracks.length
+				
+				if not clipboard.version?
+					InfoBar.warn "The clipboard data was copied before clipboard data was versioned. It cannot be pasted."
+					return
+				if clipboard.version > AudioEditor.stuff_version
+					InfoBar.warn "The clipboard data was copied from a later version of the editor. Reload to get the latest version."
+					return
+				if clipboard.version < AudioEditor.stuff_version
+					# upgrading code should go here
+					# for backwards compatible changes, the version number can simply be bumped
+					InfoBar.warn "The clipboard data was copied from an earlier version of the editor. There is no upgrade path as of yet, sorry."
+					return
+				
+				@undoable (tracks)=>
+					{selection} = @state
+					if selection?
+						# @TODO: handle excess selected tracks better
+						# (currently it collapses the entire selection, but only inserts as many rows as are in the clipboard)
+						collapsed = selection.collapse tracks
+						after = Range.insert clipboard, tracks, collapsed.start(), collapsed.startTrackIndex()
+					else
+						after = Range.insert clipboard, tracks, 0, tracks.length
+					@select after
 	
 	insert: (stuff, insertion_position, insertion_track_start_index)->
 		@undoable (tracks)=>
-			
-			insertion_length = 0
-			for clips in stuff
-				for clip in clips
-					insertion_length = Math.max(insertion_length, clip.time + clip.length)
-			
-			insertion_track_end_index = insertion_track_start_index + stuff.length - 1
-			
-			for track in tracks.slice(insertion_track_start_index, insertion_track_end_index + 1) when track.type is "audio"
-				clips = []
-				for clip in track.clips
-					if clip.time >= insertion_position
-						clip.time += insertion_length
-						clips.push clip
-					else if clip.time + clip.length > insertion_position
-						clips.push
-							id: GUID()
-							audio_id: clip.audio_id
-							time: clip.time
-							length: insertion_position - clip.time
-							offset: clip.offset
-						clips.push
-							id: GUID()
-							audio_id: clip.audio_id
-							time: insertion_position + insertion_length
-							length: clip.length - (insertion_position - clip.time)
-							offset: clip.offset + insertion_position - clip.time
-					else
-						clips.push clip
-				track.clips = clips
-			
-			for clips, i in stuff
-				track = tracks[insertion_track_start_index + i]
-				if not track? and clips.length
-					track = {id: GUID(), type: "audio", clips: []}
-					tracks.push track
-				for clip in clips
-					clip.time += insertion_position
-					clip.id = GUID()
-					track.clips.push clip
-			
-			end = insertion_position + insertion_length
-			@select new Selection end, end, insertion_track_start_index, insertion_track_end_index
+			Range.insert stuff, tracks, insertion_position, insertion_track_start_index
 	
 	set_track_prop: (track_id, prop, value)->
 		@undoable (tracks)=>
@@ -394,7 +294,7 @@ class @AudioEditor extends E.Component
 					if selection.startTrackIndex() is selection.endTrackIndex()
 						@deselect()
 					else
-						@select new Selection selection.start(), selection.end(), selection.startTrackIndex(), selection.endTrackIndex() - 1
+						@select new Range selection.start(), selection.end(), selection.startTrackIndex(), selection.endTrackIndex() - 1
 	
 	add_clip: (file, at_selection)->
 		{document_id} = @props
@@ -418,10 +318,11 @@ class @AudioEditor extends E.Component
 						clip.length = buffer.length / buffer.sampleRate
 						clip.offset = 0
 						
+						stuff = {version: AudioEditor.stuff_version, rows: [[clip]], length: clip.length}
 						if at_selection
-							@insert [[clip]], selection.start(), selection.startTrackIndex()
+							@insert stuff, selection.start(), selection.startTrackIndex()
 						else
-							@insert [[clip]], 0, @state.tracks.length
+							@insert stuff, 0, @state.tracks.length
 			, (e)=>
 				InfoBar.warn "Audio not playable or not supported."
 				console.error e

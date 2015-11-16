@@ -40,11 +40,11 @@ class @Tracks extends E.Component
 				track_index = track_index_at e
 				
 				if e.shiftKey
-					editor.select Selection.drag @props.selection,
+					editor.select Range.drag @props.selection,
 						to: t
 						toTrackIndex: track_index
 				else
-					editor.select new Selection t, t, track_index, track_index
+					editor.select new Range t, t, track_index, track_index
 				
 				mouse_moved = no
 				mouse_move_from_clientX = e.clientX
@@ -52,7 +52,7 @@ class @Tracks extends E.Component
 					if Math.abs(e.clientX - mouse_move_from_clientX) > 5
 						mouse_moved = yes
 					if mouse_moved and @props.selection
-						editor.select Selection.drag @props.selection,
+						editor.select Range.drag @props.selection,
 							to: time_at e
 							toTrackIndex: track_index_at e
 						e.preventDefault()

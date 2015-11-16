@@ -25,7 +25,7 @@ class @AudioTrack extends E.Component
 			
 			t = time_at e
 			track_index = track_index_at e
-			editor.select new Selection t, t, track_index, track_index
+			editor.select new Range t, t, track_index, track_index
 		
 		E Track, {track, editor},
 			E ".audio-clips",
