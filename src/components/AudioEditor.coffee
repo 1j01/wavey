@@ -212,6 +212,10 @@ class @AudioEditor extends E.Component
 	deselect: =>
 		@select null
 	
+	select_all: =>
+		{tracks} = @state
+		@select new Range 0, @get_max_length(), 0, tracks.length - 1
+	
 	delete: =>
 		{selection} = @state
 		return unless selection?.length()
@@ -359,7 +363,7 @@ class @AudioEditor extends E.Component
 			if e.ctrlKey
 				switch e.keyCode
 					when 65 # A
-						@TODO.select_all() unless e.shiftKey
+						@select_all() unless e.shiftKey
 					when 83 # S
 						if e.shiftKey then @TODO.save_as() else @TODO.save()
 					when 79 # O
