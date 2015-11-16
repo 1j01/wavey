@@ -12,7 +12,7 @@ class @Range
 	containsTrackIndex: (track_index)-> @startTrackIndex() <= track_index <= @endTrackIndex()
 	
 	contents: (tracks)->
-		# return stuff from tracks within this range
+		# returns stuff from tracks within this range
 		
 		stuff = {version: AudioEditor.stuff_version, length: @length(), rows: []}
 		
@@ -64,7 +64,8 @@ class @Range
 		stuff
 	
 	collapse: (tracks)->
-		# modify tracks, return a collapsed Range
+		# modifies tracks, removing everything within this range
+		# returns a collapsed range
 		
 		for track, track_index in tracks when track.type is "audio" and @containsTrackIndex track_index
 			clips = []
@@ -98,8 +99,8 @@ class @Range
 		
 		new Range @start(), @start(), @startTrackIndex(), @endTrackIndex()
 	
-	# maybe there should be a class for "Stuff" (@TODO?)
-	# this should probably be Stuff::insert
+	# @TODO? maybe there should be a class for "Stuff"
+	# (this would be Stuff::insert)
 	@insert: (stuff, tracks, insertion_position, insertion_track_start_index)->
 		
 		insertion_length = stuff.length

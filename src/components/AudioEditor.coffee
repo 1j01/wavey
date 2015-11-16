@@ -216,6 +216,16 @@ class @AudioEditor extends E.Component
 		{tracks} = @state
 		@select new Range 0, @get_max_length(), 0, tracks.length - 1
 	
+	select_up: =>
+		{selection} = @state
+		above = (track_index)-> Math.max(track_index - 1, 0)
+		@select new Range selection.start(), selection.end(), above(selection.startTrackIndex()), above(selection.endTrackIndex())
+	
+	select_down: =>
+		{selection, tracks} = @state
+		below = (track_index)-> Math.min(track_index + 1, tracks.length)
+		@select new Range selection.start(), selection.end(), below(selection.startTrackIndex()), below(selection.endTrackIndex())
+	
 	delete: =>
 		{selection} = @state
 		return unless selection?.length()
@@ -395,15 +405,16 @@ class @AudioEditor extends E.Component
 						@delete()
 					when 82 # R
 						@TODO.record()
+					# @TODO: finer control as well
+					# @TODO: move selection left/right?
 					when 37 # Left
-						# @TODO: finer control as well
 						@seek @get_current_position() - 1
 					when 39 # Right
 						@seek @get_current_position() + 1
 					when 38, 33 # Up, Page Up
-						@TODO.up()
+						@select_up()
 					when 40, 34 # Down, Page Down
-						@TODO.down()
+						@select_down()
 					when 36 # Home
 						@seek_to_start()
 					when 35 # End
