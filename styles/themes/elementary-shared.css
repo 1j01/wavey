@@ -1,6 +1,5 @@
 
-/* @TODO: have this button open on mouse down */
-.controls button[title="Settings"] {
+.controls .floated button {
 	border: 0;
 	box-shadow: none;
 	background: transparent;
@@ -8,18 +7,25 @@
 	width: 24px;
 	height: 24px;
 	padding: 0;
+	margin-left: 8px;
 }
-.controls button[title="Settings"]:active,
-.controls .menu-open button[title="Settings"] {
+.controls .floated button:active,
+.controls .floated .menu-open button {
     background: rgba(0, 0, 0, 0.15);
     box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.15);
 }
-.controls button[title="Settings"] > i {
+.controls .floated button > i {
 	color: transparent;
 	text-shadow: none;
-	background: url("./images/gear.svg");
 	width: 24px;
 	height: 24px;
+}
+.controls .floated button[title="Settings"] > i {
+	background: url("./images/gear.svg");
+}
+
+.controls .floated button[title="Export"] > i {
+	background: url("./images/document-export.svg");
 }
 
 .beat-track .track-content,

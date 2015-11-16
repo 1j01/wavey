@@ -21,7 +21,9 @@ class @DropdownButton extends E.Component
 			E "span.linked",
 				mainButton
 				E "button.button.dropdown-button",
+					# @TODO: have these buttons open on mousedown / touchstart
 					onClick: =>
+						# @TODO: close any other menus
 						if menu_open
 							@setState menu_open: no
 						else

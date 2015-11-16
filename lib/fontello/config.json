@@ -7,15 +7,15 @@
   "ascent": 850,
   "glyphs": [
     {
-      "uid": "12f4ece88e46abd864e40b35e05b11cd",
-      "css": "check",
-      "code": 59413,
-      "src": "fontawesome"
-    },
-    {
       "uid": "5211af474d3a9848f67f945e2ccaf143",
       "css": "x",
       "code": 59412,
+      "src": "fontawesome"
+    },
+    {
+      "uid": "1b5a5d7b7e3c71437f5a26befdd045ed",
+      "css": "file",
+      "code": 59414,
       "src": "fontawesome"
     },
     {
@@ -65,6 +65,18 @@
       "css": "circle-empty",
       "code": 59397,
       "src": "fontawesome"
+    },
+    {
+      "uid": "390d6d13398cbf8c8c3c5493f7d34088",
+      "css": "export",
+      "code": 59417,
+      "src": "entypo"
+    },
+    {
+      "uid": "0ccb084ddeeae372673793ed0b45bb4a",
+      "css": "folder",
+      "code": 59418,
+      "src": "entypo"
     },
     {
       "uid": "91426c82d94428a33353e495418435e3",
@@ -134,7 +146,7 @@
     },
     {
       "uid": "05417ae0104ab18a0fe454358579a987",
-      "css": "art-gallery",
+      "css": "theme",
       "code": 59400,
       "src": "maki"
     }

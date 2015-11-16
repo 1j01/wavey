@@ -158,8 +158,6 @@ class @AudioEditor extends E.Component
 		if from_time >= max_length or from_time < 0
 			from_time = 0
 		
-		{tracks} = @state
-		
 		@setState
 			tid: setTimeout @pause, (max_length - from_time) * 1000 + 20
 			# NOTE: an extra few ms because it shouldn't fade out prematurely
@@ -170,16 +168,27 @@ class @AudioEditor extends E.Component
 			position: from_time
 			
 			playing: yes
-			track_sources:
-				# @TODO: metronome when beat track is unmuted
-				for track in tracks when track.type is "audio"
+			track_sources: @_start_playing from_time, actx
+	
+	_start_playing: (from_time, actx)->
+		include_metronome = not (actx instanceof OfflineAudioContext)
+		
+		{tracks} = @state
+		
+		for track in tracks when not track.muted
+			switch track.type
+				when "beat"
+					unless include_metronome
+						# @TODO: metronome
+						continue
+				when "audio"
 					for clip in track.clips
 						source = actx.createBufferSource()
 						source.gain = actx.createGain()
 						source.buffer = AudioClip.audio_buffers[clip.audio_id]
 						source.connect source.gain
 						source.gain.connect actx.destination
-						source.gain.gain.value = if track.muted then 0 else 1
+						# source.gain.gain.value = if track.muted then 0 else 1
 						
 						# @TODO: maybe rename clip.time to clip.start_time or clip.start
 						start_time = Math.max(0, clip.time - from_time)
@@ -345,6 +354,55 @@ class @AudioEditor extends E.Component
 			console.error e
 		
 		reader.readAsArrayBuffer file
+	
+	export_as: (media_type)=>
+		sample_rate = 44100
+		length = @get_max_length()
+		number_of_channels = 2
+		oactx = new OfflineAudioContext number_of_channels, sample_rate * length, sample_rate
+		@_start_playing 0, oactx
+		
+		forceDownload = (blob, filename)->
+			url = (window.URL ? window.webkitURL).createObjectURL(blob)
+			a = document.createElement "a"
+			a.href = url
+			a.download = filename ? "output.wav"
+			a.click()
+			# click = new CustomEvent "click"
+			# a.dispatchEvent click
+		
+		oactx.startRendering()
+			.then (rendered_audio_buffer)=>
+				switch media_type
+					when "audio/wav"
+						worker = new Worker "lib/export/wav/recorderWorker.js"
+						
+						# get it started and send some config data...
+						worker.postMessage
+							command: "init"
+							config:
+								numChannels: number_of_channels
+								sampleRate: oactx.sampleRate
+						
+						# pass it the full buffer...
+						worker.postMessage
+							command: "record"
+							buffer: [
+								rendered_audio_buffer.getChannelData(0)
+								rendered_audio_buffer.getChannelData(1)
+							]
+						
+						# ask it to export the WAV...
+						worker.postMessage
+							command: "exportWAV"
+							type: "audio/wav"
+						
+						# force a download when it's done
+						worker.onmessage = (e)=>
+							forceDownload e.data, "export.wav"
+					else
+						InfoBar.warn "Exporting as #{media_type} is not supported"
+
 	
 	componentDidUpdate: (last_props, last_state)=>
 		{document_id} = @props
