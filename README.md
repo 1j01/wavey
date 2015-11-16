@@ -27,7 +27,6 @@ Embedding. Plugins. Desktop apps.
 
 ### TODO
 
-* Export audio to a file
 * Recording
 * Effects
 * Scrolling and zooming
