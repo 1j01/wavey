@@ -102,8 +102,6 @@ class @Range
 	# this should probably be Stuff::insert
 	@insert: (stuff, tracks, insertion_position, insertion_track_start_index)->
 		
-		console.log "insert", stuff, insertion_position, insertion_track_start_index
-		
 		insertion_length = stuff.length
 		insertion_track_end_index = insertion_track_start_index + stuff.rows.length - 1
 		
@@ -139,7 +137,6 @@ class @Range
 				clip.time += insertion_position
 				clip.id = GUID()
 				track.clips.push clip
-				console.log "add", clip, "to", track
 		
 		end = insertion_position + insertion_length
 		new Range end, end, insertion_track_start_index, insertion_track_end_index

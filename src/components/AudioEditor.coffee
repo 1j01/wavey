@@ -224,7 +224,6 @@ class @AudioEditor extends E.Component
 	copy: =>
 		{selection, tracks} = @state
 		return unless selection?.length()
-		console.log selection.contents(tracks)
 		localforage.setItem "clipboard", selection.contents(tracks), (err)=>
 			if err
 				InfoBar.warn "Failed to store clipboard data.\n#{err.message}"
