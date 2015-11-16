@@ -8,8 +8,8 @@ class @Controls extends E.Component
 				E DropdownButton,
 					title: "Export"
 					menu: [
-						{label: "Export as MP3", action: -> export_as "audio/mpeg"}
-						{label: "Export as WAV", action: -> export_as "audio/wav"}
+						{label: "Export as MP3", action: -> export_as "mp3"}
+						{label: "Export as WAV", action: -> export_as "wav"}
 					]
 					E "i.icon-export"
 				if themes and set_theme

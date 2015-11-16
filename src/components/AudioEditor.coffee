@@ -355,7 +355,7 @@ class @AudioEditor extends E.Component
 		
 		reader.readAsArrayBuffer file
 	
-	export_as: (media_type)=>
+	export_as: (file_type)=>
 		sample_rate = 44100
 		length = @get_max_length()
 		number_of_channels = 2
@@ -373,9 +373,9 @@ class @AudioEditor extends E.Component
 		
 		oactx.startRendering()
 			.then (rendered_audio_buffer)=>
-				switch media_type
-					when "audio/wav"
-						worker = new Worker "lib/export/wav/recorderWorker.js"
+				switch file_type
+					when "wav", "mp3"
+						worker = new Worker "lib/export/#{file_type}/recorderWorker.js"
 						
 						# get it started and send some config data...
 						worker.postMessage
@@ -395,13 +395,15 @@ class @AudioEditor extends E.Component
 						# ask it to export the WAV...
 						worker.postMessage
 							command: "exportWAV"
-							type: "audio/wav"
+							type: switch file_type
+								when "wav" then "audio/wav"
+								when "mp3" then "audio/mpeg"
 						
 						# force a download when it's done
 						worker.onmessage = (e)=>
-							forceDownload e.data, "export.wav"
+							forceDownload e.data, "export.#{file_type}"
 					else
-						InfoBar.warn "Exporting as #{media_type} is not supported"
+						InfoBar.warn "Exporting as #{file_type.toUpperCase()} is not supported"
 
 	
 	componentDidUpdate: (last_props, last_state)=>
