@@ -1,5 +1,8 @@
 
-@export_audio_buffer_as = (rendered_audio_buffer, file_type, number_of_channels, sample_rate)->
+@export_audio_buffer_as = (audio_buffer, file_type, number_of_channels, sample_rate)->
+	
+	number_of_channels ?= audio_buffer.numberOfChannels
+	sample_rate ?= audio_buffer.sampleRate
 	
 	forceDownload = (blob, file_name)->
 		url = (window.URL ? window.webkitURL).createObjectURL(blob)
@@ -24,7 +27,7 @@
 				command: "record"
 				buffer:
 					for i in [0...number_of_channels]
-						rendered_audio_buffer.getChannelData i
+						audio_buffer.getChannelData i
 			
 			# ask it to export the WAV...
 			worker.postMessage
@@ -40,10 +43,11 @@
 			
 			mp3Worker.postMessage
 				config:
-					channels: 1
 					sampleRate: sample_rate
 					kbps: 128
-				samples: rendered_audio_buffer.getChannelData(0)
+				channels:
+					for i in [0...number_of_channels]
+						audio_buffer.getChannelData i
 			
 			mp3Worker.onmessage = (e)->
 				mp3Blob = new Blob e.data, type: "audio/mp3"

@@ -363,7 +363,7 @@ class @AudioEditor extends E.Component
 		@_start_playing 0, oactx
 		oactx.startRendering()
 			.then (rendered_audio_buffer)=>
-				export_audio_buffer_as rendered_audio_buffer, file_type, number_of_channels, sample_rate
+				export_audio_buffer_as rendered_audio_buffer, file_type
 	
 	componentDidUpdate: (last_props, last_state)=>
 		{document_id} = @props
