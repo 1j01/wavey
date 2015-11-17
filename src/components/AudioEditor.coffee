@@ -358,7 +358,7 @@ class @AudioEditor extends E.Component
 	export_as: (file_type)=>
 		sample_rate = 44100
 		length = @get_max_length()
-		number_of_channels = if file_type is "mp3" then 1 else 2
+		number_of_channels = 2
 		oactx = new OfflineAudioContext number_of_channels, sample_rate * length, sample_rate
 		@_start_playing 0, oactx
 		oactx.startRendering()
