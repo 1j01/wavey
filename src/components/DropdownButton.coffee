@@ -1,7 +1,16 @@
 
 class @DropdownButton extends E.Component
+	@instances: []
+	
 	constructor: ->
 		@state = menu_open: no
+	
+	componentDidMount: ->
+		DropdownButton.instances.push @
+	
+	componentWillUnmount: ->
+		DropdownButton.instances.splice DropdownButton.instances.indexOf(@), 1
+	
 	render: ->
 		{menu_open} = @state
 		{children, title, mainButton, menu} = @props
@@ -23,7 +32,8 @@ class @DropdownButton extends E.Component
 				E "button.button.dropdown-button",
 					# @TODO: have these buttons open on mousedown / touchstart
 					onClick: =>
-						# @TODO: close any other menus
+						for b in DropdownButton.instances
+							b.setState menu_open: no
 						if menu_open
 							@setState menu_open: no
 						else
