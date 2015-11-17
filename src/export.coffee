@@ -1,12 +1,11 @@
 
-@export_rendered_audio_buffer = (rendered_audio_buffer, file_type, number_of_channels, sample_rate)->
-	# console.time "export_rendered_audio_buffer"
+@export_audio_buffer_as = (rendered_audio_buffer, file_type, number_of_channels, sample_rate)->
 	
-	forceDownload = (blob, filename)->
+	forceDownload = (blob, file_name)->
 		url = (window.URL ? window.webkitURL).createObjectURL(blob)
 		a = document.createElement "a"
 		a.href = url
-		a.download = filename ? "output.#{file_type}"
+		a.download = file_name ? "output.#{file_type}"
 		a.click()
 	
 	switch file_type
@@ -35,7 +34,6 @@
 			# when it's done...
 			worker.onmessage = (e)=>
 				forceDownload e.data, "export.wav"
-				# console.timeEnd "export_rendered_audio_buffer"
 		
 		when "mp3"
 			mp3Worker = new Worker "lib/export/mp3/lame-worker.js"
@@ -45,17 +43,8 @@
 					channels: 1
 					sampleRate: sample_rate
 					kbps: 128
-				# samples: rendered_audio_buffer.getChannelData(0)
-				# samples: Uint16Array.from rendered_audio_buffer.getChannelData(0)
-				# samples: Uint16Array.from rendered_audio_buffer.getChannelData(0), (x)->
-				# 	s = Math.max(-1, Math.min(1, x))
-				# 	if s < 0 then s * 0x8000 else s * 0x7FFF
 				samples: rendered_audio_buffer.getChannelData(0)
-
 			
 			mp3Worker.onmessage = (e)->
-				# console.log "mp3Worker.onmessage", e.data
 				mp3Blob = new Blob e.data, type: "audio/mp3"
-				
 				forceDownload mp3Blob, "export.mp3"
-				# console.timeEnd "export_rendered_audio_buffer"
