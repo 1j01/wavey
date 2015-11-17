@@ -35,10 +35,6 @@ class @Controls extends E.Component
 					onClick: seek_to_end
 					title: "Go to end"
 					E "i.icon-go-to-end"
-			E "button.button.go-to-start",
-				onClick: seek_to_start
-				title: "Go to start"
-				E "i.icon-go-to-start"
 			E DropdownButton,
 				mainButton: E "button.button.record",
 					onClick: record
