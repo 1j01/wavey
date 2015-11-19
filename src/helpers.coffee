@@ -15,3 +15,7 @@
 		return elem if matches.call elem, selector
 		elem = elem.parentElement
 	no
+
+window.AudioContext = window.AudioContext ? window.webkitAudioContext
+navigator.getUserMedia = navigator.getUserMedia ? navigator.webkitGetUserMedia ? navigator.mozGetUserMedia
+window.URL = window.URL ? window.webkitURL

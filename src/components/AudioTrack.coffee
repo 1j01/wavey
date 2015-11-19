@@ -50,10 +50,23 @@ class @AudioTrack extends E.Component
 						editor.add_clip file, yes
 				
 				for clip, i in clips
+					recording = AudioEditor.recordings[clip.recording_id]
 					E AudioClip,
 						key: clip.id
 						clip: clip
-						data: AudioClip.audio_buffers[clip.audio_id]
+						sample_rate:
+							if clip.recording_id?
+								recording?.sample_rate
+							else
+								AudioClip.audio_buffers[clip.audio_id]?.sampleRate
+						data:
+							if clip.recording_id?
+								if recording?
+									recording.channels
+								else
+									null
+							else
+								AudioClip.audio_buffers[clip.audio_id]
 						editor: editor
 						style:
 							position: "absolute"

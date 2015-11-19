@@ -93,3 +93,6 @@ GtkInfoBar > GtkLabel {
 * {
 	box-sizing: border-box;
 }
+
+/* @FIXME: layout in Firefox */
+/* @FIXME: text cursor shows up over button glyphs in Microsoft Edge */

@@ -5,8 +5,10 @@ class @AudioClip extends E.Component
 	@audio_buffers_loading = {}
 	
 	@load_clip = (clip)=>
+		return if clip.recording_id
 		return if AudioClip.audio_buffers[clip.audio_id]?
 		return if AudioClip.audio_buffers_loading[clip.audio_id]?
+		
 		AudioClip.audio_buffers_loading[clip.audio_id] = yes
 		
 		localforage.getItem "audio:#{clip.audio_id}", (err, array_buffer)=>
@@ -28,27 +30,53 @@ class @AudioClip extends E.Component
 				@load_clip clip
 	
 	render: ->
-		E ".audio-clip", style: @props.style,
+		{clip, data, sample_rate, style} = @props
+		{length} = clip
+		# console.log AudioEditor.recordings[@props.clip.recording_id]
+		if data instanceof Array and data[0][0]?
+			one_channel = data[0]
+			num_chunks = one_channel.length
+			chunk_size = one_channel[0].length
+			# console.log "render AudioClip with #chunks:", @props.data[0].length
+			console.log "AudioClip::render", {num_chunks, chunk_size, sample_rate}
+			length = chunk_size * num_chunks / sample_rate
+		E ".audio-clip", {style},
 			E "canvas",
 				ref: "canvas"
 				height: 80 # = .track-content {height}
-				width: @props.clip.length * scale
+				width: length * scale
 	
 	renderCanvas: ->
-		audio_buffer = @props.data
 		canvas = React.findDOMNode @refs.canvas
 		ctx = canvas.getContext "2d"
 		ctx.clearRect 0, 0, canvas.width, canvas.height
 		ctx.strokeStyle = @color = getComputedStyle(canvas).color
 		
-		if audio_buffer
-			# @TODO: visualize multiple channels?
+		{offset} = @props.clip
+		offset ?= 0
+		
+		# @TODO: visualize multiple channels
+		
+		if @props.data instanceof Array
+			data = @props.data[0]
+			{sample_rate} = @props
+			at = (x)->
+				len = data[0]?.length
+				idx = ~~((x/scale + offset) * sample_rate)
+				# console.log idx, len, idx // len
+				# data[idx // len]?[idx % len]
+				data[idx // len]?[idx % len]
+		else if @props.data
+			audio_buffer = @props.data
 			data = audio_buffer.getChannelData 0
-			offset = @props.clip.offset
-			
+			sample_rate = audio_buffer.sampleRate
+			at = (x)->
+				data[~~((x/scale + offset) * sample_rate)]
+		
+		if at?
 			ctx.beginPath()
 			for x in [0..canvas.width] by 0.1
-				ctx.lineTo x, canvas.height/2 + canvas.height/2 * (data[~~((x/scale + offset)*audio_buffer.sampleRate)])
+				ctx.lineTo x, canvas.height/2 + canvas.height/2 * at(x)
 			ctx.stroke()
 		else
 			ctx.save()
@@ -67,6 +95,7 @@ class @AudioClip extends E.Component
 	componentDidUpdate: (last_props)->
 		@renderCanvas() if (
 			@props.data isnt last_props.data or
+			(@props.clip.recording_id? and @props.data?[0]?.length isnt last_props.data?[0]?.length) or # @TODO: only if actively recording
 			@props.clip.offset isnt last_props.clip.offset or
 			@props.clip.length isnt last_props.clip.length
 		)

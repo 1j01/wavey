@@ -15,6 +15,7 @@
     box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.15);
 }
 .controls .floated button > i {
+	/* @FIXME: this shows up in Microsoft Edge briefly on mouse enter/leave */
 	color: transparent;
 	text-shadow: none;
 	width: 24px;

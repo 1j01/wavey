@@ -12,6 +12,7 @@
 	height: calc(100% + 10px + 2px * 2); /* = .track{height} + .track{padding-top} + .track{padding-bottom} + .track-content{padding-top} + .track-content{padding-bottom} */
 }
 
+/* @FIXME: .add-track just looks silly and out of place being the only text outside of menus and infobars */
 .add-track button {
 	font: inherit;
 	font-weight: bold;

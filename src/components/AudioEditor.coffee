@@ -20,6 +20,8 @@ class @AudioEditor extends E.Component
 			position: null
 			position_time: null
 			selection: null
+			recording: no
+			precording_enabled: no
 	
 	@document_version: 1
 	@stuff_version: 1
@@ -107,12 +109,21 @@ class @AudioEditor extends E.Component
 		max_length = 0
 		for track in tracks when track.type is "audio"
 			for clip in track.clips
-				audio_buffer = AudioClip.audio_buffers[clip.audio_id]
-				if audio_buffer
-					max_length = Math.max max_length, clip.time + clip.length
+				if clip.recording_id
+					recording = AudioEditor.recordings[clip.recording_id]
+					if recording
+						max_length = Math.max max_length, clip.time + (recording.length ? 0)
+					else
+						# @TODO: the recording should load
+						# InfoBar.warn "Not all tracks have finished loading."
+						# return
 				else
-					InfoBar.warn "Not all tracks have finished loading."
-					return
+					audio_buffer = AudioClip.audio_buffers[clip.audio_id]
+					if audio_buffer
+						max_length = Math.max max_length, clip.time + clip.length
+					else
+						InfoBar.warn "Not all tracks have finished loading."
+						return
 		
 		max_length
 	
@@ -128,10 +139,14 @@ class @AudioEditor extends E.Component
 			InfoBar.warn "Tried to seek to invalid time: #{time}"
 			return
 		
+		return if @state.recording
+		
 		max_length = @get_max_length()
 		
 		if @state.playing and max_length? and time < max_length
+			{recording} = @state
 			@play_from time
+			@setState {recording}
 		else
 			@pause()
 			@setState
@@ -159,7 +174,7 @@ class @AudioEditor extends E.Component
 			from_time = 0
 		
 		@setState
-			tid: setTimeout @pause, (max_length - from_time) * 1000 + 20
+			tid: unless @state.recording then setTimeout @pause, (max_length - from_time) * 1000 + 20
 			# NOTE: an extra few ms because it shouldn't fade out prematurely
 			# (even though might sound better, it might lead you to believe
 			# your audio doesn't need a brief fade out at the end when it does)
@@ -182,7 +197,7 @@ class @AudioEditor extends E.Component
 						# @TODO: metronome
 						continue
 				when "audio"
-					for clip in track.clips
+					for clip in track.clips when not clip.recording_id
 						source = actx.createBufferSource()
 						source.gain = actx.createGain()
 						source.buffer = AudioClip.audio_buffers[clip.audio_id]
@@ -200,6 +215,7 @@ class @AudioEditor extends E.Component
 							source
 	
 	pause: =>
+		# console.trace "pause"
 		clearTimeout @state.tid
 		for track_sources in @state.track_sources
 			for source in track_sources
@@ -209,11 +225,98 @@ class @AudioEditor extends E.Component
 			position_time: actx.currentTime
 			position: @get_current_position()
 			playing: no
+			recording: no
 			track_sources: []
 	
 	update_playback: =>
 		if @state.playing
 			@seek @get_current_position()
+	
+	@recordings: {}
+	
+	record: =>
+		InfoBar.warn "Sorry, recording is not yet fully implemented"
+		return
+		# @TODO: use MediaDevices.getUserMedia when available
+		navigator.getUserMedia audio: yes,
+			(stream)=>
+				recording_id = GUID()
+				@undoable (tracks)=>
+					{selection} = @state
+					if selection?
+						start_time = selection.start()
+						track = tracks[selection.startTrackIndex()]
+					# @TODO: use new track if any audio at or after selection start
+					if not track?
+						start_time = 0
+						track = {id: GUID(), type: "audio", clips: []}
+						tracks.push track
+					
+					clip =
+						id: GUID()
+						audio_id: recording_id
+						recording_id: recording_id
+						time: start_time
+					
+					track.clips.push clip
+					
+					source = actx.createMediaStreamSource stream
+					
+					current_chunk = 0
+					chunk_size = 1024 * 4 # 16384 # 1024 # samples
+					# num_chunks = 50 # arbitrary stopping point?
+					
+					recording =
+						id: recording_id
+						channels: [[], []]
+					
+					# @recording_channels = [
+					# 	new Float32Array chunk_size * num_chunks
+					# 	new Float32Array chunk_size * num_chunks
+					# ]
+					
+					AudioEditor.recordings[clip.recording_id] = recording
+					
+					recorder = actx.createScriptProcessor chunk_size, 2, if chrome? then 1 else 0
+					recorder.onaudioprocess = (e)=>
+						console.log "record chunk", current_chunk
+						recording.sample_rate = e.inputBuffer.sampleRate
+						channels = []
+						for i in [0...e.inputBuffer.numberOfChannels]
+							data = e.inputBuffer.getChannelData i
+							# @recording_channels[i].set current_chunk * chunk_size
+							# recording.channels[i].push data
+							channels.push recording.channels[i].concat [data]
+						recording.channels = channels
+						current_chunk += 1
+						render()
+						# @TODO: store recorded audio
+						# erring on the side of recording longer (@TODO: more exact)
+						unless @state.recording
+							console.log "end recording"
+							source.disconnect()
+							recorder.disconnect()
+					
+					source.connect recorder
+					recorder.connect actx.destination if chrome?
+					# http://stackoverflow.com/questions/24338144/chrome-onaudioprocess-stops-getting-called-after-a-while
+					if chrome? then window["chrome bug workaround #{(recording_id)}"] = recorder
+					
+					@setState recording: yes
+					@play_from start_time
+			
+			(error)=>
+				# do nothing
+				# @TODO: show error when not permission related?
+	
+	end_recording: =>
+		@pause()
+	
+	precord: (seconds_back_in_time_woo_time_travel)=>
+		InfoBar.warn "Precording is not yet implemented"
+	
+	enable_precording: (seconds)=>
+		InfoBar.warn "Sorry, precording is not yet implemented"
 	
 	select: (selection)=>
 		@setState {selection}
@@ -226,11 +329,13 @@ class @AudioEditor extends E.Component
 		@select new Range 0, @get_max_length(), 0, tracks.length - 1
 	
 	select_up: =>
+		# @TODO: look at track types
 		{selection} = @state
 		above = (track_index)-> Math.max(track_index - 1, 0)
 		@select new Range selection.start(), selection.end(), above(selection.startTrackIndex()), above(selection.endTrackIndex())
 	
 	select_down: =>
+		# @TODO: look at track types
 		{selection, tracks} = @state
 		below = (track_index)-> Math.min(track_index + 1, tracks.length)
 		@select new Range selection.start(), selection.end(), below(selection.startTrackIndex()), below(selection.endTrackIndex())
@@ -328,6 +433,8 @@ class @AudioEditor extends E.Component
 			array_buffer = e.target.result
 			clip = {id: GUID(), audio_id: GUID(), time: 0}
 			
+			AudioClip.audio_buffers_loading[clip.audio_id] = yes
+			
 			localforage.setItem "audio:#{clip.audio_id}", array_buffer, (err)=>
 				if err
 					InfoBar.warn "Failed to store audio data.\n#{err.message}"
@@ -423,7 +530,7 @@ class @AudioEditor extends E.Component
 					when 46, 8 # Delete, Backspace
 						@delete()
 					when 82 # R
-						@TODO.record()
+						@record()
 					# @TODO: finer control as well
 					# @TODO: move selection left/right?
 					when 37 # Left
@@ -448,9 +555,8 @@ class @AudioEditor extends E.Component
 		window.removeEventListener "keydown", @keydown_listener
 	
 	render: ->
-		{tracks, selection, position, position_time, playing} = @state
+		{tracks, selection, position, position_time, playing, recording, precording_enabled} = @state
 		{themes, set_theme} = @props
-		
 		E ".audio-editor",
 			className: {playing}
 			tabIndex: 0
@@ -469,7 +575,7 @@ class @AudioEditor extends E.Component
 				e.preventDefault()
 				for file in e.dataTransfer.files
 					@add_clip file
-			E Controls, {playing, editor: @, themes, set_theme, key: "controls"}
+			E Controls, {playing, recording, precording_enabled, themes, set_theme, editor: @, key: "controls"}
 			E "div",
 				key: "infobar"
 				E InfoBar # @TODO, ref: (@infobar)=>

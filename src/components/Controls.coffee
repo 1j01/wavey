@@ -1,8 +1,8 @@
 
 class @Controls extends E.Component
 	render: ->
-		{playing, themes, set_theme, editor} = @props
-		{play, pause, seek_to_start, seek_to_end, record, export_as} = editor
+		{playing, recording, precording_enabled, themes, set_theme, editor} = @props
+		{play, pause, seek_to_start, seek_to_end, record, end_recording, precord, enable_precording, export_as} = editor
 		E ".controls",
 			E "span.floated", style: float: "right",
 				E DropdownButton,
@@ -36,13 +36,26 @@ class @Controls extends E.Component
 					title: "Go to end"
 					E "i.icon-go-to-end"
 			E DropdownButton,
-				mainButton: E "button.button.record",
-					onClick: record
-					title: "Start recording"
-					E "i.icon-record"
+				mainButton:
+					if recording
+						E "button.button.record",
+							onClick: end_recording
+							title: "End recording"
+							E "i.icon-stop"
+					else
+						E "button.button.record",
+							onClick: record
+							title: "Start recording"
+							E "i.icon-record"
 				title: "Precording options"
-				menu: [
-					{label: "Record last minute", action: -> record 60}
-					{label: "Record last 2 minutes", action: -> record 60 * 2}
-					{label: "Record last 5 minutes", action: -> record 60 * 5}
-				]
+				menu:
+					if precording_enabled
+						[
+							{label: "Record last minute", action: -> precord 60}
+							{label: "Record last 2 minutes", action: -> precord 60 * 2}
+							{label: "Record last 5 minutes", action: -> precord 60 * 5}
+						]
+					else
+						[
+							{label: "Enable precording", action: -> enable_precording 60 * 5}
+						]
