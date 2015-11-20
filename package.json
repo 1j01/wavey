@@ -1,7 +1,7 @@
 {
   "name": "audio-editor",
-	"version": "0.0.0",
-	"description": "Edit audio simply",
+  "version": "0.0.0",
+  "description": "Edit audio simply",
   "main": "index.html",
   "scripts": {
     "start": "nw"

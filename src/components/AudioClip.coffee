@@ -32,12 +32,10 @@ class @AudioClip extends E.Component
 	render: ->
 		{clip, data, sample_rate, style} = @props
 		{length} = clip
-		# console.log AudioEditor.recordings[@props.clip.recording_id]
 		if data instanceof Array and data[0][0]?
 			one_channel = data[0]
 			num_chunks = one_channel.length
 			chunk_size = one_channel[0].length
-			# console.log "render AudioClip with #chunks:", @props.data[0].length
 			console.log "AudioClip::render", {num_chunks, chunk_size, sample_rate}
 			length = chunk_size * num_chunks / sample_rate
 		E ".audio-clip", {style},
@@ -52,26 +50,24 @@ class @AudioClip extends E.Component
 		ctx.clearRect 0, 0, canvas.width, canvas.height
 		ctx.strokeStyle = @color = getComputedStyle(canvas).color
 		
-		{offset} = @props.clip
+		{clip, data, sample_rate} = @props
+		{offset} = clip
 		offset ?= 0
 		
 		# @TODO: visualize multiple channels
 		
-		if @props.data instanceof Array
-			data = @props.data[0]
-			{sample_rate} = @props
+		if data instanceof Array
+			typed_arrays = data[0]
 			at = (x)->
-				len = data[0]?.length
+				len = typed_arrays[0]?.length
 				idx = ~~((x/scale + offset) * sample_rate)
 				# console.log idx, len, idx // len
-				# data[idx // len]?[idx % len]
-				data[idx // len]?[idx % len]
-		else if @props.data
-			audio_buffer = @props.data
-			data = audio_buffer.getChannelData 0
-			sample_rate = audio_buffer.sampleRate
+				typed_arrays[idx // len]?[idx % len]
+		else if data
+			audio_buffer = data
+			typed_array = audio_buffer.getChannelData 0
 			at = (x)->
-				data[~~((x/scale + offset) * sample_rate)]
+				typed_array[~~((x/scale + offset) * sample_rate)]
 		
 		if at?
 			ctx.beginPath()

@@ -194,7 +194,7 @@ class @AudioEditor extends E.Component
 			switch track.type
 				when "beat"
 					unless include_metronome
-						# @TODO: metronome
+						# @TODO
 						continue
 				when "audio"
 					for clip in track.clips when not clip.recording_id
@@ -203,7 +203,6 @@ class @AudioEditor extends E.Component
 						source.buffer = AudioClip.audio_buffers[clip.audio_id]
 						source.connect source.gain
 						source.gain.connect actx.destination
-						# source.gain.gain.value = if track.muted then 0 else 1
 						
 						# @TODO: maybe rename clip.time to clip.start_time or clip.start
 						start_time = Math.max(0, clip.time - from_time)
@@ -215,7 +214,6 @@ class @AudioEditor extends E.Component
 							source
 	
 	pause: =>
-		# console.trace "pause"
 		clearTimeout @state.tid
 		for track_sources in @state.track_sources
 			for source in track_sources
@@ -262,20 +260,14 @@ class @AudioEditor extends E.Component
 					
 					source = actx.createMediaStreamSource stream
 					
-					current_chunk = 0
-					chunk_size = 1024 * 4 # 16384 # 1024 # samples
-					# num_chunks = 50 # arbitrary stopping point?
-					
 					recording =
 						id: recording_id
 						channels: [[], []]
 					
-					# @recording_channels = [
-					# 	new Float32Array chunk_size * num_chunks
-					# 	new Float32Array chunk_size * num_chunks
-					# ]
-					
 					AudioEditor.recordings[clip.recording_id] = recording
+					
+					current_chunk = 0
+					chunk_size = 2 ** 11 # samples (2 to an integer power between 8 and 14 inclusive)
 					
 					recorder = actx.createScriptProcessor chunk_size, 2, if chrome? then 1 else 0
 					recorder.onaudioprocess = (e)=>
@@ -284,18 +276,17 @@ class @AudioEditor extends E.Component
 						channels = []
 						for i in [0...e.inputBuffer.numberOfChannels]
 							data = e.inputBuffer.getChannelData i
-							# @recording_channels[i].set current_chunk * chunk_size
-							# recording.channels[i].push data
 							channels.push recording.channels[i].concat [data]
 						recording.channels = channels
 						current_chunk += 1
 						render()
 						# @TODO: store recorded audio
-						# erring on the side of recording longer (@TODO: more exact)
 						unless @state.recording
-							console.log "end recording"
+							# erring on the side of recording longer (@TODO: more exact)
 							source.disconnect()
 							recorder.disconnect()
+							delete window["chrome bug workaround #{(recording_id)}"]
+							console.log "recording ended"
 					
 					source.connect recorder
 					recorder.connect actx.destination if chrome?
