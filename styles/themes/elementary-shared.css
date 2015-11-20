@@ -15,11 +15,14 @@
     box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.15);
 }
 .controls .floated button > i {
-	/* @FIXME: this shows up in Microsoft Edge briefly on mouse enter/leave */
-	color: transparent;
+	color: transparent !important;
 	text-shadow: none;
 	width: 24px;
 	height: 24px;
+}
+.controls .floated button > i::before {
+	/* Microsoft Edge */
+	display: none !important;
 }
 .controls .floated button[title="Settings"] > i {
 	background: url("./images/gear.svg");
