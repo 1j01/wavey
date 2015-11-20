@@ -79,6 +79,7 @@ GtkInfoBar:not(.visible) {
 	border-width: 0px;
 }
 GtkInfoBar {
+	width: 100%;
 	display: flex;
 	align-items: center;
 	height: 40px;
