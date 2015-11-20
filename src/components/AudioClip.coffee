@@ -89,6 +89,9 @@ class @AudioClip extends E.Component
 		@rerenderCanvasWhenTheStylesChange()
 	
 	componentDidUpdate: (last_props)->
+		# @TODO: more advanced rerendering strategy
+		# especially for recording, where it really doesn't need to be rerendering the entire thing every update, just adding a bit to the end
+		# but maybe also for other clips (it shouldn't need to rerender when cutting off a bit)
 		@renderCanvas() if (
 			@props.data isnt last_props.data or
 			(@props.clip.recording_id? and @props.data?[0]?.length isnt last_props.data?[0]?.length) or # @TODO: only if actively recording

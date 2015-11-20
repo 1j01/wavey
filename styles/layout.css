@@ -94,5 +94,13 @@ GtkInfoBar > GtkLabel {
 	box-sizing: border-box;
 }
 
-/* @FIXME: layout in Firefox */
+button {
+	line-height: 1;
+}
+button::-moz-focus-inner,
+input::-moz-focus-inner {
+	border: 0;
+	padding: 0;
+}
+
 /* @FIXME: text cursor shows up over button glyphs in Microsoft Edge */
