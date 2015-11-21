@@ -26,7 +26,12 @@
 	white-space: nowrap;
 }
 
+.tracks-area {
+	flex: 1;
+	display: flex;
+}
 .tracks {
+	flex: 1;
 	overflow-x: hidden;
 	overflow-y: auto;
 }

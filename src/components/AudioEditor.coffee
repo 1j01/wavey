@@ -611,9 +611,6 @@ class @AudioEditor extends E.Component
 				return if e.isDefaultPrevented()
 				unless e.button > 0
 					e.preventDefault()
-				if e.target is React.findDOMNode(@)
-					e.preventDefault()
-					@deselect()
 				React.findDOMNode(@).focus()
 			onDragOver: (e)=>
 				return if e.isDefaultPrevented()
@@ -629,4 +626,4 @@ class @AudioEditor extends E.Component
 			E "div",
 				key: "infobar"
 				E InfoBar #, ref: (@infobar)=> # @TODO: instanced InfoBar API
-			E Tracks, {tracks, selection, position, position_time, playing, editor: @, key: "tracks"}
+			E TracksArea, {tracks, selection, position, position_time, playing, editor: @, key: "tracks-area"}
