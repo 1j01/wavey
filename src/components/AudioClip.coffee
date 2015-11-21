@@ -18,14 +18,24 @@ class @AudioClip extends E.Component
 					console.error err
 				else if recording
 					AudioClip.recordings[clip.recording_id] = recording
-					recording.chunks = [[], []]
-					for chunk_ids, channel_index in recording.chunk_ids
-						for chunk_id, chunk_index in chunk_ids
-							do (chunk_ids, channel_index, chunk_id, chunk_index)=>
+					chunks = [[], []]
+					loaded = 0
+					for channel_chunk_ids, channel_index in recording.chunk_ids
+						for chunk_id, chunk_index in channel_chunk_ids
+							do (channel_chunk_ids, channel_index, chunk_id, chunk_index)=>
 								localforage.getItem "recording:#{clip.recording_id}:chunk:#{chunk_id}", (err, typed_array)=>
-									recording.chunks[channel_index][chunk_index] = typed_array
-									# @FIXME: load a document, then switch to a different document (with recordings that weren't in the first document)
-									# it doesn't render the recordings
+									if err
+										InfoBar.error "Failed to load part of a recording.\n#{err.message}"
+										console.error err
+									else if typed_array
+										chunks[channel_index][chunk_index] = typed_array
+										loaded += 1
+										if loaded is recording.chunk_ids.length * channel_chunk_ids.length
+											recording.chunks = chunks
+											render()
+									else
+										InfoBar.error "Part of a recording is missing from storage.\n#{err.message}"
+										console.warn "A chunk of a recording (#{chunk_id}) is missing from storage.", clip, recording
 				else
 					InfoBar.warn "A recording is missing from storage."
 					console.warn "A recording is missing from storage.", clip
