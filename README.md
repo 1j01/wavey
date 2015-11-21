@@ -26,12 +26,12 @@ Embedding. Plugins. Desktop apps.
 
 Internationalization with translations and LTR UI.
 [RTLCSS](https://github.com/MohammadYounes/rtlcss) can help with UI mirroring,
-but I'll have to update the code for tracks.
+but I'd have to update the code for tracks.
+I don't know how much mirroring would be appreciated, but I think it would be kinda fun.
 
 
 ### TODO
 
-* Recording
 * Effects
 * Scrolling and zooming
 

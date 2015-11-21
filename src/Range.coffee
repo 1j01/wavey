@@ -11,6 +11,11 @@ class @Range
 	endTrackIndex: -> Math.max(@track_a, @track_b)
 	containsTrackIndex: (track_index)-> @startTrackIndex() <= track_index <= @endTrackIndex()
 	
+	get_clip_start_end = (clip)->
+		clip_start = clip.time
+		clip_end = clip.time + (clip.length ? AudioEditor.recordings[clip.recording_id]?.length)
+		{clip_start, clip_end}
+	
 	contents: (tracks)->
 		# returns stuff from tracks within this range
 		
@@ -19,12 +24,11 @@ class @Range
 		for track, track_index in tracks when track.type is "audio" and @containsTrackIndex track_index
 			clips = []
 			for clip in track.clips
-				buffer = AudioClip.audio_buffers[clip.audio_id]
-				unless buffer?
-					InfoBar.warn "Not all selected tracks have finished loading."
-					return
-				clip_end = clip.time + clip.length
-				clip_start = clip.time
+				# buffer = AudioClip.audio_buffers[clip.audio_id]
+				# unless buffer?
+				# 	InfoBar.warn "Not all selected tracks have finished loading."
+				# 	return
+				{clip_start, clip_end} = get_clip_start_end clip
 				if @start() < clip_end and @end() > clip_start
 					# clip and selection overlap
 					if @start() <= clip_start and @end() >= clip_end
@@ -32,6 +36,7 @@ class @Range
 						clips.push
 							id: GUID()
 							audio_id: clip.audio_id
+							recording_id: clip.recording_id
 							time: clip_start - @start()
 							length: clip.length
 							offset: clip.offset
@@ -40,6 +45,7 @@ class @Range
 						clips.push
 							id: GUID()
 							audio_id: clip.audio_id
+							recording_id: clip.recording_id
 							time: 0
 							length: @length()
 							offset: clip.offset - clip_start + @start()
@@ -48,6 +54,7 @@ class @Range
 						clips.push
 							id: GUID()
 							audio_id: clip.audio_id
+							recording_id: clip.recording_id
 							time: 0
 							length: clip_end - @start()
 							offset: clip.offset - clip_start + @start()
@@ -56,6 +63,7 @@ class @Range
 						clips.push
 							id: GUID()
 							audio_id: clip.audio_id
+							recording_id: clip.recording_id
 							time: clip_start - @start()
 							length: @end() - clip_start
 							offset: clip.offset
@@ -70,17 +78,17 @@ class @Range
 		for track, track_index in tracks when track.type is "audio" and @containsTrackIndex track_index
 			clips = []
 			for clip in track.clips
-				buffer = AudioClip.audio_buffers[clip.audio_id]
-				unless buffer?
-					InfoBar.warn "Not all selected tracks have finished loading."
-					return
-				clip_end = clip.time + clip.length
-				clip_start = clip.time
+				# buffer = AudioClip.audio_buffers[clip.audio_id]
+				# unless buffer?
+				# 	InfoBar.warn "Not all selected tracks have finished loading."
+				# 	return
+				{clip_start, clip_end} = get_clip_start_end clip
 				if @start() < clip_end and @end() > clip_start
 					if @start() > clip_start
 						clips.push
 							id: GUID()
 							audio_id: clip.audio_id
+							recording_id: clip.recording_id
 							time: clip_start
 							length: @start() - clip_start
 							offset: clip.offset
@@ -88,6 +96,7 @@ class @Range
 						clips.push
 							id: GUID()
 							audio_id: clip.audio_id
+							recording_id: clip.recording_id
 							time: @start()
 							length: clip_end - @end()
 							offset: clip.offset + @end() - clip_start
@@ -109,22 +118,25 @@ class @Range
 		for track in tracks.slice(insertion_track_start_index, insertion_track_end_index + 1) when track.type is "audio"
 			clips = []
 			for clip in track.clips
-				if clip.time >= insertion_position
+				{clip_start, clip_end} = get_clip_start_end clip
+				if clip_start >= insertion_position
 					clip.time += insertion_length
 					clips.push clip
-				else if clip.time + clip.length > insertion_position
+				else if clip_end > insertion_position
 					clips.push
 						id: GUID()
 						audio_id: clip.audio_id
-						time: clip.time
-						length: insertion_position - clip.time
+						recording_id: clip.recording_id
+						time: clip_start
+						length: insertion_position - clip_start
 						offset: clip.offset
 					clips.push
 						id: GUID()
 						audio_id: clip.audio_id
+						recording_id: clip.recording_id
 						time: insertion_position + insertion_length
-						length: clip.length - (insertion_position - clip.time)
-						offset: clip.offset + insertion_position - clip.time
+						length: clip_end - insertion_position
+						offset: clip.offset + insertion_position - clip_start
 				else
 					clips.push clip
 			track.clips = clips

@@ -112,11 +112,10 @@ class @AudioEditor extends E.Component
 				if clip.recording_id
 					recording = AudioEditor.recordings[clip.recording_id]
 					if recording
-						max_length = Math.max max_length, clip.time + (recording.length ? 0)
+						max_length = Math.max max_length, clip.time + (clip.length ? recording.length ? 0)
 					else
-						# @TODO: the recording should load
-						# InfoBar.warn "Not all tracks have finished loading."
-						# return
+						InfoBar.warn "Not all tracks have finished loading."
+						return
 				else
 					audio_buffer = AudioClip.audio_buffers[clip.audio_id]
 					if audio_buffer
@@ -190,6 +189,9 @@ class @AudioEditor extends E.Component
 		
 		{tracks} = @state
 		
+		# __table__ = []
+		# __table__ = {}
+		# __sources__ =
 		for track in tracks when not track.muted
 			switch track.type
 				when "beat"
@@ -197,21 +199,40 @@ class @AudioEditor extends E.Component
 						# @TODO
 						continue
 				when "audio"
-					for clip in track.clips when not clip.recording_id
+					for clip in track.clips
 						source = actx.createBufferSource()
 						source.gain = actx.createGain()
-						source.buffer = AudioClip.audio_buffers[clip.audio_id]
+						
+						if clip.recording_id
+							recording = AudioEditor.recordings[clip.recording_id]
+							unless recording.audio_buffer?
+								if recording.channels[0]?.length
+									recording.audio_buffer = actx.createBuffer recording.channels.length, recording.channels[0].length * recording.channels[0][0].length, recording.sample_rate
+									for channel, channel_index in recording.channels
+										for chunk, chunk_index in channel
+											recording.audio_buffer.copyToChannel chunk, channel_index, chunk_index * chunk.length
+							source.buffer = recording.audio_buffer
+							clip_length = clip.length ? recording.length
+						else
+							source.buffer = AudioClip.audio_buffers[clip.audio_id]
+							clip_length = clip.length
+						
 						source.connect source.gain
 						source.gain.connect actx.destination
 						
 						# @TODO: maybe rename clip.time to clip.start_time or clip.start
 						start_time = Math.max(0, clip.time - from_time)
 						starting_offset_into_clip = Math.max(0, from_time - clip.time) + clip.offset
-						length_to_play_of_clip = clip.length - Math.max(0, from_time - clip.time)
+						length_to_play_of_clip = clip_length - Math.max(0, from_time - clip.time)
 						
 						if length_to_play_of_clip > 0
+							# __table__.push {clip_id: clip.id, start_time, starting_offset_into_clip, length_to_play_of_clip, clip_length}
+							# __table__[clip.id] = {start_time, starting_offset_into_clip, length_to_play_of_clip, clip_length}
 							source.start actx.currentTime + start_time, starting_offset_into_clip, length_to_play_of_clip
 							source
+		
+		# console.table __table__
+		# __sources__
 	
 	pause: =>
 		clearTimeout @state.tid
@@ -233,8 +254,6 @@ class @AudioEditor extends E.Component
 	@recordings: {}
 	
 	record: =>
-		InfoBar.warn "Sorry, recording is not yet fully implemented"
-		return
 		# @TODO: use MediaDevices.getUserMedia when available
 		navigator.getUserMedia audio: yes,
 			(stream)=>
@@ -255,6 +274,7 @@ class @AudioEditor extends E.Component
 						audio_id: recording_id
 						recording_id: recording_id
 						time: start_time
+						offset: 0
 					
 					track.clips.push clip
 					
@@ -263,30 +283,68 @@ class @AudioEditor extends E.Component
 					recording =
 						id: recording_id
 						channels: [[], []]
+						chunk_ids: [[], []]
 					
 					AudioEditor.recordings[clip.recording_id] = recording
+					AudioClip.audio_buffers_loading[clip.audio_id] = yes
 					
 					current_chunk = 0
-					chunk_size = 2 ** 11 # samples (2 to an integer power between 8 and 14 inclusive)
+					chunk_size = 2 ** 14 # samples (2 to an integer power between 8 and 14 inclusive)
 					
 					recorder = actx.createScriptProcessor chunk_size, 2, if chrome? then 1 else 0
 					recorder.onaudioprocess = (e)=>
-						console.log "record chunk", current_chunk
+						# console?.log "record chunk", current_chunk
 						recording.sample_rate = e.inputBuffer.sampleRate
+						
 						channels = []
+						chunk_ids = []
 						for i in [0...e.inputBuffer.numberOfChannels]
-							data = e.inputBuffer.getChannelData i
+							# new Float32Array necessary in chrome
+							data = new Float32Array e.inputBuffer.getChannelData i
 							channels.push recording.channels[i].concat [data]
+							chunk_ids.push recording.chunk_ids[i].concat [chunk_id = GUID()]
+							do (chunk_id, data)=>
+								localforage.setItem "recording:#{recording_id}:chunk:#{chunk_id}", data, (err)=>
+									if err
+										InfoBar.warn "Failing to store recording! #{err.message}"
+										console.error "Failed to store recording chunk", err
 						recording.channels = channels
+						recording.chunk_ids = chunk_ids
+						recording.length = chunk_ids[0].length * data.length / recording.sample_rate
+						
+						localforage.setItem "recording:#{clip.recording_id}", {
+							# id: recording_id
+							# sample_rate: sample_rate
+							# chunk_ids: chunk_ids
+							# length: chunk_ids[0].length * data.length / sample_rate
+							id: recording.id
+							sample_rate: recording.sample_rate
+							chunk_ids: recording.chunk_ids
+							length: recording.length
+						}, (err)=>
+							if err
+								InfoBar.warn "Failing to store recording! #{err.message}"
+								console.error "Failed to store recording metadata", err
+						
 						current_chunk += 1
 						render()
-						# @TODO: store recorded audio
 						unless @state.recording
 							# erring on the side of recording longer (@TODO: more exact)
+							
+							# localforage.setItem "recording:#{clip.recording_id}", {
+							# 	id: recording_id
+							# 	sample_rate: sample_rate
+							# 	chunk_ids: chunk_ids
+							# 	length: <exact length>
+							# }, (err)=>
+							# 	if err
+							# 		InfoBar.warn "Failing to store recording! #{err.message}"
+							# 		console.error "Failed to store recording metadata", err
+							
 							source.disconnect()
 							recorder.disconnect()
 							delete window["chrome bug workaround #{(recording_id)}"]
-							console.log "recording ended"
+							# console?.log "recording ended"
 					
 					source.connect recorder
 					recorder.connect actx.destination if chrome?
@@ -297,8 +355,16 @@ class @AudioEditor extends E.Component
 					@play_from start_time
 			
 			(error)=>
-				# do nothing
-				# @TODO: show error when not permission related?
+				switch error.name
+					when "PermissionDeniedError"
+						return
+					when "NotFoundError"
+						InfoBar.warn "No recording devices were found."
+					when "SourceUnavailableError"
+						InfoBar.warn "No available recording devices were found. Is one in use?"
+					else
+						InfoBar.warn "Failed to start recording: #{error.name}" + if error.message then ": #{error.message}"
+				console.error "navigator.getUserMedia", error
 	
 	end_recording: =>
 		@pause()

@@ -5,24 +5,52 @@ class @AudioClip extends E.Component
 	@audio_buffers_loading = {}
 	
 	@load_clip = (clip)=>
-		return if clip.recording_id
 		return if AudioClip.audio_buffers[clip.audio_id]?
 		return if AudioClip.audio_buffers_loading[clip.audio_id]?
 		
+		# should this be AudioClip.loading[clip.id] instead?
 		AudioClip.audio_buffers_loading[clip.audio_id] = yes
 		
-		localforage.getItem "audio:#{clip.audio_id}", (err, array_buffer)=>
-			if err
-				InfoBar.error "Failed to load audio data.\n#{err.message}"
-				console.error err
-			else if array_buffer
-				actx.decodeAudioData array_buffer, (buffer)=>
-					AudioClip.audio_buffers[clip.audio_id] = buffer
-					InfoBar.hide "Not all tracks have finished loading."
-					render()
-			else
-				InfoBar.warn "An audio clip is missing from storage."
-				console.warn "An audio clip is missing from storage.", clip
+		if clip.recording_id?
+			localforage.getItem "recording:#{clip.recording_id}", (err, recording)=>
+				if err
+					InfoBar.error "Failed to load recording.\n#{err.message}"
+					console.error err
+				else if recording
+					recording.channels = [[], []]
+					# should this be AudioClip.recordings?
+					# for chunk_ids, chunk_index in recording.chunk_ids
+					# 	for chunk_id in chunk_ids
+					# 		do (chunk_index, chunk_ids, chunk_id)=>
+					for chunk_ids, channel_index in recording.chunk_ids
+						for chunk_id, chunk_index in chunk_ids
+							do (chunk_ids, channel_index, chunk_id, chunk_index)=>
+								localforage.getItem "recording:#{clip.recording_id}:chunk:#{chunk_id}", (err, typed_array)=>
+									# should this be recording.chunks?
+									# recording.channels[chunk_index]
+									recording.channels[channel_index][chunk_index] = typed_array
+									# console.log recording.length, chunk_ids.length * typed_array.length / recording.sample_rate
+									# this should only come into play when the recording is cut off ubrupty (e.g. by the page being refreshed):
+									# recording.length ?= chunk_ids.length * typed_array.length / recording.sample_rate
+									# actually it shouldn't be necessary, I'll just save it every time a chunk is stored
+									
+					AudioEditor.recordings[clip.recording_id] = recording
+				else
+					InfoBar.warn "A recording is missing from storage."
+					console.warn "A recording is missing from storage.", clip
+		else
+			localforage.getItem "audio:#{clip.audio_id}", (err, array_buffer)=>
+				if err
+					InfoBar.error "Failed to load audio data.\n#{err.message}"
+					console.error err
+				else if array_buffer
+					actx.decodeAudioData array_buffer, (buffer)=>
+						AudioClip.audio_buffers[clip.audio_id] = buffer
+						InfoBar.hide "Not all tracks have finished loading."
+						render()
+				else
+					InfoBar.warn "An audio clip is missing from storage."
+					console.warn "An audio clip is missing from storage.", clip
 	
 	@load_clips = (tracks)->
 		for track in tracks when track.type is "audio"
@@ -36,8 +64,8 @@ class @AudioClip extends E.Component
 			one_channel = data[0]
 			num_chunks = one_channel.length
 			chunk_size = one_channel[0].length
-			console.log "AudioClip::render", {num_chunks, chunk_size, sample_rate}
-			length = chunk_size * num_chunks / sample_rate
+			# console.log "AudioClip::render", {num_chunks, chunk_size, sample_rate}
+			length ?= chunk_size * num_chunks / sample_rate
 		E ".audio-clip", {style},
 			E "canvas",
 				ref: "canvas"
