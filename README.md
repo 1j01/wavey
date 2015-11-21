@@ -33,7 +33,7 @@ I don't know how much mirroring would be appreciated, but I think it would be ki
 ### TODO
 
 * Effects
-* Scrolling and zooming
+* Horizontal scrolling and zooming
 
 
 ### Contributing

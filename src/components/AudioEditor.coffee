@@ -609,7 +609,11 @@ class @AudioEditor extends E.Component
 			style: outline: "none"
 			onMouseDown: (e)=>
 				return if e.isDefaultPrevented()
-				e.preventDefault()
+				unless e.button > 0
+					e.preventDefault()
+				if e.target is React.findDOMNode(@)
+					e.preventDefault()
+					@deselect()
 				React.findDOMNode(@).focus()
 			onDragOver: (e)=>
 				return if e.isDefaultPrevented()

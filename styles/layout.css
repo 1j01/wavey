@@ -4,6 +4,8 @@
 	-ms-user-select: none;
 	-moz-user-select: none;
 	-webkit-user-select: none;
+	display: flex;
+	flex-direction: column;
 }
 
 .menu-positioner {
@@ -25,7 +27,8 @@
 }
 
 .tracks {
-	height: 100%;
+	overflow-x: hidden;
+	overflow-y: auto;
 }
 
 .add-track button ~ span {
