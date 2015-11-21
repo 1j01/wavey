@@ -110,7 +110,7 @@ class @AudioEditor extends E.Component
 		for track in tracks when track.type is "audio"
 			for clip in track.clips
 				if clip.recording_id
-					recording = AudioEditor.recordings[clip.recording_id]
+					recording = AudioClip.recordings[clip.recording_id]
 					if recording
 						max_length = Math.max max_length, clip.time + (clip.length ? recording.length ? 0)
 					else
@@ -189,9 +189,6 @@ class @AudioEditor extends E.Component
 		
 		{tracks} = @state
 		
-		# __table__ = []
-		# __table__ = {}
-		# __sources__ =
 		for track in tracks when not track.muted
 			switch track.type
 				when "beat"
@@ -204,11 +201,11 @@ class @AudioEditor extends E.Component
 						source.gain = actx.createGain()
 						
 						if clip.recording_id
-							recording = AudioEditor.recordings[clip.recording_id]
+							recording = AudioClip.recordings[clip.recording_id]
 							unless recording.audio_buffer?
-								if recording.channels[0]?.length
-									recording.audio_buffer = actx.createBuffer recording.channels.length, recording.channels[0].length * recording.channels[0][0].length, recording.sample_rate
-									for channel, channel_index in recording.channels
+								if recording.chunks[0]?.length
+									recording.audio_buffer = actx.createBuffer recording.chunks.length, recording.chunks[0].length * recording.chunks[0][0].length, recording.sample_rate
+									for channel, channel_index in recording.chunks
 										for chunk, chunk_index in channel
 											recording.audio_buffer.copyToChannel chunk, channel_index, chunk_index * chunk.length
 							source.buffer = recording.audio_buffer
@@ -226,13 +223,8 @@ class @AudioEditor extends E.Component
 						length_to_play_of_clip = clip_length - Math.max(0, from_time - clip.time)
 						
 						if length_to_play_of_clip > 0
-							# __table__.push {clip_id: clip.id, start_time, starting_offset_into_clip, length_to_play_of_clip, clip_length}
-							# __table__[clip.id] = {start_time, starting_offset_into_clip, length_to_play_of_clip, clip_length}
 							source.start actx.currentTime + start_time, starting_offset_into_clip, length_to_play_of_clip
 							source
-		
-		# console.table __table__
-		# __sources__
 	
 	pause: =>
 		clearTimeout @state.tid
@@ -250,8 +242,6 @@ class @AudioEditor extends E.Component
 	update_playback: =>
 		if @state.playing
 			@seek @get_current_position()
-	
-	@recordings: {}
 	
 	record: =>
 		# @TODO: use MediaDevices.getUserMedia when available
@@ -282,11 +272,11 @@ class @AudioEditor extends E.Component
 					
 					recording =
 						id: recording_id
-						channels: [[], []]
+						chunks: [[], []]
 						chunk_ids: [[], []]
 					
-					AudioEditor.recordings[clip.recording_id] = recording
-					AudioClip.audio_buffers_loading[clip.audio_id] = yes
+					AudioClip.recordings[clip.recording_id] = recording
+					AudioClip.loading[clip.audio_id] = yes
 					
 					current_chunk = 0
 					chunk_size = 2 ** 14 # samples (2 to an integer power between 8 and 14 inclusive)
@@ -296,19 +286,19 @@ class @AudioEditor extends E.Component
 						# console?.log "record chunk", current_chunk
 						recording.sample_rate = e.inputBuffer.sampleRate
 						
-						channels = []
+						chunks = []
 						chunk_ids = []
 						for i in [0...e.inputBuffer.numberOfChannels]
 							# new Float32Array necessary in chrome
 							data = new Float32Array e.inputBuffer.getChannelData i
-							channels.push recording.channels[i].concat [data]
+							chunks.push recording.chunks[i].concat [data]
 							chunk_ids.push recording.chunk_ids[i].concat [chunk_id = GUID()]
 							do (chunk_id, data)=>
 								localforage.setItem "recording:#{recording_id}:chunk:#{chunk_id}", data, (err)=>
 									if err
 										InfoBar.warn "Failing to store recording! #{err.message}"
 										console.error "Failed to store recording chunk", err
-						recording.channels = channels
+						recording.chunks = chunks
 						recording.chunk_ids = chunk_ids
 						recording.length = chunk_ids[0].length * data.length / recording.sample_rate
 						
@@ -488,9 +478,9 @@ class @AudioEditor extends E.Component
 		reader = new FileReader
 		reader.onload = (e)=>
 			array_buffer = e.target.result
-			clip = {id: GUID(), audio_id: GUID(), time: 0}
+			clip = {id: GUID(), audio_id: GUID(), time: 0, offset: 0}
 			
-			AudioClip.audio_buffers_loading[clip.audio_id] = yes
+			AudioClip.loading[clip.audio_id] = yes
 			
 			localforage.setItem "audio:#{clip.audio_id}", array_buffer, (err)=>
 				if err
@@ -502,7 +492,6 @@ class @AudioEditor extends E.Component
 						AudioClip.audio_buffers[clip.audio_id] = buffer
 						
 						clip.length = buffer.length / buffer.sampleRate
-						clip.offset = 0
 						
 						stuff = {version: AudioEditor.stuff_version, rows: [[clip]], length: clip.length}
 						if at_selection
@@ -635,5 +624,5 @@ class @AudioEditor extends E.Component
 			E Controls, {playing, recording, precording_enabled, themes, set_theme, editor: @, key: "controls"}
 			E "div",
 				key: "infobar"
-				E InfoBar # @TODO, ref: (@infobar)=>
+				E InfoBar #, ref: (@infobar)=> # @TODO: instanced InfoBar API
 			E Tracks, {tracks, selection, position, position_time, playing, editor: @, key: "tracks"}

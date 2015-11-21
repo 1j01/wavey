@@ -2,14 +2,14 @@
 class @AudioClip extends E.Component
 	
 	@audio_buffers = {}
-	@audio_buffers_loading = {}
+	@recordings: {}
+	@loading = {}
 	
 	@load_clip = (clip)=>
 		return if AudioClip.audio_buffers[clip.audio_id]?
-		return if AudioClip.audio_buffers_loading[clip.audio_id]?
+		return if AudioClip.loading[clip.audio_id]?
 		
-		# should this be AudioClip.loading[clip.id] instead?
-		AudioClip.audio_buffers_loading[clip.audio_id] = yes
+		AudioClip.loading[clip.audio_id] = yes
 		
 		if clip.recording_id?
 			localforage.getItem "recording:#{clip.recording_id}", (err, recording)=>
@@ -17,24 +17,15 @@ class @AudioClip extends E.Component
 					InfoBar.error "Failed to load recording.\n#{err.message}"
 					console.error err
 				else if recording
-					recording.channels = [[], []]
-					# should this be AudioClip.recordings?
-					# for chunk_ids, chunk_index in recording.chunk_ids
-					# 	for chunk_id in chunk_ids
-					# 		do (chunk_index, chunk_ids, chunk_id)=>
+					AudioClip.recordings[clip.recording_id] = recording
+					recording.chunks = [[], []]
 					for chunk_ids, channel_index in recording.chunk_ids
 						for chunk_id, chunk_index in chunk_ids
 							do (chunk_ids, channel_index, chunk_id, chunk_index)=>
 								localforage.getItem "recording:#{clip.recording_id}:chunk:#{chunk_id}", (err, typed_array)=>
-									# should this be recording.chunks?
-									# recording.channels[chunk_index]
-									recording.channels[channel_index][chunk_index] = typed_array
-									# console.log recording.length, chunk_ids.length * typed_array.length / recording.sample_rate
-									# this should only come into play when the recording is cut off ubrupty (e.g. by the page being refreshed):
-									# recording.length ?= chunk_ids.length * typed_array.length / recording.sample_rate
-									# actually it shouldn't be necessary, I'll just save it every time a chunk is stored
-									
-					AudioEditor.recordings[clip.recording_id] = recording
+									recording.chunks[channel_index][chunk_index] = typed_array
+									# @FIXME: load a document, then switch to a different document (with recordings that weren't in the first document)
+									# it doesn't render the recordings
 				else
 					InfoBar.warn "A recording is missing from storage."
 					console.warn "A recording is missing from storage.", clip
@@ -64,7 +55,6 @@ class @AudioClip extends E.Component
 			one_channel = data[0]
 			num_chunks = one_channel.length
 			chunk_size = one_channel[0].length
-			# console.log "AudioClip::render", {num_chunks, chunk_size, sample_rate}
 			length ?= chunk_size * num_chunks / sample_rate
 		E ".audio-clip", {style},
 			E "canvas",
@@ -89,7 +79,6 @@ class @AudioClip extends E.Component
 			at = (x)->
 				len = typed_arrays[0]?.length
 				idx = ~~((x/scale + offset) * sample_rate)
-				# console.log idx, len, idx // len
 				typed_arrays[idx // len]?[idx % len]
 		else if data
 			audio_buffer = data
@@ -122,7 +111,7 @@ class @AudioClip extends E.Component
 		# but maybe also for other clips (it shouldn't need to rerender when cutting off a bit)
 		@renderCanvas() if (
 			@props.data isnt last_props.data or
-			(@props.clip.recording_id? and @props.data?[0]?.length isnt last_props.data?[0]?.length) or # @TODO: only if actively recording
+			(@props.clip.recording_id? and @props.data?[0]?.length isnt last_props.data?[0]?.length) or
 			@props.clip.offset isnt last_props.clip.offset or
 			@props.clip.length isnt last_props.clip.length
 		)

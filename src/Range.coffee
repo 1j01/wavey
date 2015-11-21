@@ -13,7 +13,7 @@ class @Range
 	
 	get_clip_start_end = (clip)->
 		clip_start = clip.time
-		clip_end = clip.time + (clip.length ? AudioEditor.recordings[clip.recording_id]?.length)
+		clip_end = clip.time + (clip.length ? AudioClip.recordings[clip.recording_id]?.length)
 		{clip_start, clip_end}
 	
 	contents: (tracks)->

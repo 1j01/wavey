@@ -50,7 +50,7 @@ class @AudioTrack extends E.Component
 						editor.add_clip file, yes
 				
 				for clip, i in clips
-					recording = AudioEditor.recordings[clip.recording_id]
+					recording = AudioClip.recordings[clip.recording_id]
 					E AudioClip,
 						key: clip.id
 						clip: clip
@@ -62,7 +62,7 @@ class @AudioTrack extends E.Component
 						data:
 							if clip.recording_id?
 								if recording?
-									recording.channels
+									recording.chunks
 								else
 									null
 							else
