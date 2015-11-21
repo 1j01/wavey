@@ -11,11 +11,6 @@ class @Range
 	endTrackIndex: -> Math.max(@track_a, @track_b)
 	containsTrackIndex: (track_index)-> @startTrackIndex() <= track_index <= @endTrackIndex()
 	
-	get_clip_start_end = (clip)->
-		clip_start = clip.time
-		clip_end = clip.time + (clip.length ? AudioClip.recordings[clip.recording_id]?.length)
-		{clip_start, clip_end}
-	
 	contents: (tracks)->
 		# returns stuff from tracks within this range
 		

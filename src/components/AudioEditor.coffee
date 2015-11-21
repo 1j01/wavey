@@ -157,11 +157,13 @@ class @AudioEditor extends E.Component
 	
 	seek_to_start: =>
 		@seek 0
+		# @TODO: move selection if it's a cursor
 	
 	seek_to_end: =>
 		end = @get_max_length()
 		return unless end?
 		@seek end
+		# @TODO: move selection if it's a cursor
 	
 	play: =>
 		@play_from @state.position ? 0
@@ -255,12 +257,21 @@ class @AudioEditor extends E.Component
 					{selection} = @state
 					if selection?
 						start_time = selection.start()
+						# @TODO: only accept tracks of type "audio" here and in other places
 						track = tracks[selection.startTrackIndex()]
-					# @TODO: use new track if any audio at or after selection start
+					if track?
+						for clip in track.clips
+							{clip_start, clip_end} = get_clip_start_end clip
+							if clip_end > start_time
+								track = null # track is no good, but keep the start time
+					# @TODO: maybe make a helper that adds a track if there's no selection
+					# and inserts a given clip
 					if not track?
-						start_time = 0
+						start_time ?= 0
 						track = {id: GUID(), type: "audio", clips: []}
 						tracks.push track
+						if start_time > 0
+							@select new Range start_time, start_time, tracks.length - 1, tracks.length - 1
 					
 					clip =
 						id: GUID()
@@ -286,7 +297,6 @@ class @AudioEditor extends E.Component
 					
 					recorder = actx.createScriptProcessor chunk_size, 2, if chrome? then 1 else 0
 					recorder.onaudioprocess = (e)=>
-						# console?.log "record chunk", current_chunk
 						recording.sample_rate = e.inputBuffer.sampleRate
 						
 						chunks = []
@@ -306,10 +316,6 @@ class @AudioEditor extends E.Component
 						recording.length = chunk_ids[0].length * data.length / recording.sample_rate
 						
 						localforage.setItem "recording:#{clip.recording_id}", {
-							# id: recording_id
-							# sample_rate: sample_rate
-							# chunk_ids: chunk_ids
-							# length: chunk_ids[0].length * data.length / sample_rate
 							id: recording.id
 							sample_rate: recording.sample_rate
 							chunk_ids: recording.chunk_ids
@@ -323,21 +329,9 @@ class @AudioEditor extends E.Component
 						render()
 						unless @state.recording
 							# erring on the side of recording longer (@TODO: more exact)
-							
-							# localforage.setItem "recording:#{clip.recording_id}", {
-							# 	id: recording_id
-							# 	sample_rate: sample_rate
-							# 	chunk_ids: chunk_ids
-							# 	length: <exact length>
-							# }, (err)=>
-							# 	if err
-							# 		InfoBar.warn "Failing to store recording! #{err.message}"
-							# 		console.error "Failed to store recording metadata", err
-							
 							source.disconnect()
 							recorder.disconnect()
 							delete window["chrome bug workaround #{(recording_id)}"]
-							# console?.log "recording ended"
 					
 					source.connect recorder
 					recorder.connect actx.destination if chrome?
