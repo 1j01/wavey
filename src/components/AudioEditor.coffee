@@ -23,8 +23,8 @@ class @AudioEditor extends E.Component
 			recording: no
 			precording_enabled: no
 	
-	@document_version: 1
-	@stuff_version: 1
+	@document_version: 2
+	@stuff_version: 2
 	
 	save: ->
 		{document_id} = @props
@@ -56,9 +56,12 @@ class @AudioEditor extends E.Component
 					return
 				if doc.version < AudioEditor.document_version
 					# upgrading code should go here
-					# for backwards compatible changes, the version number can simply be bumped
-					InfoBar.warn "This document was created with an earlier version of the editor. There is no upgrade path as of yet, sorry."
-					return
+					# for backwards compatible changes, the version number can simply be incremented
+					if doc.version is 1 and AudioEditor.document_version is 2
+						doc.version += 1 # recordings added
+					unless doc.version is AudioEditor.document_version
+						InfoBar.warn "This document was created with an earlier version of the editor. There is no upgrade path as of yet, sorry."
+						return
 				{state, undos, redos} = doc
 				{tracks, selection} = state
 				@setState {tracks, undos, redos}
@@ -423,9 +426,12 @@ class @AudioEditor extends E.Component
 					return
 				if clipboard.version < AudioEditor.stuff_version
 					# upgrading code should go here
-					# for backwards compatible changes, the version number can simply be bumped
-					InfoBar.warn "The clipboard data was copied from an earlier version of the editor. There is no upgrade path as of yet, sorry."
-					return
+					# for backwards compatible changes, the version number can simply be incremented
+					if clipboard.version is 1 and AudioEditor.stuff_version is 2
+						clipboard.version += 1 # recordings added
+					unless clipboard.version is AudioEditor.stuff_version
+						InfoBar.warn "The clipboard data was copied from an earlier version of the editor. There is no upgrade path as of yet, sorry."
+						return
 				
 				@undoable (tracks)=>
 					{selection} = @state
