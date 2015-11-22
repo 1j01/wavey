@@ -459,6 +459,22 @@ class @AudioEditor extends E.Component
 	unpin_track: (track_id)=>
 		@set_track_prop track_id, "pinned", off
 	
+	# set_track_pinned: (track_id, pinned)->
+	# 	track_els = React.findDOMNode(@).querySelectorAll ".track"
+	# 	@set_track_prop track_id, "pinned", pinned
+	
+	# pin_track: (track_id)=>
+	# 	@set_track_pinned track_id, yes
+	
+	# unpin_track: (track_id)=>
+	# 	@set_track_pinned track_id, no
+	
+	# mute_track: (track_id)=>
+	# 	@set_track_prop track_id, "muted", yes
+	
+	# unmute_track: (track_id)=>
+	# 	@set_track_prop track_id, "muted", no
+	
 	remove_track: (track_id)=>
 		@undoable (tracks)=>
 			{selection} = @state
@@ -518,6 +534,18 @@ class @AudioEditor extends E.Component
 			.then (rendered_audio_buffer)=>
 				export_audio_buffer_as rendered_audio_buffer, file_type
 	
+	componentWillUpdate: (next_props, next_state)=>
+		@last_track_rects = null
+		if @state.tracks.length is next_state.tracks.length
+			for track_current, track_index in @state.tracks
+				track_future = next_state.tracks[track_index]
+				if track_future.pinned isnt track_current.pinned
+					track_els = React.findDOMNode(@).querySelectorAll(".track")
+					@last_track_rects =
+						for track_el in track_els
+							track_el.getBoundingClientRect()
+						# (track_el.getBoundingClientRect() for track_el in track_els)
+	
 	componentDidUpdate: (last_props, last_state)=>
 		{document_id} = @props
 		{tracks, selection, undos, redos} = @state
@@ -533,6 +561,25 @@ class @AudioEditor extends E.Component
 		if tracks isnt last_state.tracks
 			@update_playback()
 			AudioClip.load_clips tracks
+			
+		if @last_track_rects
+			track_els = React.findDOMNode(@).querySelectorAll(".track")
+			# current_track_rects = (track_el.getBoundingClientRect() for track_el in track_els)
+			for track_el, track_index in track_els
+				current_rect = track_el.getBoundingClientRect()
+				last_rect = @last_track_rects[track_index]
+				# console.log track_el, "moved from", last_rect.top, "to", current_rect.top
+				track_el.style.transform = "translateY(#{last_rect.top - current_rect.top}px)"
+				do (track_el)->
+					setTimeout ->
+						track_el.style.transition = "transform .5s ease"
+						setTimeout ->
+							track_el.style.transform = "translateY(0)"
+							setTimeout ->
+								track_el.style.transition = ""
+							, 500
+			@last_track_rects = null
+
 	
 	componentDidMount: =>
 		

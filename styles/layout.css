@@ -31,9 +31,17 @@
 	display: flex;
 }
 .tracks {
+	display: flex;
+	flex-direction: column;
 	flex: 1;
 	overflow-x: hidden;
 	overflow-y: auto;
+}
+.track {
+	flex-shrink: 0;
+}
+.track.pinned {
+	order: -1;
 }
 
 .add-track button ~ span {
