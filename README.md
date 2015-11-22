@@ -19,7 +19,7 @@ Note how the bar with beat markings is a track. It would become a metronome when
 Tracks can be pinned to the top,
 which should easy the pain when you have many tracks with audio clips
 you want to line up with some main audio track(s).
-*Currently this breaks selection.*
+**Currently this breaks pasting, among other things.**
 
 You will be able to "precord" up to five minutes or as long as precording has been enabled. 
 

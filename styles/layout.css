@@ -49,8 +49,6 @@
 	user-select: none;
 }
 
-/* @TODO: pinned tracks */
-
 .track-controls {
 	float: left;
 	width: 6em; /* = .track-content {margin-left} */

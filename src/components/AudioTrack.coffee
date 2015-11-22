@@ -6,26 +6,23 @@ class @AudioTrack extends E.Component
 		
 		select_at_mouse = (e)=>
 			# @FIXME: WET, @TODO: DRY, this was copy/pasted from Tracks::onMouseMove
-			el = closest e.target, ".track-content"
-			return unless el?
+			track_content_el = closest e.target, ".track-content"
+			return unless track_content_el?
 			
-			tracks_el = closest e.target, ".tracks"
+			track_el = closest e.target, ".track"
 			
 			time_at = (e)->
-				rect = el.getBoundingClientRect()
+				rect = track_content_el.getBoundingClientRect()
 				(e.clientX - rect.left) / scale
 			
-			track_index_at = (e)->
-				track_index = 0
-				for track_el in tracks_el.children
-					rect = track_el.getBoundingClientRect()
-					if e.clientY > rect.bottom
-						track_index += 1
-				track_index
+			track_id_at = (e)->
+				track_el = closest e.target, ".track"
+				track_el.dataset.trackId
 			
 			t = time_at e
-			track_index = track_index_at e
-			editor.select new Range t, t, track_index, track_index
+			track_id = track_id_at e
+			
+			editor.select new Range t, t, [track_id]
 		
 		E Track, {track, editor},
 			E ".audio-clips",

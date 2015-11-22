@@ -23,7 +23,7 @@ class @AudioEditor extends E.Component
 			recording: no
 			precording_enabled: no
 	
-	@document_version: 2
+	@document_version: 3
 	@stuff_version: 2
 	
 	save: ->
@@ -55,13 +55,33 @@ class @AudioEditor extends E.Component
 					InfoBar.warn "This document was created with a later version of the editor. Reload to get the latest version."
 					return
 				if doc.version < AudioEditor.document_version
-					# upgrading code should go here
+					
+					# upgrading code goes here
 					# for backwards compatible changes, the version number can simply be incremented
-					if doc.version is 1 and AudioEditor.document_version is 2
-						doc.version += 1 # recordings added
+					
+					upgrade = (fn)->
+						fn doc.state
+						fn state for state in doc.undos
+						fn state for state in doc.redos
+					
+					if doc.version is 1
+						doc.version++ # recordings added
+					
+					if doc.version is 2
+						doc.version++ # pinned tracks mean the tracks aren't necessarily in order
+						upgrade (state)->
+							if state.selection
+								{track_a, track_b} = state.selection
+								min_track_index = Math.min track_a, track_b
+								max_track_index = Math.max track_a, track_b
+								state.selection.track_ids = (track.id for track, track_index in state.tracks when min_track_index <= track_index <= max_track_index)
+								delete state.selection.track_a
+								delete state.selection.track_b
+						
 					unless doc.version is AudioEditor.document_version
 						InfoBar.warn "This document was created with an earlier version of the editor. There is no upgrade path as of yet, sorry."
 						return
+				
 				{state, undos, redos} = doc
 				{tracks, selection} = state
 				@setState {tracks, undos, redos}
@@ -258,7 +278,7 @@ class @AudioEditor extends E.Component
 					if selection?
 						start_time = selection.start()
 						# @TODO: only accept tracks of type "audio" here and in other places
-						track = tracks[selection.startTrackIndex()]
+						track = _track for _track in tracks when _track.id is selection.firstTrackID()
 					if track?
 						for clip in track.clips
 							{clip_start, clip_end} = get_clip_start_end clip
@@ -271,7 +291,7 @@ class @AudioEditor extends E.Component
 						track = {id: GUID(), type: "audio", clips: []}
 						tracks.push track
 						if start_time > 0
-							@select new Range start_time, start_time, tracks.length - 1, tracks.length - 1
+							@select new Range start_time, start_time, [track.id]
 					
 					clip =
 						id: GUID()
@@ -363,6 +383,7 @@ class @AudioEditor extends E.Component
 		InfoBar.warn "Sorry, precording is not yet implemented"
 	
 	select: (selection)=>
+		# console.log "select", selection
 		@setState {selection}
 	
 	deselect: =>
@@ -370,16 +391,18 @@ class @AudioEditor extends E.Component
 	
 	select_all: =>
 		{tracks} = @state
-		@select new Range 0, @get_max_length(), 0, tracks.length - 1
+		@select new Range 0, @get_max_length(), (track.id for track in tracks)
 	
 	select_up: =>
 		# @TODO: look at track types
+		# @TODO @FIXME
 		{selection} = @state
 		above = (track_index)-> Math.max(track_index - 1, 0)
 		@select new Range selection.start(), selection.end(), above(selection.startTrackIndex()), above(selection.endTrackIndex())
 	
 	select_down: =>
 		# @TODO: look at track types
+		# @TODO @FIXME
 		{selection, tracks} = @state
 		below = (track_index)-> Math.min(track_index + 1, tracks.length)
 		@select new Range selection.start(), selection.end(), below(selection.startTrackIndex()), below(selection.endTrackIndex())
@@ -433,6 +456,7 @@ class @AudioEditor extends E.Component
 						# @TODO: handle excess selected tracks better
 						# (currently it collapses the entire selection, but only inserts as many rows as are in the clipboard)
 						collapsed = selection.collapse tracks
+						# @TODO @FIXME
 						after = Range.insert clipboard, tracks, collapsed.start(), collapsed.startTrackIndex()
 					else
 						after = Range.insert clipboard, tracks, 0, tracks.length
@@ -464,11 +488,12 @@ class @AudioEditor extends E.Component
 			{selection} = @state
 			for track, track_index in tracks when track.id is track_id by -1
 				tracks.splice track_index, 1
-				if selection?.containsTrackIndex track_index
-					if selection.startTrackIndex() is selection.endTrackIndex()
-						@deselect()
+				if selection?.containsTrack track
+					updated_selection = new Range selection.start(), selection.end(), (track_id for track_id in selection.tracks when track_id isnt track.id)
+					if updated_selection.length
+						@select updated_selection
 					else
-						@select new Range selection.start(), selection.end(), selection.startTrackIndex(), selection.endTrackIndex() - 1
+						@deselect()
 	
 	add_clip: (file, at_selection)->
 		{document_id} = @props
@@ -494,6 +519,7 @@ class @AudioEditor extends E.Component
 						clip.length = buffer.length / buffer.sampleRate
 						
 						stuff = {version: AudioEditor.stuff_version, rows: [[clip]], length: clip.length}
+						# @TODO @FIXME
 						if at_selection
 							@insert stuff, selection.start(), selection.startTrackIndex()
 						else

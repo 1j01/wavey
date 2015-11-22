@@ -1,22 +1,24 @@
 
 class @Range
-	constructor: (@a, @b = @a, @track_a, @track_b = @track_a)->
+	constructor: (@a, @b = @a, @track_ids = [])->
+		unless @track_ids instanceof Array
+			throw new Error "new Range(#{(JSON.stringify a for a in arguments).join ", "}): third argument must be an array of track IDs"
 	# @TODO: rename start/end to startTime/endTime
 	# and maybe have start/end methods that return a new Range at the start/end
 	start: -> Math.min(@a, @b)
 	end: -> Math.max(@a, @b)
 	length: -> @end() - @start()
 	containsTime: (time)-> @start() <= time <= @end()
-	startTrackIndex: -> Math.min(@track_a, @track_b)
-	endTrackIndex: -> Math.max(@track_a, @track_b)
-	containsTrackIndex: (track_index)-> @startTrackIndex() <= track_index <= @endTrackIndex()
+	firstTrackID: -> @track_ids[0]
+	lastTrackID: -> @track_ids[@track_ids.length - 1]
+	containsTrack: (track)-> @track_ids.indexOf(track.id) isnt -1
 	
 	contents: (tracks)->
 		# returns stuff from tracks within this range
 		
 		stuff = {version: AudioEditor.stuff_version, length: @length(), rows: []}
 		
-		for track, track_index in tracks when track.type is "audio" and @containsTrackIndex track_index
+		for track in tracks when track.type is "audio" and @containsTrack track
 			clips = []
 			for clip in track.clips
 				# buffer = AudioClip.audio_buffers[clip.audio_id]
@@ -70,7 +72,7 @@ class @Range
 		# modifies tracks, removing everything within this range
 		# returns a collapsed range
 		
-		for track, track_index in tracks when track.type is "audio" and @containsTrackIndex track_index
+		for track in tracks when track.type is "audio" and @containsTrack track
 			clips = []
 			for clip in track.clips
 				# buffer = AudioClip.audio_buffers[clip.audio_id]
@@ -101,7 +103,7 @@ class @Range
 					clips.push clip
 			track.clips = clips
 		
-		new Range @start(), @start(), @startTrackIndex(), @endTrackIndex()
+		new Range @start(), @start(), @track_ids
 	
 	# @TODO? maybe there should be a class for "Stuff"
 	# (this would be Stuff::insert)
@@ -136,21 +138,24 @@ class @Range
 					clips.push clip
 			track.clips = clips
 		
+		track_ids = []
 		for clips, i in stuff.rows
+			# @TODO @FIXME: go in visual order of tracks
 			track = tracks[insertion_track_start_index + i]
+			# @TODO: handle (skip over) non "audio" type tracks
 			if not track? and clips.length
 				track = {id: GUID(), type: "audio", clips: []}
 				tracks.push track
+			
+			track_ids.push track.id
+			
 			for clip in clips
 				clip.time += insertion_position
 				clip.id = GUID()
 				track.clips.push clip
 		
 		end = insertion_position + insertion_length
-		new Range end, end, insertion_track_start_index, insertion_track_end_index
-	
-	@drag: (range, {to, toTrackIndex})->
-		new Range range.a, Math.max(0, to), range.track_a, Math.max(0, toTrackIndex)
+		new Range end, end, track_ids
 	
 	@fromJSON: (range)->
-		new Range range.a, range.b, range.track_a, range.track_b
+		new Range range.a, range.b, range.track_ids

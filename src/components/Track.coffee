@@ -6,6 +6,7 @@ class @Track extends E.Component
 		E ".track",
 			classes: {muted, pinned}
 			className: @props.className ? "#{track.type}-track"
+			data: trackId: track.id
 			E TrackControls, {muted, pinned, track, editor}
 			E ".track-content",
 				@props.children
