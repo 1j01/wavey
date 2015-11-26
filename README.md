@@ -28,7 +28,7 @@ MIDI is a distinct possibility but certainly not a priority.
 Embedding. Plugins. Desktop apps.
 
 Internationalization with translations and LTR UI.
-[RTLCSS](https://github.com/MohammadYounes/rtlcss) can help with UI mirroring,
+[RTLCSS][] can help with UI mirroring,
 but I'd have to update the code for tracks.
 I don't know how much mirroring would be appreciated, but I think it would be kinda fun.
 
@@ -74,11 +74,14 @@ SOFTWARE.
 
 -------
 
+### P.S.
+
 What do you think of the name Wavey editor? (not "Wavy" editor)
 
-[app]: http://1j01.github.io/audio-editor/
+[app]: https://audioeditor.ml/
 [elementary OS]: https://elementary.io/
 [elementary.css]: https://github.com/1j01/elementary.css/
+[RTLCSS]: https://github.com/MohammadYounes/rtlcss
 [CoffeeScript]: http://coffeescript.org/
 [React]: https://facebook.github.io/react/
 [ReactScript]: https://github.com/1j01/react-script
