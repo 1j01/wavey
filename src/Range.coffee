@@ -23,10 +23,6 @@ class @Range
 		for track in tracks when track.type is "audio" and @containsTrack track
 			clips = []
 			for clip in track.clips
-				# buffer = AudioClip.audio_buffers[clip.audio_id]
-				# unless buffer?
-				# 	InfoBar.warn "Not all selected tracks have finished loading."
-				# 	return
 				{clip_start, clip_end} = get_clip_start_end clip
 				if @start() < clip_end and @end() > clip_start
 					# clip and selection overlap
@@ -77,10 +73,6 @@ class @Range
 		for track in tracks when track.type is "audio" and @containsTrack track
 			clips = []
 			for clip in track.clips
-				# buffer = AudioClip.audio_buffers[clip.audio_id]
-				# unless buffer?
-				# 	InfoBar.warn "Not all selected tracks have finished loading."
-				# 	return
 				{clip_start, clip_end} = get_clip_start_end clip
 				if @start() < clip_end and @end() > clip_start
 					if @start() > clip_start
@@ -110,12 +102,7 @@ class @Range
 	# @TODO? maybe there should be a class for "Stuff"
 	# (this would be Stuff::insert)
 	@insert: (stuff, insertion_position, start_track_id, tracks, sorted_tracks)->
-		console.log "Range.insert", stuff, insertion_position, start_track_id, tracks, sorted_tracks
 		rows = (row for row in stuff.rows when row.length > 0)
-		
-		# start_track_index = track_index for track, track_index in sorted_tracks when track.id is insertion_track_id
-		# start_track_index ?= sorted_tracks.length
-		# track_end_index = insertion_track_start_index + rows.length - 1
 		
 		sorted_track_ids = (track.id for track in sorted_tracks)
 		track_ids =
@@ -123,12 +110,10 @@ class @Range
 				sorted_track_ids.slice sorted_track_ids.indexOf(start_track_id)
 			else
 				[]
-		console.log track_ids
 		while track_ids.length < rows.length
 			new_track = {id: GUID(), type: "audio", clips: []}
 			tracks.push new_track
 			track_ids.push new_track.id
-		console.log track_ids
 		
 		for track in tracks when track.type is "audio" and track.id in track_ids
 			row = rows[track_ids.indexOf track.id]
@@ -164,18 +149,6 @@ class @Range
 					clips.push clip
 				
 				track.clips = clips
-		
-		# for clips, i in rows
-		# 	if not track? and clips.length
-		# 		track = {id: GUID(), type: "audio", clips: []}
-		# 		tracks.push track
-			
-		# 	track_ids.push track.id
-			
-		# 	for clip in clips
-		# 		clip.time += insertion_position
-		# 		clip.id = GUID()
-		# 		track.clips.push clip
 		
 		end = insertion_position + stuff.length
 		new Range end, end, track_ids
