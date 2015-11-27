@@ -524,11 +524,10 @@ class @AudioEditor extends E.Component
 						clip.length = buffer.length / buffer.sampleRate
 						
 						stuff = {version: AudioEditor.stuff_version, rows: [[clip]], length: clip.length}
-						# @TODO @FIXME
 						if at_selection
-							@insert stuff, selection.start(), selection.startTrackIndex()
+							@insert stuff, selection.start(), selection.firstTrackID()
 						else
-							@insert stuff, 0, @state.tracks.length
+							@insert stuff, 0
 			, (e)=>
 				InfoBar.warn "Audio not playable or not supported."
 				console.error e
