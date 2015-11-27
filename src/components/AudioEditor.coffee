@@ -392,23 +392,20 @@ class @AudioEditor extends E.Component
 		{tracks} = @state
 		@select new Range 0, @get_max_length(), (track.id for track in tracks)
 	
-	select_up: =>
+	select_vertically: (delta)=>
 		{selection} = @state
-		sorted_tracks = audio_tracks_in @get_sorted_tracks()
+		sorted_tracks = normal_tracks_in @get_sorted_tracks()
 		selected_track_id = selection.firstTrackID()
 		for track, track_index in sorted_tracks
 			break if track.id is selected_track_id
-		above_selected_track_id = sorted_tracks[track_index - 1]?.id ? selected_track_id
-		@select new Range selection.start(), selection.end(), [above_selected_track_id]
+		next_selected_track_id = sorted_tracks[track_index + delta]?.id ? selected_track_id
+		@select new Range selection.start(), selection.end(), [next_selected_track_id]
+	
+	select_up: =>
+		@select_vertically -1
 	
 	select_down: =>
-		{selection} = @state
-		sorted_tracks = audio_tracks_in @get_sorted_tracks()
-		selected_track_id = selection.firstTrackID()
-		for track, track_index in sorted_tracks
-			break if track.id is selected_track_id
-		above_selected_track_id = sorted_tracks[track_index + 1]?.id ? selected_track_id
-		@select new Range selection.start(), selection.end(), [above_selected_track_id]
+		@select_vertically +1
 	
 	delete: =>
 		{selection} = @state
