@@ -363,7 +363,7 @@ class @AudioEditor extends E.Component
 			
 			(error)=>
 				switch error.name
-					when "PermissionDeniedError"
+					when "PermissionDeniedError", "PermissionDismissedError"
 						return
 					when "NotFoundError"
 						InfoBar.warn "No recording devices were found."
