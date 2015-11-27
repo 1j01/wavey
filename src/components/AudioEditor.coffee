@@ -278,6 +278,8 @@ class @AudioEditor extends E.Component
 					if selection?
 						start_time = selection.start()
 						# @TODO: only accept tracks of type "audio" here and in other places
+						# replace the method firstTrackID() with a method topTrackID(sorted_tracks)
+						# and pass to it sorted tracks filtered to audio tracks
 						track = _track for _track in tracks when _track.id is selection.firstTrackID()
 					if track?
 						for clip in track.clips
@@ -393,8 +395,8 @@ class @AudioEditor extends E.Component
 		@select new Range 0, @get_max_length(), (track.id for track in tracks)
 	
 	select_vertically: (delta)=>
-		{selection} = @state
-		sorted_tracks = normal_tracks_in @get_sorted_tracks()
+		{tracks, selection} = @state
+		sorted_tracks = normal_tracks_in @get_sorted_tracks tracks
 		selected_track_id = selection.firstTrackID()
 		for track, track_index in sorted_tracks
 			break if track.id is selected_track_id
@@ -419,6 +421,7 @@ class @AudioEditor extends E.Component
 	copy: =>
 		{selection, tracks} = @state
 		return unless selection?.length()
+		# @TODO: copy sorted contents
 		localforage.setItem "clipboard", selection.contents(tracks), (err)=>
 			if err
 				InfoBar.warn "Failed to store clipboard data.\n#{err.message}"
@@ -452,19 +455,21 @@ class @AudioEditor extends E.Component
 				
 				@undoable (tracks)=>
 					{selection} = @state
+					sorted_tracks = @get_sorted_tracks tracks
+
 					if selection?
 						# @TODO: handle excess selected tracks better
 						# (currently it collapses the entire selection, but only inserts as many rows as are in the clipboard)
-						collapsed = selection.collapse tracks
-						# @TODO @FIXME
-						after = Range.insert clipboard, tracks, collapsed.start(), collapsed.startTrackIndex()
+						collapsed_selection = selection.collapse tracks
+						after = Range.insert clipboard, collapsed_selection.start(), collapsed_selection.firstTrackID(), tracks, sorted_tracks
 					else
-						after = Range.insert clipboard, tracks, 0, tracks.length
+						after = Range.insert clipboard, 0, null, tracks, sorted_tracks
 					@select after
 	
-	insert: (stuff, insertion_position, insertion_track_start_index)->
+	insert: (stuff, position, track_id)->
 		@undoable (tracks)=>
-			Range.insert stuff, tracks, insertion_position, insertion_track_start_index
+			sorted_tracks = @get_sorted_tracks tracks
+			Range.insert stuff, position, track_id, tracks, sorted_tracks
 	
 	set_track_prop: (track_id, prop, value)->
 		@undoable (tracks)=>
@@ -534,8 +539,7 @@ class @AudioEditor extends E.Component
 		
 		reader.readAsArrayBuffer file
 	
-	get_sorted_tracks: =>
-		{tracks} = @state
+	get_sorted_tracks: (tracks)=>
 		track_els = React.findDOMNode(@).querySelectorAll ".track"
 		track_positions = (track_el.getBoundingClientRect().top for track_el in track_els)
 		track_positions = {}

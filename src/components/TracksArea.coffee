@@ -4,7 +4,7 @@ class @TracksArea extends E.Component
 		{tracks, position, position_time, playing, editor} = @props
 		
 		drag = (range, to_time, to_track_id)=>
-			sorted_tracks = editor.get_sorted_tracks()
+			sorted_tracks = editor.get_sorted_tracks tracks
 			from_track = track for track in sorted_tracks when track.id is range.firstTrackID()
 			to_track = track for track in sorted_tracks when track.id is to_track_id
 			include_tracks =
@@ -51,18 +51,15 @@ class @TracksArea extends E.Component
 						if track_el and track_el.dataset.trackId
 							track_el.dataset.trackId
 						else
-							# sorted_tracks = get_sorted_tracks()
 							track_els = React.findDOMNode(@).querySelectorAll ".track"
 							nearest_track_el = track_els[0]
 							distance = Infinity
 							for track_el in track_els when track_el.dataset.trackId
 								rect = track_el.getBoundingClientRect()
 								_distance = Math.abs(e.clientY - (rect.top + rect.height / 2))
-								# console.log track_el, _distance
 								if _distance < distance
 									nearest_track_el = track_el
 									distance = _distance
-							# console.log nearest_track_el, nearest_track_el.dataset.trackId
 							nearest_track_el.dataset.trackId
 					
 					t = time_at e
