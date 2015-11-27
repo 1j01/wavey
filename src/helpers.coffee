@@ -21,6 +21,9 @@
 	clip_end = clip.time + (clip.length ? AudioClip.recordings[clip.recording_id]?.length)
 	{clip_start, clip_end}
 
+@audio_tracks_in = (tracks)->
+	track for track in tracks when track.type is "audio"
+
 window.AudioContext = window.AudioContext ? window.webkitAudioContext
 navigator.getUserMedia = navigator.getUserMedia ? navigator.webkitGetUserMedia ? navigator.mozGetUserMedia
 window.URL = window.URL ? window.webkitURL

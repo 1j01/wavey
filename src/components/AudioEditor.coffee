@@ -383,7 +383,6 @@ class @AudioEditor extends E.Component
 		InfoBar.warn "Sorry, precording is not yet implemented"
 	
 	select: (selection)=>
-		# console.log "select", selection
 		@setState {selection}
 	
 	deselect: =>
@@ -394,18 +393,22 @@ class @AudioEditor extends E.Component
 		@select new Range 0, @get_max_length(), (track.id for track in tracks)
 	
 	select_up: =>
-		# @TODO: look at track types
-		# @TODO @FIXME
 		{selection} = @state
-		above = (track_index)-> Math.max(track_index - 1, 0)
-		@select new Range selection.start(), selection.end(), above(selection.startTrackIndex()), above(selection.endTrackIndex())
+		sorted_tracks = audio_tracks_in @get_sorted_tracks()
+		selected_track_id = selection.firstTrackID()
+		for track, track_index in sorted_tracks
+			break if track.id is selected_track_id
+		above_selected_track_id = sorted_tracks[track_index - 1]?.id ? selected_track_id
+		@select new Range selection.start(), selection.end(), [above_selected_track_id]
 	
 	select_down: =>
-		# @TODO: look at track types
-		# @TODO @FIXME
-		{selection, tracks} = @state
-		below = (track_index)-> Math.min(track_index + 1, tracks.length)
-		@select new Range selection.start(), selection.end(), below(selection.startTrackIndex()), below(selection.endTrackIndex())
+		{selection} = @state
+		sorted_tracks = audio_tracks_in @get_sorted_tracks()
+		selected_track_id = selection.firstTrackID()
+		for track, track_index in sorted_tracks
+			break if track.id is selected_track_id
+		above_selected_track_id = sorted_tracks[track_index + 1]?.id ? selected_track_id
+		@select new Range selection.start(), selection.end(), [above_selected_track_id]
 	
 	delete: =>
 		{selection} = @state
@@ -533,6 +536,16 @@ class @AudioEditor extends E.Component
 			console.error e
 		
 		reader.readAsArrayBuffer file
+	
+	get_sorted_tracks: =>
+		{tracks} = @state
+		track_els = React.findDOMNode(@).querySelectorAll ".track"
+		track_positions = (track_el.getBoundingClientRect().top for track_el in track_els)
+		track_positions = {}
+		for track_el in track_els
+			track_positions[track_el.dataset.trackId] = track_el.getBoundingClientRect().top
+		tracks.slice().sort (track_a, track_b)->
+			track_positions[track_a.id] - track_positions[track_b.id]
 	
 	export_as: (file_type)=>
 		sample_rate = 44100

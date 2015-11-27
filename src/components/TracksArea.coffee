@@ -3,18 +3,8 @@ class @TracksArea extends E.Component
 	render: ->
 		{tracks, position, position_time, playing, editor} = @props
 		
-		get_sorted_tracks = =>
-			track_els = React.findDOMNode(@).querySelectorAll ".track"
-			track_positions = (track_el.getBoundingClientRect().top for track_el in track_els)
-			track_positions = {}
-			for track_el in track_els
-				track_positions[track_el.dataset.trackId] = track_el.getBoundingClientRect().top
-			tracks.slice().sort (track_a, track_b)->
-				track_positions[track_a.id] - track_positions[track_b.id]
-		
 		drag = (range, to_time, to_track_id)=>
-			sorted_tracks = get_sorted_tracks()
-			# started = no; track.id for track in sorted_tracks when if started then (if track.id is range.lastTrackID() then ....) else if track.id is range.firstTrackID() then (started = yes; yes)
+			sorted_tracks = editor.get_sorted_tracks()
 			from_track = track for track in sorted_tracks when track.id is range.firstTrackID()
 			to_track = track for track in sorted_tracks when track.id is to_track_id
 			include_tracks =
@@ -22,8 +12,6 @@ class @TracksArea extends E.Component
 					sorted_tracks.slice sorted_tracks.indexOf(from_track), sorted_tracks.indexOf(to_track) + 1
 				else
 					sorted_tracks.slice sorted_tracks.indexOf(to_track), sorted_tracks.indexOf(from_track) + 1
-			# console.log range, range.firstTrackID(), to_track_id, {from_track, to_track}
-			# console.log sorted_tracks.indexOf(from_track), sorted_tracks.indexOf(to_track), include_tracks
 			new Range range.a, Math.max(0, to_time), [range.firstTrackID()].concat(track.id for track in include_tracks when track.id isnt range.firstTrackID())
 		
 		E ".tracks-area",
