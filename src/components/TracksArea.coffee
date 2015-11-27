@@ -73,6 +73,7 @@ class @TracksArea extends E.Component
 					mouse_moved = no
 					mouse_move_from_clientX = e.clientX
 					window.addEventListener "mousemove", onMouseMove = (e)=>
+						# @TODO: allow dragging straight up/down
 						if Math.abs(e.clientX - mouse_move_from_clientX) > 5
 							mouse_moved = yes
 						if mouse_moved and @props.selection

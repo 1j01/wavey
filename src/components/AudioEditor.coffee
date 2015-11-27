@@ -277,10 +277,9 @@ class @AudioEditor extends E.Component
 					{selection} = @state
 					if selection?
 						start_time = selection.start()
-						# @TODO: only accept tracks of type "audio" here and in other places
-						# replace the method firstTrackID() with a method topTrackID(sorted_tracks)
-						# and pass to it sorted tracks filtered to audio tracks
-						track = _track for _track in tracks when _track.id is selection.firstTrackID()
+						sorted_audio_tracks = (track for track in @get_sorted_tracks tracks when track.type is "audio")
+						# @TODO refactor: make and use function selection.firstTrack(sorted_audio_tracks)
+						track = _track for _track in tracks when _track.id is selection.firstTrackID(sorted_audio_tracks)
 					if track?
 						for clip in track.clips
 							{clip_start, clip_end} = get_clip_start_end clip
@@ -394,20 +393,26 @@ class @AudioEditor extends E.Component
 		{tracks} = @state
 		@select new Range 0, @get_max_length(), (track.id for track in tracks)
 	
-	select_vertically: (delta)=>
+	select_vertically: (direction)=>
 		{tracks, selection} = @state
 		sorted_tracks = normal_tracks_in @get_sorted_tracks tracks
-		selected_track_id = selection.firstTrackID()
+		switch direction
+			when "up"
+				selected_track_id = selection.firstTrackID(sorted_tracks)
+				delta = -1
+			when "down"
+				selected_track_id = selection.lastTrackID(sorted_tracks)
+				delta = +1
 		for track, track_index in sorted_tracks
 			break if track.id is selected_track_id
 		next_selected_track_id = sorted_tracks[track_index + delta]?.id ? selected_track_id
 		@select new Range selection.start(), selection.end(), [next_selected_track_id]
 	
 	select_up: =>
-		@select_vertically -1
+		@select_vertically "up"
 	
 	select_down: =>
-		@select_vertically +1
+		@select_vertically "down"
 	
 	delete: =>
 		{selection} = @state
@@ -421,8 +426,8 @@ class @AudioEditor extends E.Component
 	copy: =>
 		{selection, tracks} = @state
 		return unless selection?.length()
-		# @TODO: copy sorted contents
-		localforage.setItem "clipboard", selection.contents(tracks), (err)=>
+		sorted_tracks = @get_sorted_tracks tracks
+		localforage.setItem "clipboard", selection.contents(sorted_tracks), (err)=>
 			if err
 				InfoBar.warn "Failed to store clipboard data.\n#{err.message}"
 				console.error err
@@ -461,9 +466,12 @@ class @AudioEditor extends E.Component
 						# @TODO: handle excess selected tracks better
 						# (currently it collapses the entire selection, but only inserts as many rows as are in the clipboard)
 						collapsed_selection = selection.collapse tracks
-						after = Range.insert clipboard, collapsed_selection.start(), collapsed_selection.firstTrackID(), tracks, sorted_tracks
+						track_id = collapsed_selection.firstTrackID(sorted_tracks)
+						position = collapsed_selection.start()
 					else
-						after = Range.insert clipboard, 0, null, tracks, sorted_tracks
+						track_id = null
+						position = 0
+					after = Range.insert clipboard, position, track_id, tracks, sorted_tracks
 					@select after
 	
 	insert: (stuff, position, track_id)->

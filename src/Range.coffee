@@ -3,17 +3,32 @@ class @Range
 	constructor: (@a, @b = @a, @track_ids = [])->
 		unless @track_ids instanceof Array
 			throw new Error "new Range(#{(JSON.stringify a for a in arguments).join ", "}): third argument must be an array of track IDs"
+	
 	# @TODO: rename start/end to startTime/endTime
 	# and maybe have start/end methods that return a new Range at the start/end
 	start: -> Math.min(@a, @b)
 	end: -> Math.max(@a, @b)
 	length: -> @end() - @start()
-	containsTime: (time)-> @start() <= time <= @end()
-	# @TODO: topTrackID(sorted_tracks)
-	firstTrackID: -> @track_ids[0]
-	# @TODO: bottomTrackID(sorted_tracks)
-	lastTrackID: -> @track_ids[@track_ids.length - 1]
-	containsTrack: (track)-> @track_ids.indexOf(track.id) isnt -1
+	
+	containsTime: (time)->
+		@start() <= time <= @end()
+	
+	firstTrackID: (sorted_tracks)->
+		if sorted_tracks
+			for track in sorted_tracks
+				return track.id if track.id in @track_ids
+		else
+			@track_ids[0]
+	
+	lastTrackID: (sorted_tracks)->
+		if sorted_tracks
+			for track in sorted_tracks by -1
+				return track.id if track.id in @track_ids
+		else
+			@track_ids[@track_ids.length - 1]
+	
+	containsTrack: (track)->
+		@track_ids.indexOf(track.id) isnt -1
 	
 	contents: (tracks)->
 		# returns stuff from tracks within this range
