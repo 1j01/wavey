@@ -161,29 +161,32 @@ class @AudioEditor extends E.Component
 			InfoBar.warn "Tried to seek to invalid time: #{time}"
 			return
 		
-		return if @state.recording
-		
+		time = Math.max 0, time
 		max_length = @get_max_length()
 		
-		if @state.playing and max_length? and time < max_length
-			{recording} = @state
+		{playing, recording, selection} = @state
+		
+		return if recording
+		
+		if playing and max_length? and time < max_length
 			@play_from time
 			@setState {recording}
 		else
 			@pause()
 			@setState
 				position_time: actx.currentTime
-				position: Math.max 0, time
+				position: time
+		
+		if selection?.length() is 0
+			@select new Range time, time, selection.track_ids
 	
 	seek_to_start: =>
 		@seek 0
-		# @TODO: move selection if it's a cursor
 	
 	seek_to_end: =>
 		end = @get_max_length()
 		return unless end?
 		@seek end
-		# @TODO: move selection if it's a cursor
 	
 	play: =>
 		@play_from @state.position ? 0
