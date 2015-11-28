@@ -13,17 +13,23 @@ class @Range
 	containsTime: (time)->
 		@start() <= time <= @end()
 	
+	firstTrack: (sorted_tracks)->
+		for track in sorted_tracks
+			return track if track.id in @track_ids
+	
+	lastTrack: (sorted_tracks)->
+		for track in sorted_tracks by -1
+			return track if track.id in @track_ids
+	
 	firstTrackID: (sorted_tracks)->
 		if sorted_tracks
-			for track in sorted_tracks
-				return track.id if track.id in @track_ids
+			@firstTrack(sorted_tracks).id
 		else
 			@track_ids[0]
 	
 	lastTrackID: (sorted_tracks)->
 		if sorted_tracks
-			for track in sorted_tracks by -1
-				return track.id if track.id in @track_ids
+			@lastTrack(sorted_tracks).id
 		else
 			@track_ids[@track_ids.length - 1]
 	

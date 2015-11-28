@@ -281,8 +281,7 @@ class @AudioEditor extends E.Component
 					if selection?
 						start_time = selection.start()
 						sorted_audio_tracks = (track for track in @get_sorted_tracks tracks when track.type is "audio")
-						# @TODO refactor: make and use function selection.firstTrack(sorted_audio_tracks)
-						track = _track for _track in tracks when _track.id is selection.firstTrackID(sorted_audio_tracks)
+						track = selection.firstTrack(sorted_audio_tracks)
 					if track?
 						for clip in track.clips
 							{clip_start, clip_end} = get_clip_start_end clip
