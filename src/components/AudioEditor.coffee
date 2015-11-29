@@ -147,6 +147,7 @@ class @AudioEditor extends E.Component
 						InfoBar.warn "Not all tracks have finished loading."
 						return
 		
+		# console.log {max_length}
 		max_length
 	
 	get_current_position: ->
@@ -157,6 +158,8 @@ class @AudioEditor extends E.Component
 				0
 	
 	seek: (time)=>
+		# console.trace "seek", time
+		
 		if isNaN time
 			InfoBar.warn "Tried to seek to invalid time: #{time}"
 			return
@@ -197,6 +200,8 @@ class @AudioEditor extends E.Component
 		max_length = @get_max_length()
 		return unless max_length?
 		
+		# console.log "play_from", from_time, max_length, from_time >= max_length
+		
 		if from_time >= max_length or from_time < 0
 			from_time = 0
 		
@@ -231,6 +236,9 @@ class @AudioEditor extends E.Component
 						if clip.recording_id
 							recording = AudioClip.recordings[clip.recording_id]
 							unless recording.audio_buffer?
+								if not recording.chunks?
+									InfoBar.warn "Not all tracks have finished loading."
+									throw new Error "Not all tracks have finished loading."
 								if recording.chunks[0]?.length
 									recording.audio_buffer = actx.createBuffer recording.chunks.length, recording.chunks[0].length * recording.chunks[0][0].length, recording.sample_rate
 									for channel, channel_index in recording.chunks
@@ -260,16 +268,20 @@ class @AudioEditor extends E.Component
 			for source in track_sources
 				source?.stop actx.currentTime + 1.0
 				source?.gain.gain.value = 0
+		@end_recording()
 		@setState
 			position_time: actx.currentTime
 			position: @get_current_position()
 			playing: no
-			recording: no
 			track_sources: []
 	
 	update_playback: =>
 		if @state.playing
 			@seek @get_current_position()
+	
+	end_recording: =>
+		# method overridden by record
+		# (and then reset to an empty function when the recording is over)
 	
 	record: =>
 		# @TODO: use MediaDevices.getUserMedia when available
@@ -311,12 +323,17 @@ class @AudioEditor extends E.Component
 						id: recording_id
 						chunks: [[], []]
 						chunk_ids: [[], []]
+						length: 0
 					
 					AudioClip.recordings[clip.recording_id] = recording
 					AudioClip.loading[clip.audio_id] = yes
 					
 					current_chunk = 0
 					chunk_size = 2 ** 14 # samples (2 to an integer power between 8 and 14 inclusive)
+					
+					final_recording_length = undefined
+					# start_actx_time = actx.currentTime
+					# console.log {start_actx_time}
 					
 					recorder = actx.createScriptProcessor chunk_size, 2, if chrome? then 1 else 0
 					recorder.onaudioprocess = (e)=>
@@ -336,33 +353,51 @@ class @AudioEditor extends E.Component
 										console.error "Failed to store recording chunk", err
 						recording.chunks = chunks
 						recording.chunk_ids = chunk_ids
-						recording.length = chunk_ids[0].length * data.length / recording.sample_rate
+						recording.length = final_recording_length ? chunk_ids[0].length * data.length / recording.sample_rate
 						
-						localforage.setItem "recording:#{clip.recording_id}", {
-							id: recording.id
-							sample_rate: recording.sample_rate
-							chunk_ids: recording.chunk_ids
-							length: recording.length
-						}, (err)=>
-							if err
-								InfoBar.warn "Failing to store recording! #{err.message}"
-								console.error "Failed to store recording metadata", err
+						save = =>
+							localforage.setItem "recording:#{clip.recording_id}", {
+								id: recording.id
+								sample_rate: recording.sample_rate
+								chunk_ids: recording.chunk_ids
+								length: recording.length
+							}, (err)=>
+								if err
+									InfoBar.warn "Failing to store recording! #{err.message}"
+									console.error "Failed to store recording metadata", err
+						
+						unless final_recording_length?
+							@end_recording = =>
+								# console.log "end_recording", recording.length, actx.currentTime - t
+								# final_recording_length = recording.length += actx.currentTime - t
+								# console.log "end_recording", actx.currentTime - start_actx_time, {start_actx_time, ct: actx.currentTime}
+								# final_recording_length = recording.length = actx.currentTime - start_actx_time
+								final_recording_length = recording.length = @get_current_position() - start_time
+								save()
+								# console.log start_time, final_recording_length
+								@setState
+									recording: no
+									position: start_time + final_recording_length
+									position_time: actx.currentTime
+								@end_recording = =>
+						
+						save()
 						
 						current_chunk += 1
 						render()
-						unless @state.recording
-							# erring on the side of recording longer (@TODO: more exact)
-							source.disconnect()
-							recorder.disconnect()
-							delete window["chrome bug workaround #{(recording_id)}"]
 					
 					source.connect recorder
 					recorder.connect actx.destination if chrome?
 					# http://stackoverflow.com/questions/24338144/chrome-onaudioprocess-stops-getting-called-after-a-while
-					if chrome? then window["chrome bug workaround #{(recording_id)}"] = recorder
+					if chrome? then window["chrome bug workaround (#{recording_id})"] = recorder
 					
-					@setState recording: yes
-					@play_from start_time
+					unless @state.recording?
+						source.disconnect()
+						recorder.disconnect()
+						delete window["chrome bug workaround (#{recording_id})"]
+					
+					@setState recording: yes, =>
+						@play_from start_time
 			
 			(error)=>
 				switch error.name
@@ -376,7 +411,7 @@ class @AudioEditor extends E.Component
 						InfoBar.warn "Failed to start recording: #{error.name}" + if error.message then ": #{error.message}"
 				console.error "navigator.getUserMedia", error
 	
-	end_recording: =>
+	stop_recording: =>
 		@pause()
 	
 	precord: (seconds_back_in_time_woo_time_travel)=>
@@ -396,6 +431,7 @@ class @AudioEditor extends E.Component
 		@select new Range 0, @get_max_length(), (track.id for track in tracks)
 	
 	select_vertically: (direction)=>
+		# @FIXME: error if no selection
 		{tracks, selection} = @state
 		sorted_tracks = normal_tracks_in @get_sorted_tracks tracks
 		switch direction
@@ -652,6 +688,7 @@ class @AudioEditor extends E.Component
 					when 46, 8 # Delete, Backspace
 						@delete()
 					when 82 # R
+						# @FIXME: record() while recording
 						@record()
 					# @TODO: finer control as well
 					# @TODO: move selection left/right?

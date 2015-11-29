@@ -59,14 +59,9 @@ class @AudioClip extends E.Component
 				@load_clip clip
 	
 	render: ->
-		{clip, data, sample_rate, style} = @props
-		{length} = clip
-		if data instanceof Array and data[0][0]?
-			one_channel = data[0]
-			num_chunks = one_channel.length
-			chunk_size = one_channel[0].length
-			length ?= chunk_size * num_chunks / sample_rate
-		E ".audio-clip", {style},
+		{clip, _length, data, style} = @props
+		length = _length # @XXX workaround for ReactScript bug
+		E ".audio-clip", {style, data: {length}},
 			E "canvas",
 				ref: "canvas"
 				height: 80 # = .track-content {height}
@@ -123,7 +118,7 @@ class @AudioClip extends E.Component
 			@props.data isnt last_props.data or
 			(@props.clip.recording_id? and @props.data?[0]?.length isnt last_props.data?[0]?.length) or
 			@props.clip.offset isnt last_props.clip.offset or
-			@props.clip.length isnt last_props.clip.length
+			@props._length isnt last_props._length
 		)
 	
 	componentWillUnmount: ->

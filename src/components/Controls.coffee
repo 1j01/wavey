@@ -2,7 +2,7 @@
 class @Controls extends E.Component
 	render: ->
 		{playing, recording, precording_enabled, themes, set_theme, editor} = @props
-		{play, pause, seek_to_start, seek_to_end, record, end_recording, precord, enable_precording, export_as} = editor
+		{play, pause, seek_to_start, seek_to_end, record, stop_recording, precord, enable_precording, export_as} = editor
 		E ".controls",
 			E "span.floated", style: float: "right",
 				E DropdownButton,
@@ -39,8 +39,8 @@ class @Controls extends E.Component
 				mainButton:
 					if recording
 						E "button.button.record",
-							onClick: end_recording
-							title: "End recording"
+							onClick: stop_recording
+							title: "Stop recording"
 							E "i.icon-stop"
 					else
 						E "button.button.record",
