@@ -1,4 +1,7 @@
 
+if location.protocol is "http:" and location.host.match /editor|app/
+	location.protocol = "https:"
+
 @actx = new (
 	window.AudioContext ?
 	window.webkitAudioContext ?
