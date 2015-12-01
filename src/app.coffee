@@ -56,6 +56,7 @@ set_theme = (theme)->
 		window.removeEventListener "mouseup", patch_elementary_classes
 		window.removeEventListener "keydown", patch_elementary_classes
 
+# @TODO: load theme faster somehow
 localforage.getItem "theme", (err, theme)->
 	set_theme theme ? "elementary"
 

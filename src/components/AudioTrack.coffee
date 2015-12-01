@@ -11,7 +11,7 @@ class @AudioTrack extends E.Component
 			
 			track_el = closest e.target, ".track"
 			
-			time_at = (e)->
+			position_at = (e)->
 				rect = track_content_el.getBoundingClientRect()
 				(e.clientX - rect.left) / scale
 			
@@ -19,10 +19,10 @@ class @AudioTrack extends E.Component
 				track_el = closest e.target, ".track"
 				track_el.dataset.trackId
 			
-			t = time_at e
+			position = position_at e
 			track_id = track_id_at e
 			
-			editor.select new Range t, t, [track_id]
+			editor.select new Range position, position, [track_id]
 		
 		E Track, {track, editor},
 			E ".audio-clips",

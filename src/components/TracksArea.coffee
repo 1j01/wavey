@@ -3,7 +3,7 @@ class @TracksArea extends E.Component
 	render: ->
 		{tracks, position, position_time, playing, editor} = @props
 		
-		drag = (range, to_time, to_track_id)=>
+		drag = (range, to_position, to_track_id)=>
 			sorted_tracks = editor.get_sorted_tracks tracks
 			from_track = track for track in sorted_tracks when track.id is range.firstTrackID()
 			to_track = track for track in sorted_tracks when track.id is to_track_id
@@ -12,7 +12,7 @@ class @TracksArea extends E.Component
 					sorted_tracks.slice sorted_tracks.indexOf(from_track), sorted_tracks.indexOf(to_track) + 1
 				else
 					sorted_tracks.slice sorted_tracks.indexOf(to_track), sorted_tracks.indexOf(from_track) + 1
-			new Range range.a, Math.max(0, to_time), [range.firstTrackID()].concat(track.id for track in include_tracks when track.id isnt range.firstTrackID())
+			new Range range.a, Math.max(0, to_position), [range.firstTrackID()].concat(track.id for track in include_tracks when track.id isnt range.firstTrackID())
 		
 		E ".tracks-area",
 			onMouseDown: (e)=>
@@ -42,7 +42,7 @@ class @TracksArea extends E.Component
 						return
 					e.preventDefault()
 					
-					time_at = (e)=>
+					position_at = (e)=>
 						rect = track_content_el.getBoundingClientRect()
 						(e.clientX - rect.left) / scale
 					
@@ -62,25 +62,24 @@ class @TracksArea extends E.Component
 									distance = _distance
 							nearest_track_el.dataset.trackId
 					
-					# @TODO: rename things from time to position
-					t = time_at e
+					position = position_at e
 					track_id = track_id_at e
 					
 					if e.shiftKey
-						editor.select drag @props.selection, t, track_id
+						editor.select drag @props.selection, position, track_id
 					else
-						editor.select new Range t, t, [track_id]
+						editor.select new Range position, position, [track_id]
 					
 					mouse_moved_timewise = no
 					mouse_moved_trackwise = no
-					mouse_move_from_clientX = e.clientX
+					starting_clientX = e.clientX
 					window.addEventListener "mousemove", onMouseMove = (e)=>
-						if Math.abs(e.clientX - mouse_move_from_clientX) > 5
+						if Math.abs(e.clientX - starting_clientX) > 5
 							mouse_moved_timewise = yes
 						if track_id_at(e) isnt track_id
 							mouse_moved_trackwise = yes
 						if @props.selection and (mouse_moved_timewise or mouse_moved_trackwise)
-							drag_position = if mouse_moved_timewise then time_at(e) else t
+							drag_position = if mouse_moved_timewise then position_at(e) else position
 							drag_track_id = if mouse_moved_trackwise then track_id_at(e) else track_id
 							editor.select drag @props.selection, drag_position, drag_track_id
 							e.preventDefault()
@@ -89,7 +88,7 @@ class @TracksArea extends E.Component
 						window.removeEventListener "mouseup", onMouseUp
 						window.removeEventListener "mousemove", onMouseMove
 						unless mouse_moved_timewise
-							editor.seek t
+							editor.seek position
 				
 				for track in tracks
 					switch track.type

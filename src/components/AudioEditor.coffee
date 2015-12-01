@@ -147,7 +147,6 @@ class @AudioEditor extends E.Component
 						InfoBar.warn "Not all tracks have finished loading."
 						return
 		
-		# console.log {max_length}
 		max_length
 	
 	get_current_position: ->
@@ -157,31 +156,30 @@ class @AudioEditor extends E.Component
 			else
 				0
 	
-	seek: (time)=>
-		# console.trace "seek", time
+	seek: (position)=>
 		
-		if isNaN time
-			InfoBar.warn "Tried to seek to invalid time: #{time}"
+		if isNaN position
+			InfoBar.warn "Tried to seek to invalid position: #{position}"
 			return
 		
-		time = Math.max 0, time
+		position = Math.max 0, position
 		max_length = @get_max_length()
 		
 		{playing, recording, selection} = @state
 		
 		return if recording
 		
-		if playing and max_length? and time < max_length
-			@play_from time
+		if playing and max_length? and position < max_length
+			@play_from position
 			@setState {recording}
 		else
 			@pause()
 			@setState
 				position_time: actx.currentTime
-				position: time
+				position: position
 		
 		if selection?.length() is 0
-			@select new Range time, time, selection.track_ids
+			@select new Range position, position, selection.track_ids
 	
 	seek_to_start: =>
 		@seek 0
@@ -194,30 +192,28 @@ class @AudioEditor extends E.Component
 	play: =>
 		@play_from @state.position ? 0
 	
-	play_from: (from_time)=>
+	play_from: (from_position)=>
 		@pause() if @state.playing
 		
 		max_length = @get_max_length()
 		return unless max_length?
 		
-		# console.log "play_from", from_time, max_length, from_time >= max_length
-		
-		if from_time >= max_length or from_time < 0
-			from_time = 0
+		if from_position >= max_length or from_position < 0
+			from_position = 0
 		
 		@setState
-			tid: unless @state.recording then setTimeout @pause, (max_length - from_time) * 1000 + 20
+			tid: unless @state.recording then setTimeout @pause, (max_length - from_position) * 1000 + 20
 			# NOTE: an extra few ms because it shouldn't fade out prematurely
 			# (even though might sound better, it might lead you to believe
 			# your audio doesn't need a brief fade out at the end when it does)
 			
 			position_time: actx.currentTime
-			position: from_time
+			position: from_position
 			
 			playing: yes
-			track_sources: @_start_playing from_time, actx
+			track_sources: @_start_playing from_position, actx
 	
-	_start_playing: (from_time, actx)->
+	_start_playing: (from_position, actx)->
 		include_metronome = not (actx instanceof OfflineAudioContext)
 		
 		{tracks} = @state
@@ -253,10 +249,10 @@ class @AudioEditor extends E.Component
 						source.connect source.gain
 						source.gain.connect actx.destination
 						
-						# @TODO: maybe rename clip.time to clip.start_time or clip.start
-						start_time = Math.max(0, clip.time - from_time)
-						starting_offset_into_clip = Math.max(0, from_time - clip.time) + clip.offset
-						length_to_play_of_clip = clip_length - Math.max(0, from_time - clip.time)
+						# @TODO: rename clip.time to clip.start_position or clip.start or clip.position, probably clip.position
+						start_time = Math.max(0, clip.time - from_position)
+						starting_offset_into_clip = Math.max(0, from_position - clip.time) + clip.offset
+						length_to_play_of_clip = clip_length - Math.max(0, from_position - clip.time)
 						
 						if length_to_play_of_clip > 0
 							source.start actx.currentTime + start_time, starting_offset_into_clip, length_to_play_of_clip
@@ -280,7 +276,7 @@ class @AudioEditor extends E.Component
 			@seek @get_current_position()
 	
 	end_recording: =>
-		# method overridden by record
+		# method overridden by @record
 		# (and then reset to an empty function when the recording is over)
 	
 	record: =>
@@ -291,28 +287,28 @@ class @AudioEditor extends E.Component
 				@undoable (tracks)=>
 					{selection} = @state
 					if selection?
-						start_time = selection.start()
+						start_position = selection.start()
 						sorted_audio_tracks = (track for track in @get_sorted_tracks tracks when track.type is "audio")
 						track = selection.firstTrack(sorted_audio_tracks)
 					if track?
 						for clip in track.clips
 							{clip_start, clip_end} = get_clip_start_end clip
-							if clip_end > start_time
-								track = null # track is no good, but keep the start time
+							if clip_end > start_position
+								track = null # track is no good, but keep the start position
 					# @TODO: maybe make a helper that adds a track if there's no selection
 					# and inserts a given clip
 					if not track?
-						start_time ?= 0
+						start_position ?= 0
 						track = {id: GUID(), type: "audio", clips: []}
 						tracks.push track
-						if start_time > 0
-							@select new Range start_time, start_time, [track.id]
+						if start_position > 0
+							@select new Range start_position, start_position, [track.id]
 					
 					clip =
 						id: GUID()
 						audio_id: recording_id
 						recording_id: recording_id
-						time: start_time
+						time: start_position
 						offset: 0
 					
 					track.clips.push clip
@@ -332,8 +328,6 @@ class @AudioEditor extends E.Component
 					chunk_size = 2 ** 14 # samples (2 to an integer power between 8 and 14 inclusive)
 					
 					final_recording_length = undefined
-					# start_actx_time = actx.currentTime
-					# console.log {start_actx_time}
 					
 					recorder = actx.createScriptProcessor chunk_size, 2, if chrome? then 1 else 0
 					recorder.onaudioprocess = (e)=>
@@ -368,16 +362,11 @@ class @AudioEditor extends E.Component
 						
 						unless final_recording_length?
 							@end_recording = =>
-								# console.log "end_recording", recording.length, actx.currentTime - t
-								# final_recording_length = recording.length += actx.currentTime - t
-								# console.log "end_recording", actx.currentTime - start_actx_time, {start_actx_time, ct: actx.currentTime}
-								# final_recording_length = recording.length = actx.currentTime - start_actx_time
-								final_recording_length = recording.length = @get_current_position() - start_time
+								final_recording_length = recording.length = @get_current_position() - start_position
 								save()
-								# console.log start_time, final_recording_length
 								@setState
 									recording: no
-									position: start_time + final_recording_length
+									position: start_position + final_recording_length
 									position_time: actx.currentTime
 								@end_recording = =>
 						
@@ -397,7 +386,7 @@ class @AudioEditor extends E.Component
 						delete window["chrome bug workaround (#{recording_id})"]
 					
 					@setState recording: yes, =>
-						@play_from start_time
+						@play_from start_position
 			
 			(error)=>
 				switch error.name

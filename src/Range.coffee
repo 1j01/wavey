@@ -4,14 +4,12 @@ class @Range
 		unless @track_ids instanceof Array
 			throw new Error "new Range(#{(JSON.stringify a for a in arguments).join ", "}): third argument must be an array of track IDs"
 	
-	# @TODO: rename start/end to startTime/endTime
+	# @TODO: rename start/end to startPosition/endPosition?
 	# and maybe have start/end methods that return a new Range at the start/end
+	# Would that even be useful?
 	start: -> Math.min(@a, @b)
 	end: -> Math.max(@a, @b)
 	length: -> @end() - @start()
-	
-	containsTime: (time)->
-		@start() <= time <= @end()
 	
 	firstTrack: (sorted_tracks)->
 		for track in sorted_tracks
