@@ -288,6 +288,7 @@ class @AudioEditor extends E.Component
 		# (and then reset to an empty function when the recording is over)
 	
 	record: =>
+		return if @state.recording
 		# @TODO: use MediaDevices.getUserMedia when available
 		navigator.getUserMedia audio: yes,
 			(stream)=>
@@ -695,10 +696,12 @@ class @AudioEditor extends E.Component
 					when 46, 8 # Delete, Backspace
 						@delete()
 					when 82 # R
-						# @FIXME: record() while recording
-						@record()
+						if @state.recording
+							@stop_recording()
+						else
+							@record()
+					# @TODO: shift+select with keyboard
 					# @TODO: finer control as well
-					# @TODO: move selection left/right?
 					when 37 # Left
 						@seek @get_current_position() - 1
 					when 39 # Right
