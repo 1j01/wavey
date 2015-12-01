@@ -62,6 +62,7 @@ class @TracksArea extends E.Component
 									distance = _distance
 							nearest_track_el.dataset.trackId
 					
+					# @TODO: rename things from time to position
 					t = time_at e
 					track_id = track_id_at e
 					
@@ -70,20 +71,24 @@ class @TracksArea extends E.Component
 					else
 						editor.select new Range t, t, [track_id]
 					
-					mouse_moved = no
+					mouse_moved_timewise = no
+					mouse_moved_trackwise = no
 					mouse_move_from_clientX = e.clientX
 					window.addEventListener "mousemove", onMouseMove = (e)=>
-						# @TODO: allow dragging straight up/down
 						if Math.abs(e.clientX - mouse_move_from_clientX) > 5
-							mouse_moved = yes
-						if mouse_moved and @props.selection
-							editor.select drag @props.selection, time_at(e), track_id_at(e)
+							mouse_moved_timewise = yes
+						if track_id_at(e) isnt track_id
+							mouse_moved_trackwise = yes
+						if @props.selection and (mouse_moved_timewise or mouse_moved_trackwise)
+							drag_position = if mouse_moved_timewise then time_at(e) else t
+							drag_track_id = if mouse_moved_trackwise then track_id_at(e) else track_id
+							editor.select drag @props.selection, drag_position, drag_track_id
 							e.preventDefault()
 					
 					window.addEventListener "mouseup", onMouseUp = (e)=>
 						window.removeEventListener "mouseup", onMouseUp
 						window.removeEventListener "mousemove", onMouseMove
-						unless mouse_moved
+						unless mouse_moved_timewise
 							editor.seek t
 				
 				for track in tracks
