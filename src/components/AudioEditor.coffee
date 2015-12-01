@@ -226,6 +226,17 @@ class @AudioEditor extends E.Component
 		
 		{tracks} = @state
 		
+		for track in tracks when track.type is "audio" and not track.muted
+			for clip in track.clips
+				loaded =
+					if clip.recording_id
+						AudioClip.recordings[clip.recording_id]?.chunks?
+					else
+						AudioClip.audio_buffers[clip.audio_id]?
+				unless loaded
+					InfoBar.warn "Not all tracks have finished loading."
+					throw new Error "Not all tracks have finished loading."
+				
 		for track in tracks when not track.muted
 			switch track.type
 				when "beat"
@@ -240,10 +251,6 @@ class @AudioEditor extends E.Component
 						if clip.recording_id
 							recording = AudioClip.recordings[clip.recording_id]
 							unless recording.audio_buffer?
-								if not recording.chunks?
-									InfoBar.warn "Not all tracks have finished loading."
-									throw new Error "Not all tracks have finished loading."
-									# @FIXME: this doesn't stop it from playing previous clips
 								if recording.chunks[0]?.length
 									recording.audio_buffer = actx.createBuffer recording.chunks.length, recording.chunks[0].length * recording.chunks[0][0].length, recording.sample_rate
 									for channel, channel_index in recording.chunks
