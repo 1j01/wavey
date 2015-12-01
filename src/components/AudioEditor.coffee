@@ -428,8 +428,8 @@ class @AudioEditor extends E.Component
 		@select new Range 0, @get_max_length(), (track.id for track in tracks)
 	
 	select_vertically: (direction)=>
-		# @FIXME: error if no selection
 		{tracks, selection} = @state
+		return unless selection
 		sorted_tracks = normal_tracks_in @get_sorted_tracks tracks
 		switch direction
 			when "up"
