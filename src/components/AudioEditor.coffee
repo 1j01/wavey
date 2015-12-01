@@ -23,8 +23,8 @@ class @AudioEditor extends E.Component
 			recording: no
 			precording_enabled: no
 	
-	@document_version: 3
-	@stuff_version: 2
+	@document_version: 4
+	@stuff_version: 3
 	
 	save: ->
 		{document_id} = @props
@@ -68,7 +68,7 @@ class @AudioEditor extends E.Component
 						doc.version++ # recordings added
 					
 					if doc.version is 2
-						doc.version++ # pinned tracks mean the tracks aren't necessarily in order
+						doc.version++ # pinned tracks mean the tracks aren't necessarily in order, so selections now use a list of track_ids
 						upgrade (state)->
 							if state.selection
 								{track_a, track_b} = state.selection
@@ -77,7 +77,15 @@ class @AudioEditor extends E.Component
 								state.selection.track_ids = (track.id for track, track_index in state.tracks when min_track_index <= track_index <= max_track_index)
 								delete state.selection.track_a
 								delete state.selection.track_b
-						
+					
+					if doc.version is 3
+						doc.version++ # clip.time renamed to clip.position
+						upgrade (state)->
+							for track in state.tracks when track.type is "audio"
+								for clip in track.clips
+									clip.position = clip.time
+									delete clip.time
+					
 					unless doc.version is AudioEditor.document_version
 						InfoBar.warn "This document was created with an earlier version of the editor. There is no upgrade path as of yet, sorry."
 						return
@@ -135,14 +143,14 @@ class @AudioEditor extends E.Component
 				if clip.recording_id
 					recording = AudioClip.recordings[clip.recording_id]
 					if recording
-						max_length = Math.max max_length, clip.time + (clip.length ? recording.length ? 0)
+						max_length = Math.max max_length, clip.position + (clip.length ? recording.length ? 0)
 					else
 						InfoBar.warn "Not all tracks have finished loading."
 						return
 				else
 					audio_buffer = AudioClip.audio_buffers[clip.audio_id]
 					if audio_buffer
-						max_length = Math.max max_length, clip.time + clip.length
+						max_length = Math.max max_length, clip.position + clip.length
 					else
 						InfoBar.warn "Not all tracks have finished loading."
 						return
@@ -222,7 +230,7 @@ class @AudioEditor extends E.Component
 			switch track.type
 				when "beat"
 					unless include_metronome
-						# @TODO
+						# @TODO: metronome
 						continue
 				when "audio"
 					for clip in track.clips
@@ -235,6 +243,7 @@ class @AudioEditor extends E.Component
 								if not recording.chunks?
 									InfoBar.warn "Not all tracks have finished loading."
 									throw new Error "Not all tracks have finished loading."
+									# @FIXME: this doesn't stop it from playing previous clips
 								if recording.chunks[0]?.length
 									recording.audio_buffer = actx.createBuffer recording.chunks.length, recording.chunks[0].length * recording.chunks[0][0].length, recording.sample_rate
 									for channel, channel_index in recording.chunks
@@ -249,13 +258,12 @@ class @AudioEditor extends E.Component
 						source.connect source.gain
 						source.gain.connect actx.destination
 						
-						# @TODO: rename clip.time to clip.start_position or clip.start or clip.position, probably clip.position
-						start_time = Math.max(0, clip.time - from_position)
-						starting_offset_into_clip = Math.max(0, from_position - clip.time) + clip.offset
-						length_to_play_of_clip = clip_length - Math.max(0, from_position - clip.time)
+						start_time = actx.currentTime + Math.max(0, clip.position - from_position)
+						starting_offset_into_clip = Math.max(0, from_position - clip.position) + clip.offset
+						length_to_play_of_clip = clip_length - Math.max(0, from_position - clip.position)
 						
 						if length_to_play_of_clip > 0
-							source.start actx.currentTime + start_time, starting_offset_into_clip, length_to_play_of_clip
+							source.start start_time, starting_offset_into_clip, length_to_play_of_clip
 							source
 	
 	pause: =>
@@ -308,7 +316,7 @@ class @AudioEditor extends E.Component
 						id: GUID()
 						audio_id: recording_id
 						recording_id: recording_id
-						time: start_position
+						position: start_position
 						offset: 0
 					
 					track.clips.push clip
@@ -479,8 +487,17 @@ class @AudioEditor extends E.Component
 				if clipboard.version < AudioEditor.stuff_version
 					# upgrading code should go here
 					# for backwards compatible changes, the version number can simply be incremented
-					if clipboard.version is 1 and AudioEditor.stuff_version is 2
+					
+					if clipboard.version is 1
 						clipboard.version += 1 # recordings added
+					
+					if clipboard.version is 2
+						clipboard.version += 1 # renamed clip.time to clip.position
+						for row in clipboard.rows
+							for clip in row
+								clip.position = clip.time
+								delete clip.time
+					
 					unless clipboard.version is AudioEditor.stuff_version
 						InfoBar.warn "The clipboard data was copied from an earlier version of the editor. There is no upgrade path as of yet, sorry."
 						return
@@ -488,7 +505,7 @@ class @AudioEditor extends E.Component
 				@undoable (tracks)=>
 					{selection} = @state
 					sorted_tracks = @get_sorted_tracks tracks
-
+					
 					if selection?
 						# @TODO: handle excess selected tracks better
 						# (currently it collapses the entire selection, but only inserts as many rows as are in the clipboard)
@@ -543,7 +560,7 @@ class @AudioEditor extends E.Component
 		reader = new FileReader
 		reader.onload = (e)=>
 			array_buffer = e.target.result
-			clip = {id: GUID(), audio_id: GUID(), time: 0, offset: 0}
+			clip = {id: GUID(), audio_id: GUID(), position: 0, offset: 0}
 			
 			AudioClip.loading[clip.audio_id] = yes
 			
@@ -595,6 +612,7 @@ class @AudioEditor extends E.Component
 	componentWillUpdate: (next_props, next_state)=>
 		# for transitioning track positions
 		@last_track_rects = null
+		# @TODO: transition removing/unremoving tracks
 		if @state.tracks.length is next_state.tracks.length
 			for track_current, track_index in @state.tracks
 				track_future = next_state.tracks[track_index]

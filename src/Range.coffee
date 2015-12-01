@@ -51,7 +51,7 @@ class @Range
 							id: GUID()
 							audio_id: clip.audio_id
 							recording_id: clip.recording_id
-							time: clip_start - @start()
+							position: clip_start - @start()
 							length: clip.length
 							offset: clip.offset
 					else if @start() > clip_start and @end() < clip_end
@@ -60,7 +60,7 @@ class @Range
 							id: GUID()
 							audio_id: clip.audio_id
 							recording_id: clip.recording_id
-							time: 0
+							position: 0
 							length: @length()
 							offset: clip.offset - clip_start + @start()
 					else if @start() < clip_end <= @end()
@@ -69,7 +69,7 @@ class @Range
 							id: GUID()
 							audio_id: clip.audio_id
 							recording_id: clip.recording_id
-							time: 0
+							position: 0
 							length: clip_end - @start()
 							offset: clip.offset - clip_start + @start()
 					else if @start() <= clip_start < @end()
@@ -78,7 +78,7 @@ class @Range
 							id: GUID()
 							audio_id: clip.audio_id
 							recording_id: clip.recording_id
-							time: clip_start - @start()
+							position: clip_start - @start()
 							length: @end() - clip_start
 							offset: clip.offset
 			stuff.rows.push clips
@@ -99,7 +99,7 @@ class @Range
 							id: GUID()
 							audio_id: clip.audio_id
 							recording_id: clip.recording_id
-							time: clip_start
+							position: clip_start
 							length: @start() - clip_start
 							offset: clip.offset
 					if @end() < clip_end
@@ -107,12 +107,12 @@ class @Range
 							id: GUID()
 							audio_id: clip.audio_id
 							recording_id: clip.recording_id
-							time: @start()
+							position: @start()
 							length: clip_end - @end()
 							offset: clip.offset + @end() - clip_start
 				else
 					if clip_start >= @end()
-						clip.time -= @length()
+						clip.position -= @length()
 					clips.push clip
 			track.clips = clips
 		
@@ -142,28 +142,28 @@ class @Range
 				for clip in track.clips
 					{clip_start, clip_end} = get_clip_start_end clip
 					if clip_start >= insertion_position
-						clip.time += stuff.length
+						clip.position += stuff.length
 						clips.push clip
 					else if clip_end > insertion_position
 						clips.push
 							id: GUID()
 							audio_id: clip.audio_id
 							recording_id: clip.recording_id
-							time: clip_start
+							position: clip_start
 							length: insertion_position - clip_start
 							offset: clip.offset
 						clips.push
 							id: GUID()
 							audio_id: clip.audio_id
 							recording_id: clip.recording_id
-							time: insertion_position + stuff.length
+							position: insertion_position + stuff.length
 							length: clip_end - insertion_position
 							offset: clip.offset + insertion_position - clip_start
 					else
 						clips.push clip
 				
 				for clip in row
-					clip.time += insertion_position
+					clip.position += insertion_position
 					clip.id = GUID()
 					clips.push clip
 				
