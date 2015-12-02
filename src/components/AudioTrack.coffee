@@ -48,10 +48,11 @@ class @AudioTrack extends E.Component
 				
 				for clip, i in clips
 					recording = AudioClip.recordings[clip.recording_id]
-					length = clip.length ? (
+					recording_length =
 						if recording?
-							# @XXX ugly
-							recording.length ? do ->
+							if recording.length?
+								recording.length
+							else
 								one_channel = recording.chunks[0]
 								num_chunks = one_channel.length
 								if num_chunks > 0
@@ -59,7 +60,8 @@ class @AudioTrack extends E.Component
 									chunk_size * num_chunks / recording.sample_rate
 								else
 									0
-					)
+					length = clip.length ? recording_length
+					
 					E AudioClip,
 						key: clip.id
 						clip: clip

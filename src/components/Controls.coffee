@@ -5,6 +5,7 @@ class @Controls extends E.Component
 		{play, pause, seek_to_start, seek_to_end, record, stop_recording, precord, enable_precording, export_as} = editor
 		E ".controls",
 			E "span.floated", style: float: "right",
+				# @TODO: export selection
 				E DropdownButton,
 					title: "Export"
 					menu: [
