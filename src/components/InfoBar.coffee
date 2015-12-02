@@ -38,6 +38,7 @@ class @InfoBar extends E.Component
 			classes: [message_class, if visible then "visible"]
 			E "GtkLabel", message
 			E "button.button",
+				disabled: not visible
 				onClick: => InfoBar.setState visible: no
 				E "GtkLabel", "Dismiss"
 
@@ -78,6 +79,7 @@ class @InfoBar extends E.Component
 			classes: [message_class, if visible then "visible"]
 			E "GtkLabel", @state.alert_message
 			E "button.button",
+				disabled: not visible
 				onClick: => @setState alert_message: null
 				E "GtkLabel", "Dismiss"
 ###

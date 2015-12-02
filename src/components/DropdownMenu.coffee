@@ -1,5 +1,7 @@
 
 class @DropdownMenu extends E.Component
+	# @TODO: keyboard accessibility
+	# @TODO: allow dragging down from the DropdownButton
 	render: ->
 		{items} = @props
 		E ".menu.dropdown-menu",
