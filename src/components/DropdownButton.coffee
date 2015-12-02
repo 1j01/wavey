@@ -21,7 +21,7 @@ class @DropdownButton extends E.Component
 					if menu_open
 						E DropdownMenu,
 							items:
-								for item in menu
+								for item in menu when item?
 									do (item)=>
 										label: item.label
 										action: =>

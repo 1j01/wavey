@@ -3,7 +3,7 @@ class @DropdownMenu extends E.Component
 	render: ->
 		{items} = @props
 		E ".menu.dropdown-menu",
-			for item in items
+			for item in items when item?
 				E ".menu-item",
 					key: item.label
 					onClick: item.action

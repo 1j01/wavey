@@ -1,16 +1,17 @@
 
 class @Controls extends E.Component
 	render: ->
-		{playing, recording, precording_enabled, themes, set_theme, editor} = @props
+		{playing, recording, selection, precording_enabled, themes, set_theme, editor} = @props
 		{play, pause, seek_to_start, seek_to_end, record, stop_recording, precord, enable_precording, export_as} = editor
 		E ".controls",
 			E "span.floated", style: float: "right",
-				# @TODO: export selection
 				E DropdownButton,
 					title: "Export"
 					menu: [
 						{label: "Export as MP3", action: -> export_as "mp3"}
 						{label: "Export as WAV", action: -> export_as "wav"}
+						{label: "Export selection as MP3", action: -> export_as "mp3", selection} if selection?
+						{label: "Export selection as WAV", action: -> export_as "wav", selection} if selection?
 					]
 					E "i.icon-export"
 				if themes and set_theme

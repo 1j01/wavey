@@ -607,12 +607,17 @@ class @AudioEditor extends E.Component
 		tracks.slice().sort (track_a, track_b)->
 			track_positions[track_a.id] - track_positions[track_b.id]
 	
-	export_as: (file_type)=>
+	export_as: (file_type, range)=>
 		sample_rate = 44100
-		length = @get_max_length()
+		if range?
+			start = range.start()
+			length = range.length()
+		else
+			start = 0
+			length = @get_max_length()
 		number_of_channels = 2
 		oactx = new OfflineAudioContext number_of_channels, sample_rate * length, sample_rate
-		@_start_playing 0, oactx
+		@_start_playing start, oactx
 		oactx.startRendering()
 			.then (rendered_audio_buffer)=>
 				export_audio_buffer_as rendered_audio_buffer, file_type
@@ -752,7 +757,7 @@ class @AudioEditor extends E.Component
 				e.preventDefault()
 				for file in e.dataTransfer.files
 					@add_clip file
-			E Controls, {playing, recording, precording_enabled, themes, set_theme, editor: @, key: "controls"}
+			E Controls, {playing, recording, selection, precording_enabled, themes, set_theme, editor: @, key: "controls"}
 			E "div",
 				key: "infobar"
 				E InfoBar #, ref: (@infobar)=> # @TODO: instanced InfoBar API
