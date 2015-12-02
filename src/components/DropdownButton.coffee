@@ -10,7 +10,7 @@ class @DropdownButton extends E.Component
 	componentDidMount: ->
 		DropdownButton.instances.push @
 		window.addEventListener "mouseup", @_onmouseup = (e)=>
-			setTimeout =>
+			setTimeout => # after a possible click event
 				@setState just_opened_via_mousedown: no
 	
 	componentWillUnmount: ->
