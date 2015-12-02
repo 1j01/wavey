@@ -59,8 +59,7 @@ class @AudioClip extends E.Component
 				@load_clip clip
 	
 	render: ->
-		{clip, _length, data, style} = @props
-		length = _length # @XXX workaround for ReactScript bug
+		{clip, length, data, style} = @props
 		E ".audio-clip", {style, data: {length}},
 			E "canvas",
 				ref: "canvas"

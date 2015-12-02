@@ -60,13 +60,11 @@ class @AudioTrack extends E.Component
 									chunk_size * num_chunks / recording.sample_rate
 								else
 									0
-					length = clip.length ? recording_length
 					
 					E AudioClip,
 						key: clip.id
 						clip: clip
-						# @XXX @FIXME ReactScript interprets this as an array (of children) when prop "length" is used
-						_length: length
+						length: clip.length ? recording_length
 						sample_rate:
 							if clip.recording_id?
 								recording?.sample_rate
