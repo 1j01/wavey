@@ -4,25 +4,7 @@ class @Controls extends E.Component
 		{playing, recording, selection, precording_enabled, themes, set_theme, editor} = @props
 		{play, pause, seek_to_start, seek_to_end, record, stop_recording, precord, enable_precording, export_as} = editor
 		E ".controls",
-			E "span.floated", style: float: "right",
-				E DropdownButton,
-					title: "Export"
-					menu: [
-						{label: "Export as MP3", action: -> export_as "mp3"}
-						{label: "Export as WAV", action: -> export_as "wav"}
-						{label: "Export selection as MP3", action: -> export_as "mp3", selection} if selection?
-						{label: "Export selection as WAV", action: -> export_as "wav", selection} if selection?
-					]
-					E "i.icon-export"
-				if themes and set_theme
-					E DropdownButton,
-						title: "Settings"
-						menu:
-							for name, id of themes
-								do (name, id)->
-									label: name
-									action: -> set_theme id
-						E "i.icon-gear"
+			# role: "menubar"
 			E "button.button.play-pause",
 				class: if playing then "pause" else "play"
 				title: if playing then "Pause" else "Play"
@@ -61,3 +43,22 @@ class @Controls extends E.Component
 						[
 							{label: "Enable precording", action: -> enable_precording 60 * 5}
 						]
+			E "span.floated", style: float: "right",
+				E DropdownButton,
+					title: "Export"
+					menu: [
+						{label: "Export as MP3", action: -> export_as "mp3"}
+						{label: "Export as WAV", action: -> export_as "wav"}
+						{label: "Export selection as MP3", action: -> export_as "mp3", selection} if selection?
+						{label: "Export selection as WAV", action: -> export_as "wav", selection} if selection?
+					]
+					E "i.icon-export"
+				if themes and set_theme
+					E DropdownButton,
+						title: "Settings"
+						menu:
+							for name, id of themes
+								do (name, id)->
+									label: name
+									action: -> set_theme id
+						E "i.icon-gear"

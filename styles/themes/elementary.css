@@ -9,6 +9,11 @@
 	box-shadow: inset 0 0 0 1px rgba(0,0,0,.05),0 1px 0 0 rgba(255,255,255,.3);
 }
 
+.menu .menuitem:focus {
+	outline: 0;
+	background-color: rgba(51, 51, 51, 0.15);
+}
+
 .audio-editor {
 	background: #dedede;
 	color: black;

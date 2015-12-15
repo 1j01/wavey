@@ -13,6 +13,7 @@ class @TrackControls extends E.Component
 			E ".linked",
 				E "button.button.toggle.mute",
 					class: ("active" if muted)
+					aria: pressed: muted
 					title: if muted then "Unmute track" else "Mute track"
 					onClick: =>
 						if muted
@@ -22,6 +23,7 @@ class @TrackControls extends E.Component
 					E "i.octicon.octicon-mute"
 				E "button.button.toggle.pin",
 					class: ("active" if pinned)
+					aria: pressed: pinned
 					title: if pinned then "Unpin track from the top" else "Pin track to the top"
 					onClick: =>
 						if pinned

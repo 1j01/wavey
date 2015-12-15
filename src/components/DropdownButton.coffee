@@ -9,14 +9,21 @@ class @DropdownButton extends E.Component
 	
 	componentDidMount: ->
 		DropdownButton.instances.push @
+		
 		window.addEventListener "mouseup", @_onmouseup = (e)=>
 			setTimeout => # after a possible click event
 				@setState just_opened_via_mousedown: no
+		
+		window.addEventListener "keydown", @_onkeydown = (e)=>
+			if e.keyCode is 27 # Esc
+				@setState menu_open: no
+				e.preventDefault()
 	
 	componentWillUnmount: ->
 		DropdownButton.instances.splice DropdownButton.instances.indexOf(@), 1
 		window.removeEventListener "mousedown", @_onmousedown
 		window.removeEventListener "mouseup", @_onmouseup
+		window.removeEventListener "keydown", @_onkeydown
 	
 	componentDidUpdate: ->
 		unless @state.menu_open
@@ -29,7 +36,9 @@ class @DropdownButton extends E.Component
 		if menu_open
 			@setState menu_open: no
 		else
-			@setState menu_open: yes
+			@setState menu_open: yes, =>
+				unless @state.just_opened_via_mousedown
+					React.findDOMNode(@).querySelector(".menu-item").focus()
 			window.removeEventListener "mousedown", @_onmousedown
 			window.addEventListener "mousedown", @_onmousedown = (e)=>
 				unless closest e.target, ".dropdown-button, .menu-positioner"
@@ -37,23 +46,25 @@ class @DropdownButton extends E.Component
 	
 	render: ->
 		{menu_open} = @state
-		{children, title, mainButton, menu} = @props
+		{children, title, tabIndex, mainButton, menu} = @props
 		E "span.dropdown-button-container",
 			class: ("menu-open" if menu_open)
+			aria: expanded: menu_open
 			E ".menu-positioner",
 					style: position: "relative", display: "inline-block"
-					if menu_open
-						E DropdownMenu,
-							items:
-								for item in menu when item?
-									do (item)=>
-										label: item.label
-										action: =>
-											@setState menu_open: no
-											item.action()
+					E DropdownMenu,
+						open: menu_open
+						items:
+							for item in menu when item?
+								do (item)=>
+									label: item.label
+									action: =>
+										@setState menu_open: no
+										item.action()
 			E "span.linked",
 				mainButton
 				E "button.button.dropdown-button",
+					aria: haspopup: yes
 					onMouseDown: =>
 						unless @state.menu_open
 							@setState just_opened_via_mousedown: yes
@@ -62,4 +73,5 @@ class @DropdownButton extends E.Component
 						@setState just_opened_via_mousedown: no
 						@toggleMenu() unless @state.just_opened_via_mousedown
 					title: title
-					if children?.length then children else E "i.octicon.octicon-chevron-down"
+					tabIndex: tabIndex
+					if children?.length or React.isValidElement(children) then children else E "i.octicon.octicon-chevron-down"

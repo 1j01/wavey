@@ -93,17 +93,17 @@ class @AudioTrack extends E.Component
 							width: scale * (selection.end() - selection.start())
 				if position?
 					E ".position",
-						ref: (@position_indicator)=>
 						key: "position"
+						ref: "position_indicator"
 						style:
 							left: scale * position
 	
 	animate: ->
 		@animation_frame = requestAnimationFrame => @animate()
 		if @props.playing
-			if @position_indicator
+			if @refs.position_indicator
 				position = @props.position + actx.currentTime - @props.position_time
-				@position_indicator.getDOMNode().style.left = "#{scale * position}px"
+				@refs.position_indicator.getDOMNode().style.left = "#{scale * position}px"
 	
 	componentDidMount: ->
 		@animate()

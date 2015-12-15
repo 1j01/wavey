@@ -34,7 +34,7 @@ class @AudioClip extends E.Component
 											recording.chunks = chunks
 											render()
 									else
-										InfoBar.error "Part of a recording is missing from storage.\n#{err.message}"
+										InfoBar.warn "Part of a recording is missing from storage."
 										console.warn "A chunk of a recording (#{chunk_id}) is missing from storage.", clip, recording
 				else
 					InfoBar.warn "A recording is missing from storage."
@@ -59,7 +59,7 @@ class @AudioClip extends E.Component
 				@load_clip clip
 	
 	render: ->
-		{clip, length, data, style} = @props
+		{clip, length, style} = @props
 		E ".audio-clip", {style, data: {length}},
 			E "canvas",
 				ref: "canvas"

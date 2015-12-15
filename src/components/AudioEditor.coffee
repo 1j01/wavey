@@ -393,16 +393,16 @@ class @AudioEditor extends E.Component
 						
 						current_chunk += 1
 						render()
+						
+						unless @state.recording?
+							source.disconnect()
+							recorder.disconnect()
+							delete window["chrome bug workaround (#{recording_id})"]
 					
 					source.connect recorder
 					recorder.connect actx.destination if chrome?
 					# http://stackoverflow.com/questions/24338144/chrome-onaudioprocess-stops-getting-called-after-a-while
 					if chrome? then window["chrome bug workaround (#{recording_id})"] = recorder
-					
-					unless @state.recording?
-						source.disconnect()
-						recorder.disconnect()
-						delete window["chrome bug workaround (#{recording_id})"]
 					
 					@setState recording: yes, =>
 						@play_from start_position
@@ -761,6 +761,7 @@ class @AudioEditor extends E.Component
 		E ".audio-editor",
 			className: {playing}
 			tabIndex: 0
+			role: "application"
 			style: outline: "none"
 			onMouseDown: (e)=>
 				return if e.isDefaultPrevented()

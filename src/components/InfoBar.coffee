@@ -7,15 +7,30 @@ class @InfoBar extends E.Component
 		visible: no
 	
 	@setState: (state)=>
+		prev_state = {}
+		for k, v of @state
+			prev_state[k] = v
+		
 		for k, v of state
 			@state[k] = v
-		render()
+		
+		return if (
+			@state.message is prev_state.message and
+			@state.message_class is prev_state.message_class and
+			@state.visible is prev_state.visible
+		)
+		
+		setTimeout =>
+			render()
+			if @state.visible and not prev_state.visible
+				document.querySelector("GtkInfoBar button.dismiss").focus()
+		, 50
 	
 	@error: (message)=>
 		@setState {message, message_class: "error", visible: yes}
 	
 	@warn: (message)=>
-		@setState {message, message_class: "warn", visible: yes}
+		@setState {message, message_class: "warning", visible: yes}
 	
 	@info: (message)=>
 		@setState {message, message_class: "info", visible: yes}
@@ -34,13 +49,22 @@ class @InfoBar extends E.Component
 	render: ->
 		{message, message_class, visible} = InfoBar.state
 		# @TODO: remove Gtk-isms
-		E "GtkInfoBar.warning",
+		E "GtkInfoBar",
 			classes: [message_class, if visible then "visible"]
+			role: "alertdialogue" # @FIXME: message can be read multiple times, sometimes repeatedly
+			aria: hidden: not visible
 			E "GtkLabel", message
-			E "button.button",
+			E "button.button.dismiss",
 				disabled: not visible
+				aria: hidden: not visible
+				tabIndex: (-1 unless visible)
 				onClick: => InfoBar.setState visible: no
 				E "GtkLabel", "Dismiss"
+	
+	# shouldComponentUpdate: (next_props, next_state)->
+	# 	next_state.message isnt @state.message or
+	# 	next_state.message_class isnt @state.message_class or
+	# 	next_state.visible isnt @state.visible
 
 ###
 class @InfoBar extends E.Component
@@ -55,7 +79,7 @@ class @InfoBar extends E.Component
 		@setState {message, message_class: "error", visible: yes}
 	
 	warn: (message)=>
-		@setState {message, message_class: "warn", visible: yes}
+		@setState {message, message_class: "warning", visible: yes}
 	
 	info: (message)=>
 		@setState {message, message_class: "info", visible: yes}
@@ -75,7 +99,7 @@ class @InfoBar extends E.Component
 		{message, message_class, visible} = @state
 		# @TODO: remove Gtk-isms
 		# @TODO: animate appearing/disappearing
-		E "GtkInfoBar.warning",
+		E "GtkInfoBar",
 			classes: [message_class, if visible then "visible"]
 			E "GtkLabel", @state.alert_message
 			E "button.button",

@@ -89,7 +89,8 @@ E = (element_type, args...)->
 	final_child_args = []
 	was_dynamic = no
 	for child_arg in child_args
-		was_dynamic or= add child_arg, to: final_child_args
+		will_have_been_dynamic = add child_arg, to: final_child_args
+		was_dynamic or= will_have_been_dynamic
 	
 	if was_dynamic
 		React.createElement element_type, final_attributes, final_child_args

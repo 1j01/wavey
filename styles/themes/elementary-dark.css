@@ -13,6 +13,11 @@
 	icon-shadow: 0 1px rgba(0,0,0,.4);
 }
 
+.menu .menuitem:focus {
+	outline: 0;
+	background-color: rgba(192, 198, 196, 0.15);
+}
+
 .audio-editor {
 	background: #383e41;
 	color: white;
