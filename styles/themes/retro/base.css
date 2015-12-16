@@ -30,8 +30,7 @@
 	border: 0;
 	color: inherit;
 }
-/* @TODO: use aria-pressed attribute */
-.audio-editor button.toggle:not(.active) > * {
+.audio-editor button[aria-pressed="false"] > * {
 	opacity: 0.2;
 }
 

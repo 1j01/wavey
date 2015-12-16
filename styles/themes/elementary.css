@@ -2,7 +2,7 @@
 @import url("./lib/elementary.css");
 @import url("./elementary-shared.css");
 
-.button.active {
+.button[aria-pressed="true"] {
 	background-color: rgba(0,0,0,.05) !important;
 	background-image: none;
 	border-color: rgba(0,0,0,.25);
