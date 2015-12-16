@@ -11,3 +11,8 @@
 	background: #391A3A;
 	opacity: 0.5;
 }
+.menu-item:hover::after,
+.menu-item:active::after,
+.menu-item:focus::after {
+	background: #FFAFED;
+}

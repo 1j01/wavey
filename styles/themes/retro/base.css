@@ -24,11 +24,13 @@
 	padding: 0;
 }
 
+/* @FIXME: accessibility */
 .audio-editor button {
 	background: transparent;
 	border: 0;
 	color: inherit;
 }
+/* @TODO: use aria-pressed attribute */
 .audio-editor button.toggle:not(.active) > * {
 	opacity: 0.2;
 }
@@ -78,6 +80,23 @@
 	bottom: 0px;
 	border: 1px solid currentColor;
 	border-top: 0;
+}
+.menu-item {
+	padding: 4px 6px;
+	position: relative;
+}
+.menu-item:hover::after,
+.menu-item:active::after,
+.menu-item:focus::after {
+	content: "";
+	pointer-events: none;
+	position: absolute;
+	left: 0px;
+	right: 0px;
+	top: 0px;
+	bottom: 0px;
+	background: currentColor;
+	opacity: 0.2;
 }
 
 .selection {

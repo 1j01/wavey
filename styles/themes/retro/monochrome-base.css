@@ -9,6 +9,11 @@
 	content: "";
 	display: block;
 	height: 100%;
-	background: currentColor;
 	opacity: 0.5;
+}
+.selection::after,
+.menu-item:hover::after,
+.menu-item:active::after,
+.menu-item:focus::after {
+	background: currentColor;
 }
