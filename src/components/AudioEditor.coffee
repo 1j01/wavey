@@ -19,6 +19,7 @@ class @AudioEditor extends E.Component
 			track_sources: []
 			position: null
 			position_time: null
+			scale: 90
 			selection: null
 			recording: no
 			precording_enabled: no
@@ -168,7 +169,7 @@ class @AudioEditor extends E.Component
 		
 		if isNaN position
 			InfoBar.warn "Tried to seek to invalid position: #{position}"
-			return
+			throw new Error "Tried to seek to invalid position: #{position}"
 		
 		position = Math.max 0, position
 		max_length = @get_max_length()
@@ -756,7 +757,7 @@ class @AudioEditor extends E.Component
 		window.removeEventListener "keydown", @keydown_listener
 	
 	render: ->
-		{tracks, selection, position, position_time, playing, recording, precording_enabled} = @state
+		{tracks, selection, position, position_time, scale, playing, recording, precording_enabled} = @state
 		{themes, set_theme} = @props
 		E ".audio-editor",
 			className: {playing}
@@ -778,8 +779,16 @@ class @AudioEditor extends E.Component
 				e.preventDefault()
 				for file in e.dataTransfer.files
 					@add_clip file
+			onWheel: (e)=>
+				# console.log e, e.detail, e.wheelDelta, e.deltaY, e.deltaZ
+				if e.ctrlKey
+					e.preventDefault()
+					if e.deltaY > 0
+						@setState scale: @state.scale * 0.75
+					else
+						@setState scale: @state.scale / 0.75
 			E Controls, {playing, recording, selection, precording_enabled, themes, set_theme, editor: @, key: "controls"}
 			E "div",
 				key: "infobar"
 				E InfoBar #, ref: (@infobar)=> # @TODO: instanced InfoBar API
-			E TracksArea, {tracks, selection, position, position_time, playing, editor: @, key: "tracks-area"}
+			E TracksArea, {tracks, selection, position, position_time, scale, playing, editor: @, key: "tracks-area"}

@@ -1,6 +1,7 @@
 
 class @BeatMarkings extends E.Component
 	render: ->
+		{scale} = @props
 		E ".beat-markings", style: position: "relative",
 			for x in [0..50]
 				[

@@ -1,7 +1,7 @@
 
 class @AudioTrack extends E.Component
 	render: ->
-		{track, selection, position, playing, editor} = @props
+		{track, selection, position, scale, playing, editor} = @props
 		{clips, muted, pinned} = track
 		
 		select_at_mouse = (e)=>
@@ -65,6 +65,7 @@ class @AudioTrack extends E.Component
 						key: clip.id
 						clip: clip
 						length: clip.length ? recording_length
+						scale: scale
 						sample_rate:
 							if clip.recording_id?
 								recording?.sample_rate
@@ -99,6 +100,7 @@ class @AudioTrack extends E.Component
 							left: scale * position
 	
 	animate: ->
+		{scale} = @props
 		@animation_frame = requestAnimationFrame => @animate()
 		if @props.playing
 			if @refs.position_indicator

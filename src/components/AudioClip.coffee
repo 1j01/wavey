@@ -59,7 +59,7 @@ class @AudioClip extends E.Component
 				@load_clip clip
 	
 	render: ->
-		{clip, data, sample_rate, length, style} = @props
+		{clip, data, sample_rate, length, scale, style} = @props
 		{offset} = clip
 		offset ?= 0
 		
@@ -96,10 +96,13 @@ class @AudioClip extends E.Component
 			viewBox: "0 0 #{width} #{height}"
 		},
 			# @TODO: a path for each chunk for performance when recording
+			# maybe even for AudioBuffer clips, as this may dramatically speed up rendering in Firefox and Edge
+			# (assuming they have AABB optimizations)
 			E "path", d: pathdata.join("") if pathdata?
 	
 	shouldComponentUpdate: (last_props)->
 		@props.data isnt last_props.data or
 		(@props.clip.recording_id? and @props.data?[0]?.length isnt last_props.data?[0]?.length) or
 		@props.clip.offset isnt last_props.clip.offset or
-		@props._length isnt last_props._length
+		@props.length isnt last_props.length or
+		@props.scale isnt last_props.scale

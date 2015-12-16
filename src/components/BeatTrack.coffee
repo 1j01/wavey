@@ -1,6 +1,6 @@
 
 class @BeatTrack extends E.Component
 	render: ->
-		{track, editor} = @props
+		{track, scale, editor} = @props
 		E Track, {track, editor},
-			E BeatMarkings
+			E BeatMarkings, {scale}

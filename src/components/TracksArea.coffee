@@ -1,7 +1,7 @@
 
 class @TracksArea extends E.Component
 	render: ->
-		{tracks, position, position_time, playing, editor} = @props
+		{tracks, position, position_time, scale, playing, editor} = @props
 		
 		drag = (range, to_position, to_track_id)=>
 			sorted_tracks = editor.get_sorted_tracks tracks
@@ -93,14 +93,14 @@ class @TracksArea extends E.Component
 				for track in tracks
 					switch track.type
 						when "beat"
-							E BeatTrack, {key: track.id, track, editor}
+							E BeatTrack, {key: track.id, track, scale, editor}
 						when "audio"
 							E AudioTrack, {
-								key: track.id, track
+								key: track.id, track, scale
 								position, position_time, playing, editor
 								selection: (@props.selection if @props.selection?.containsTrack track)
 							}
 						else
-							E UnknownTrack, {key: track.id, track, editor}
+							E UnknownTrack, {key: track.id, track, scale, editor}
 				
 				E AddTrack, {key: "add-track", editor}

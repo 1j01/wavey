@@ -2,8 +2,6 @@
 @E = ReactScript
 @E.Component = React.Component
 
-@scale = 90 # @TODO: zooming
-
 @GUID = ->
 	array = new Uint32Array 4
 	crypto.getRandomValues array
