@@ -59,24 +59,9 @@ class @AudioClip extends E.Component
 				@load_clip clip
 	
 	render: ->
-		{clip, length, style} = @props
-		E ".audio-clip", {style, data: {length}},
-			E "canvas",
-				ref: "canvas"
-				height: 80 # = .track-content {height}
-				width: length * scale
-	
-	renderCanvas: ->
-		canvas = React.findDOMNode @refs.canvas
-		ctx = canvas.getContext "2d"
-		ctx.clearRect 0, 0, canvas.width, canvas.height
-		ctx.strokeStyle = @color = getComputedStyle(canvas).color
-		
-		{clip, data, sample_rate} = @props
+		{clip, data, sample_rate, length, style} = @props
 		{offset} = clip
 		offset ?= 0
-		
-		# @TODO: visualize multiple channels
 		
 		if data instanceof Array
 			typed_arrays = data[0]
@@ -90,45 +75,31 @@ class @AudioClip extends E.Component
 			at = (x)->
 				typed_array[~~((x/scale + offset) * sample_rate)]
 		
-		if at?
-			ctx.beginPath()
-			for x in [0..canvas.width] by 0.1
-				ctx.lineTo x, canvas.height/2 + canvas.height/2 * at(x)
-			ctx.stroke()
+		width = length * scale
+		height = 80 # = .track-content {height}
+		
+		if at? and width
+			pathdata =
+				for x in [0..width] by 0.1
+					y = height * (at(x) + 1) / 2
+					"#{if x is 0 then "M" else "L"}#{x.toFixed(2)} #{~~y}"
 		else
-			ctx.save()
-			ctx.lineWidth = 5
-			ctx.setLineDash [5, 15]
-			ctx.beginPath()
-			ctx.moveTo 0, canvas.height/2
-			ctx.lineTo canvas.width, canvas.height/2
-			ctx.stroke()
-			ctx.restore()
+			width = 0
+		
+		# @TODO: visualize multiple channels
+		
+		E "svg.audio-clip", {
+			style
+			width, height
+			data: {length}
+			xmlns: "http://www.w3.org/svg/2000"
+			viewBox: "0 0 #{width} #{height}"
+		},
+			# @TODO: a path for each chunk for performance when recording
+			E "path", d: pathdata.join("") if pathdata?
 	
-	componentDidMount: ->
-		@renderCanvas()
-		@rerenderCanvasWhenTheStylesChange()
-	
-	componentDidUpdate: (last_props)->
-		# @TODO: more advanced rerendering strategy
-		# especially for recording, where it really doesn't need to be rerendering the entire thing every update, just adding a bit to the end
-		# but maybe also for other clips (it shouldn't need to rerender when cutting off a bit)
-		@renderCanvas() if (
-			@props.data isnt last_props.data or
-			(@props.clip.recording_id? and @props.data?[0]?.length isnt last_props.data?[0]?.length) or
-			@props.clip.offset isnt last_props.clip.offset or
-			@props._length isnt last_props._length
-		)
-	
-	componentWillUnmount: ->
-		clearTimeout @tid
-		cancelAnimationFrame @animation_frame
-	
-	rerenderCanvasWhenTheStylesChange: ->
-		@tid = setTimeout =>
-			@animation_frame = requestAnimationFrame =>
-				canvas = React.findDOMNode @refs.canvas
-				ctx = canvas.getContext "2d"
-				@renderCanvas() if getComputedStyle(canvas).color isnt @color
-				@rerenderCanvasWhenTheStylesChange()
-		, 100
+	shouldComponentUpdate: (last_props)->
+		@props.data isnt last_props.data or
+		(@props.clip.recording_id? and @props.data?[0]?.length isnt last_props.data?[0]?.length) or
+		@props.clip.offset isnt last_props.clip.offset or
+		@props._length isnt last_props._length

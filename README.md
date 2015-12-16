@@ -10,6 +10,7 @@
 * Always saved locally
 * Persistent undo/redo and selection
 * Several themes, including light and dark [elementary OS][] themes via [elementary.css][], and some retro themes
+* Fully scalable graphics, from the icons to the waveforms
 
 
 ### Future Features

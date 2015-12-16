@@ -5,6 +5,8 @@ class @Controls extends E.Component
 		{play, pause, seek_to_start, seek_to_end, record, stop_recording, precord, enable_precording, export_as} = editor
 		E ".controls",
 			# role: "menubar"
+			# @TODO: left/right arrow keys?
+			# maybe a key (Esc, probably) to unfocus the controls and allow the normal keyboard shortcuts
 			E "button.button.play-pause",
 				class: if playing then "pause" else "play"
 				title: if playing then "Pause" else "Play"
@@ -12,10 +14,12 @@ class @Controls extends E.Component
 				E "i.icon-#{if playing then "pause" else "play"}"
 			E "span.linked",
 				E "button.button.go-to-start",
+					# @FIXME: passes event object, considered boolean
 					onClick: seek_to_start
 					title: "Go to start"
 					E "i.icon-go-to-start"
 				E "button.button.go-to-end",
+					# @FIXME: passes event object, considered boolean
 					onClick: seek_to_end
 					title: "Go to end"
 					E "i.icon-go-to-end"

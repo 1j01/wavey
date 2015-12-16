@@ -72,6 +72,10 @@
 
 .audio-clip {
 	height: 100%;
+	transform: translateZ(0);
+}
+.audio-clip path {
+	pointer-events: none;
 }
 
 .selection,

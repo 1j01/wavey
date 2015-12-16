@@ -24,5 +24,6 @@
 }
 
 .audio-clip {
+	stroke: white;
 	-webkit-filter: drop-shadow(0 1px rgba(0,0,0,.4));
 }

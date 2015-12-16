@@ -27,6 +27,11 @@
 	padding: 5px;
 }
 
+.audio-clip {
+	fill: none;
+	stroke-linejoin: bevel;
+	stroke-width: 1.5px;
+}
 .muted .audio-clip {
 	opacity: 0.3;
 }

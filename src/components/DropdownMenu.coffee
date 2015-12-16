@@ -10,7 +10,6 @@ keys =
 	down:   40
 
 class @DropdownMenu extends E.Component
-	# @TODO: keyboard accessibility
 	# @TODO: allow dragging down from the DropdownButton
 	render: ->
 		{items, open} = @props
