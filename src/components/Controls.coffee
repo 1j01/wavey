@@ -51,8 +51,8 @@ class @Controls extends E.Component
 					menu: [
 						{label: "Export as MP3", action: -> export_as "mp3"}
 						{label: "Export as WAV", action: -> export_as "wav"}
-						{label: "Export selection as MP3", action: -> export_as "mp3", selection} if selection?
-						{label: "Export selection as WAV", action: -> export_as "wav", selection} if selection?
+						{label: "Export selection as MP3", action: -> export_as "mp3", selection} if selection?.length()
+						{label: "Export selection as WAV", action: -> export_as "wav", selection} if selection?.length()
 					]
 					E "i.icon-export"
 				if themes and set_theme
