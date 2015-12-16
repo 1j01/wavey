@@ -14,12 +14,10 @@ class @Controls extends E.Component
 				E "i.icon-#{if playing then "pause" else "play"}"
 			E "span.linked",
 				E "button.button.go-to-start",
-					# @FIXME: passes event object, considered boolean
 					onClick: seek_to_start
 					title: "Go to start"
 					E "i.icon-go-to-start"
 				E "button.button.go-to-end",
-					# @FIXME: passes event object, considered boolean
 					onClick: seek_to_end
 					title: "Go to end"
 					E "i.icon-go-to-end"

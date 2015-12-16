@@ -164,7 +164,7 @@ class @AudioEditor extends E.Component
 			else
 				0
 	
-	seek: (position, shiftKey)=>
+	seek: (position, e)=>
 		
 		if isNaN position
 			InfoBar.warn "Tried to seek to invalid position: #{position}"
@@ -187,18 +187,18 @@ class @AudioEditor extends E.Component
 				position: position
 		
 		if selection?
-			if shiftKey
+			if e?.shiftKey
 				@select new Range selection.a, position, selection.track_ids
 			else if selection.length() is 0
 				@select new Range position, position, selection.track_ids
 	
-	seek_to_start: (shiftKey)=>
-		@seek 0, shiftKey
+	seek_to_start: (e)=>
+		@seek 0, e
 	
-	seek_to_end: (shiftKey)=>
+	seek_to_end: (e)=>
 		end = @get_max_length()
 		return unless end?
-		@seek end, shiftKey
+		@seek end, e
 	
 	play: =>
 		@play_from @state.position ? 0
@@ -440,7 +440,7 @@ class @AudioEditor extends E.Component
 		return unless max_length?
 		@select new Range 0, max_length, (track.id for track in tracks)
 	
-	select_vertically: (direction, add)=>
+	select_vertically: (direction, e)=>
 		{tracks, selection} = @state
 		return unless selection
 		sorted_tracks = normal_tracks_in @get_sorted_tracks tracks
@@ -454,7 +454,7 @@ class @AudioEditor extends E.Component
 		for track, track_index in sorted_tracks
 			break if track.id is selected_track_id
 		next_selected_track_id = sorted_tracks[track_index + delta]?.id
-		if add
+		if e?.shiftKey
 			@select new Range selection.a, selection.b, selection.track_ids.concat(next_selected_track_id) if next_selected_track_id
 		else
 			@select new Range selection.a, selection.b, [next_selected_track_id ? selected_track_id]
@@ -466,11 +466,11 @@ class @AudioEditor extends E.Component
 		to = Math.max(0, Math.min(max_length, selection.b + seconds))
 		@select new Range selection.a, to, selection.track_ids
 	
-	select_up: (add)=>
-		@select_vertically "up", add
+	select_up: (e)=>
+		@select_vertically "up", e
 	
-	select_down: (add)=>
-		@select_vertically "down", add
+	select_down: (e)=>
+		@select_vertically "down", e
 	
 	delete: =>
 		{selection} = @state
@@ -739,13 +739,13 @@ class @AudioEditor extends E.Component
 						else
 							@seek @get_current_position() + 1
 					when 38, 33 # Up, Page Up
-						@select_up e.shiftKey
+						@select_up e
 					when 40, 34 # Down, Page Down
-						@select_down e.shiftKey
+						@select_down e
 					when 36 # Home
-						@seek_to_start e.shiftKey
+						@seek_to_start e
 					when 35 # End
-						@seek_to_end e.shiftKey
+						@seek_to_end e
 					else
 						return # don't prevent default
 			
