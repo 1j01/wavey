@@ -76,29 +76,32 @@ class @AudioClip extends E.Component
 				typed_array[~~((x/scale + offset) * sample_rate)]
 		
 		width = length * scale
-		height = 80 # = .track-content {height}
 		
 		if at? and width
 			pathdata =
 				for x in [0..width] by 0.1
-					y = height * (at(x) + 1) / 2
-					"#{if x is 0 then "M" else "L"}#{x.toFixed(2)} #{~~y}"
+					y = (at(x) + 1) / 2
+					"#{if x is 0 then "M" else "L"}#{x.toFixed(2)} #{y.toFixed(2)}"
 		else
 			width = 0
 		
 		# @TODO: visualize multiple channels
 		
 		E "svg.audio-clip", {
-			style
-			width, height
-			data: {length}
 			xmlns: "http://www.w3.org/svg/2000"
-			viewBox: "0 0 #{width} #{height}"
+			viewBox: "0 0 #{width} 1"
+			preserveAspectRatio: "none"
+			width, style
+			data: {length}
 		},
 			# @TODO: a path for each chunk for performance when recording
 			# maybe even for AudioBuffer clips, as this may dramatically speed up rendering in Firefox and Edge
 			# (assuming they have AABB optimizations)
-			E "path", d: pathdata.join("") if pathdata?
+			if pathdata?
+				E "path",
+					d: pathdata.join("")
+					style:
+						vectorEffect: "non-scaling-stroke"
 	
 	shouldComponentUpdate: (last_props)->
 		@props.data isnt last_props.data or
