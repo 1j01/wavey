@@ -31,13 +31,15 @@ Embedding. Plugins. Desktop apps.
 Internationalization with translations and LTR UI.
 [RTLCSS][] can help with UI mirroring,
 but I'd have to update the code for tracks.
-I don't know how much mirroring would be appreciated, but I think it would be kinda fun.
+I don't know how much mirroring would be appreciated, but I think it could be fun.
 
 
 ### TODO
 
+* **Horizontal scrolling**, and mouse-relative zooming
 * Effects
-* Horizontal scrolling, and mouse-relative zooming
+* Gain control (maybe an effect?)
+* Application Cache, because this app can work completely offline
 
 
 ### Contributing

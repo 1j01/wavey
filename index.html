@@ -44,5 +44,13 @@
 		<script src="src/components/UnknownTrack.coffee" type="text/coffeescript"></script>
 		<script src="src/components/AddTrack.coffee" type="text/coffeescript"></script>
 		<script src="src/app.coffee" type="text/coffeescript"></script>
+		<script>
+			if(window.require){
+				var script = document.createElement("script");
+				script.setAttribute("src", "node_modules/nw-dev/lib/dev.js");
+				script.setAttribute("defer", "defer");
+				document.body.appendChild(script);
+			}
+		</script>
 	</body>
 </html>
