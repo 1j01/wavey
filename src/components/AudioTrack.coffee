@@ -63,8 +63,8 @@ class @AudioTrack extends E.Component
 					
 					E AudioClip,
 						key: clip.id
-						clip: clip
 						length: clip.length ? recording_length
+						offset: clip.offset ? 0
 						scale: scale
 						sample_rate:
 							if clip.recording_id?

@@ -22,8 +22,11 @@
 		"unlimited_storage"
 	],
 	"app": {
-		"background": {
-			"scripts": ["chrome-app.js"]
+		"urls": [
+			"https://audioeditor.ml/"
+		],
+		"launch": {
+			"web_url": "https://audioeditor.ml/"
 		}
 	},
 	"offline_enabled": true,

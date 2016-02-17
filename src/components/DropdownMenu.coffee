@@ -47,6 +47,7 @@ class @DropdownMenu extends E.Component
 	componentDidMount: -> @updateOffset()
 	componentDidUpdate: -> @updateOffset()
 	updateOffset: ->
+		return unless @props.open
 		el = React.findDOMNode @
 		rect = el.getBoundingClientRect()
 		if rect.right >= document.body.clientWidth

@@ -208,10 +208,11 @@ class @AudioEditor extends E.Component
 		@pause() if @state.playing
 		
 		max_length = @get_max_length()
-		return unless max_length?
-		
-		if from_position >= max_length or from_position < 0
-			from_position = 0
+		unless @state.recording
+			return unless max_length?
+			
+			if from_position >= max_length or from_position < 0
+				from_position = 0
 		
 		@setState
 			tid: unless @state.recording then setTimeout @pause, (max_length - from_position) * 1000 + 20
@@ -347,10 +348,20 @@ class @AudioEditor extends E.Component
 					current_chunk = 0
 					chunk_size = 2 ** 14 # samples (2 to an integer power between 8 and 14 inclusive)
 					
+					ended = no
 					final_recording_length = undefined
 					
 					recorder = actx.createScriptProcessor chunk_size, 2, if chrome? then 1 else 0
 					recorder.onaudioprocess = (e)=>
+						
+						if ended
+							source.disconnect()
+							recorder.disconnect()
+							delete window["chrome bug workaround (#{recording_id})"]
+							console.log "onaudioprocess (end)"
+							return
+						console.log "onaudioprocess"
+						
 						recording.sample_rate = e.inputBuffer.sampleRate
 						
 						chunks = []
@@ -380,25 +391,21 @@ class @AudioEditor extends E.Component
 									InfoBar.warn "Failing to store recording! #{err.message}"
 									console.error "Failed to store recording metadata", err
 						
-						unless final_recording_length?
-							@end_recording = =>
-								final_recording_length = recording.length = @get_current_position() - start_position
-								save()
-								@setState
-									recording: no
-									position: start_position + final_recording_length
-									position_time: actx.currentTime
-								@end_recording = =>
+						@end_recording = =>
+							return if ended
+							console.log "last recording.length", recording.length
+							final_recording_length = recording.length = @get_current_position() - start_position
+							console.log "final_recording_length", final_recording_length
+							save()
+							ended = yes
+							@setState
+								recording: no
+								position: start_position + final_recording_length
+								position_time: actx.currentTime
 						
 						save()
-						
 						current_chunk += 1
 						render()
-						
-						unless @state.recording?
-							source.disconnect()
-							recorder.disconnect()
-							delete window["chrome bug workaround (#{recording_id})"]
 					
 					source.connect recorder
 					recorder.connect actx.destination if chrome?
@@ -780,7 +787,6 @@ class @AudioEditor extends E.Component
 				for file in e.dataTransfer.files
 					@add_clip file
 			onWheel: (e)=>
-				# console.log e, e.detail, e.wheelDelta, e.deltaY, e.deltaZ
 				if e.ctrlKey
 					e.preventDefault()
 					if e.deltaY > 0

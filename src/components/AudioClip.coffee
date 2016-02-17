@@ -2,8 +2,10 @@
 class @AudioClip extends E.Component
 	
 	@audio_buffers = {}
-	@recordings: {}
+	@recordings = {}
 	@loading = {}
+	
+	throttle = 0
 	
 	@load_clip = (clip)=>
 		return if AudioClip.audio_buffers[clip.audio_id]?
@@ -15,7 +17,7 @@ class @AudioClip extends E.Component
 			localforage.getItem "recording:#{clip.recording_id}", (err, recording)=>
 				if err
 					InfoBar.error "Failed to load recording.\n#{err.message}"
-					console.error err
+					throw err
 				else if recording
 					AudioClip.recordings[clip.recording_id] = recording
 					chunks = [[], []]
@@ -23,19 +25,25 @@ class @AudioClip extends E.Component
 					for channel_chunk_ids, channel_index in recording.chunk_ids
 						for chunk_id, chunk_index in channel_chunk_ids
 							do (channel_chunk_ids, channel_index, chunk_id, chunk_index)=>
-								localforage.getItem "recording:#{clip.recording_id}:chunk:#{chunk_id}", (err, typed_array)=>
-									if err
-										InfoBar.error "Failed to load part of a recording.\n#{err.message}"
-										console.error err
-									else if typed_array
-										chunks[channel_index][chunk_index] = typed_array
-										loaded += 1
-										if loaded is recording.chunk_ids.length * channel_chunk_ids.length
-											recording.chunks = chunks
-											render()
-									else
-										InfoBar.warn "Part of a recording is missing from storage."
-										console.warn "A chunk of a recording (#{chunk_id}) is missing from storage.", clip, recording
+								# timeout because of DOMException: The transaction was aborted, so the request cannot be fulfilled.
+								# Internal error: Too many transactions queued.
+								# https://code.google.com/p/chromium/issues/detail?id=338800
+								setTimeout ->
+									localforage.getItem "recording:#{clip.recording_id}:chunk:#{chunk_id}", (err, typed_array)=>
+										if err
+											InfoBar.error "Failed to load part of a recording.\n#{err.message}"
+											throw err
+										else if typed_array
+											chunks[channel_index][chunk_index] = typed_array
+											loaded += 1
+											throttle -= 1 # this will not unthrottle anything during the document load
+											if loaded is recording.chunk_ids.length * channel_chunk_ids.length
+												recording.chunks = chunks
+												render()
+										else
+											InfoBar.warn "Part of a recording is missing from storage."
+											console.warn "A chunk of a recording (#{chunk_id}) is missing from storage.", clip, recording
+								, throttle += 1
 				else
 					InfoBar.warn "A recording is missing from storage."
 					console.warn "A recording is missing from storage.", clip
@@ -43,7 +51,7 @@ class @AudioClip extends E.Component
 			localforage.getItem "audio:#{clip.audio_id}", (err, array_buffer)=>
 				if err
 					InfoBar.error "Failed to load audio data.\n#{err.message}"
-					console.error err
+					throw err
 				else if array_buffer
 					actx.decodeAudioData array_buffer, (buffer)=>
 						AudioClip.audio_buffers[clip.audio_id] = buffer
@@ -59,32 +67,33 @@ class @AudioClip extends E.Component
 				@load_clip clip
 	
 	render: ->
-		{clip, data, sample_rate, length, scale, style} = @props
-		{offset} = clip
-		offset ?= 0
+		{data, sample_rate, length, offset, scale, style} = @props
+		
+		# if data instanceof Array
+		# 	typed_arrays = data[0]
+		# 	at = (x)->
+		# 		len = typed_arrays[0]?.length
+		# 		idx = ~~((x/scale + offset) * sample_rate)
+		# 		typed_arrays[idx // len]?[idx % len]
+		# else if data
+		# 	audio_buffer = data
+		# 	typed_array = audio_buffer.getChannelData 0
+		# 	at = (x)->
+		# 		typed_array[~~((x/scale + offset) * sample_rate)]
 		
 		if data instanceof Array
 			typed_arrays = data[0]
-			at = (x)->
-				len = typed_arrays[0]?.length
-				idx = ~~((x/scale + offset) * sample_rate)
-				typed_arrays[idx // len]?[idx % len]
+			chunk_length = typed_arrays[0]?.length
 		else if data
 			audio_buffer = data
 			typed_array = audio_buffer.getChannelData 0
-			at = (x)->
-				typed_array[~~((x/scale + offset) * sample_rate)]
+			chunk_length = 500
+			typed_arrays =
+				for i in [0..data.length] by chunk_length
+					typed_array.subarray i, i + chunk_length
 		
-		width = length * scale
+		width = (length ? 0) * scale
 		height = 80 # = .track-content {height}
-		
-		if at? and width
-			pathdata =
-				for x in [0..width] by 0.1
-					y = height * (at(x) + 1) / 2
-					"#{if x is 0 then "M" else "L"}#{x.toFixed(2)} #{~~y}"
-		else
-			width = 0
 		
 		# @TODO: visualize multiple channels
 		
@@ -94,15 +103,31 @@ class @AudioClip extends E.Component
 			data: {length}
 			xmlns: "http://www.w3.org/svg/2000"
 			viewBox: "0 0 #{width} #{height}"
+			bufferedRendering: "static"
 		},
-			# @TODO: a path for each chunk for performance when recording
-			# maybe even for AudioBuffer clips, as this may dramatically speed up rendering in Firefox and Edge
-			# (assuming they have AABB optimizations)
-			E "path", d: pathdata.join("") if pathdata?
+			if width
+				at = (x)->
+					len = typed_arrays[0]?.length
+					idx = ~~((x/scale + offset) * sample_rate)
+					typed_arrays[idx // len]?[idx % len]
+
+				# for typed_array, i in typed_arrays
+				# for i in [0..length] by chunk_length
+				key = 0
+				for chunk_x in [0..width] by chunk_length / scale
+					pathdata =
+						# for x in [0..chunk_length] by 0.1
+						# for x in [0..chunk_length/scale] by 0.1
+						# 	y = height * (at(chunk_x + x) + 1) / 2
+						# for x in [0..chunk_length] by 100#0.1
+						for x in [0..chunk_length/scale] by 0.1
+							y = height * (at(chunk_x + x) + 1) / 2
+							"#{if x is 0 then "M" else "L"}#{(chunk_x + x).toFixed(2)} #{~~y}"
+					key += 1
+					E "path", {key, d: pathdata.join("")}
 	
 	shouldComponentUpdate: (last_props)->
 		@props.data isnt last_props.data or
-		(@props.clip.recording_id? and @props.data?[0]?.length isnt last_props.data?[0]?.length) or
-		@props.clip.offset isnt last_props.clip.offset or
+		@props.offset isnt last_props.offset or
 		@props.length isnt last_props.length or
 		@props.scale isnt last_props.scale
