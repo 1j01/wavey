@@ -69,18 +69,6 @@ class @AudioClip extends E.Component
 	render: ->
 		{data, sample_rate, length, offset, scale, style} = @props
 		
-		# if data instanceof Array
-		# 	typed_arrays = data[0]
-		# 	at = (x)->
-		# 		len = typed_arrays[0]?.length
-		# 		idx = ~~((x/scale + offset) * sample_rate)
-		# 		typed_arrays[idx // len]?[idx % len]
-		# else if data
-		# 	audio_buffer = data
-		# 	typed_array = audio_buffer.getChannelData 0
-		# 	at = (x)->
-		# 		typed_array[~~((x/scale + offset) * sample_rate)]
-		
 		if data instanceof Array
 			typed_arrays = data[0]
 			chunk_length = typed_arrays[0]?.length
@@ -110,16 +98,10 @@ class @AudioClip extends E.Component
 					len = typed_arrays[0]?.length
 					idx = ~~((x/scale + offset) * sample_rate)
 					typed_arrays[idx // len]?[idx % len]
-
-				# for typed_array, i in typed_arrays
-				# for i in [0..length] by chunk_length
+				
 				key = 0
 				for chunk_x in [0..width] by chunk_length / scale
 					pathdata =
-						# for x in [0..chunk_length] by 0.1
-						# for x in [0..chunk_length/scale] by 0.1
-						# 	y = height * (at(chunk_x + x) + 1) / 2
-						# for x in [0..chunk_length] by 100#0.1
 						for x in [0..chunk_length/scale] by 0.1
 							y = height * (at(chunk_x + x) + 1) / 2
 							"#{if x is 0 then "M" else "L"}#{(chunk_x + x).toFixed(2)} #{~~y}"
