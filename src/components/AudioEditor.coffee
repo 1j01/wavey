@@ -217,7 +217,7 @@ class @AudioEditor extends E.Component
 		@setState
 			tid: unless @state.recording then setTimeout @pause, (max_length - from_position) * 1000 + 20
 			# NOTE: an extra few ms because it shouldn't fade out prematurely
-			# (even though might sound better, it might lead you to believe
+			# (even though it might sound better, it might lead you to believe
 			# your audio doesn't need a brief fade out at the end when it does)
 			
 			position_time: actx.currentTime

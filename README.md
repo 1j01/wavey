@@ -6,11 +6,11 @@
 
 ### Features
 
-* Drag and drop audio files
-* Always saved locally
-* Persistent undo/redo and selection
+* Drag and drop audio files or record from a microphone
+* Always saved locally, including persistent undo/redo and selection
 * Several themes, including light and dark [elementary OS][] themes via [elementary.css][], and some retro themes
 * Fully scalable graphics, from the icons to the waveforms
+* Export the document or a selected range as WAV or MP3
 
 
 ### Future Features
@@ -24,21 +24,21 @@ you want to line up with some main audio track(s).
 
 You will be able to "precord" up to five minutes or as long as precording has been enabled. 
 
-MIDI is a distinct possibility but certainly not a priority.
+MIDI is a possibility.
 
 Embedding. Plugins. Desktop apps.
 
-Internationalization with translations and LTR UI.
+Internationalization with translations and maybe RTL UI.
 [RTLCSS][] can help with UI mirroring,
 but I'd have to update the code for tracks.
-I don't know how much mirroring would be appreciated, but I think it could be fun.
+I don't know if mirroring would be appreciated, but I think it could be fun.
 
 
 ### TODO
 
 * **Horizontal scrolling**, and mouse-relative zooming
 * Effects
-* Gain control (maybe an effect?)
+* Gain control and panning (maybe as effects? If the effects toolchain is good enough, this might make sense)
 * Application Cache, because this app can work completely offline
 
 
