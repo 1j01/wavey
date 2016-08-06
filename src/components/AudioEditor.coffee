@@ -16,7 +16,7 @@ class @AudioEditor extends E.Component
 			undos: []
 			redos: []
 			playing: no
-			track_sources: []
+			playback_sources: []
 			position: null
 			position_time: null
 			scale: 90
@@ -224,12 +224,14 @@ class @AudioEditor extends E.Component
 			position: from_position
 			
 			playing: yes
-			track_sources: @_start_playing from_position, actx
+			playback_sources: @_schedule_playback from_position, actx
 	
-	_start_playing: (from_position, actx)->
+	_schedule_playback: (from_position, actx)->
 		include_metronome = not (actx instanceof OfflineAudioContext)
 		
 		{tracks} = @state
+		
+		playback_sources = []
 		
 		for track in tracks when track.type is "audio" and not track.muted
 			for clip in track.clips
@@ -276,20 +278,21 @@ class @AudioEditor extends E.Component
 						
 						if length_to_play_of_clip > 0
 							source.start start_time, starting_offset_into_clip, length_to_play_of_clip
-							source
+							playback_sources.push source
+		
+		playback_sources
 	
 	pause: =>
 		clearTimeout @state.tid
-		for track_sources in @state.track_sources
-			for source in track_sources
-				source?.stop actx.currentTime + 1.0
-				source?.gain.gain.value = 0
+		for source in @state.playback_sources
+			source?.stop actx.currentTime + 1.0
+			source?.gain.gain.value = 0
 		@end_recording()
 		@setState
 			position_time: actx.currentTime
 			position: @get_current_position()
 			playing: no
-			track_sources: []
+			playback_sources: []
 	
 	update_playback: =>
 		if @state.playing
@@ -640,7 +643,7 @@ class @AudioEditor extends E.Component
 			length = @get_max_length()
 		number_of_channels = 2
 		oactx = new OfflineAudioContext number_of_channels, sample_rate * length, sample_rate
-		@_start_playing start, oactx
+		@_schedule_playback start, oactx
 		oactx.startRendering()
 			.then (rendered_audio_buffer)=>
 				export_audio_buffer_as rendered_audio_buffer, file_type
