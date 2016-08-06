@@ -14,6 +14,10 @@ class @TracksArea extends E.Component
 					sorted_tracks.slice sorted_tracks.indexOf(to_track), sorted_tracks.indexOf(from_track) + 1
 			new Range range.a, Math.max(0, to_position), [range.firstTrackID()].concat(track.id for track in include_tracks when track.id isnt range.firstTrackID())
 		
+		document_is_basically_empty = yes
+		for track in tracks when track.type isnt "beat"
+			document_is_basically_empty = no
+		
 		E ".tracks-area",
 			onMouseDown: (e)=>
 				return if e.isDefaultPrevented()
@@ -104,6 +108,6 @@ class @TracksArea extends E.Component
 							E UnknownTrack, {key: track.id, track, scale, editor}
 				
 				E AddTrack, {key: "add-track", editor},
-					if tracks.length <= 1
+					if document_is_basically_empty
 						E ".getting-started",
 							E "p", "To get started, hit record above or add some tracks below."
