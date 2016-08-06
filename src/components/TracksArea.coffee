@@ -17,6 +17,7 @@ class @TracksArea extends E.Component
 		E ".tracks-area",
 			onMouseDown: (e)=>
 				return if e.isDefaultPrevented()
+				return if closest(e.target, "p")
 				unless e.button > 0
 					e.preventDefault()
 				if e.target is React.findDOMNode(@)
@@ -30,13 +31,12 @@ class @TracksArea extends E.Component
 				# @TODO: better overall drag and drop feedback
 				onMouseDown: (e)=>
 					return unless e.button is 0
-					track_content_el = closest e.target, ".track-content"
-					if closest track_content_el, ".add-track, .unknown-track"
-						e.preventDefault()
+					track_content_el = closest(e.target, ".track-content")
+					if closest(track_content_el, ".add-track, .unknown-track")
 						editor.deselect()
 						return
 					unless track_content_el
-						unless closest e.target, ".track-controls"
+						unless closest(e.target, ".track-controls")
 							e.preventDefault()
 							editor.deselect()
 						return
@@ -103,4 +103,7 @@ class @TracksArea extends E.Component
 						else
 							E UnknownTrack, {key: track.id, track, scale, editor}
 				
-				E AddTrack, {key: "add-track", editor}
+				E AddTrack, {key: "add-track", editor},
+					if tracks.length <= 1
+						E ".getting-started",
+							E "p", "To get started, hit record above or add some tracks below."

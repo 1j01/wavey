@@ -1,7 +1,7 @@
 
 class @AddTrack extends E.Component
 	render: ->
-		{editor} = @props
+		{editor, children} = @props
 		
 		input = document.createElement "input"
 		input.type = "file"
@@ -13,6 +13,7 @@ class @AddTrack extends E.Component
 		
 		E ".track.add-track",
 			E ".track-content",
+				children
 				E "button.button",
 					onClick: => input.click()
 					"Choose Files"

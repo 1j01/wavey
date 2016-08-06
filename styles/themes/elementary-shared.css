@@ -47,6 +47,10 @@
 	padding: 0 3px;
 }
 
+.add-track .track-content {
+	padding: 1em;
+}
+
 .selection {
 	/* @TODO: try the elementary selection styles with the gradient */
 	background: rgba(0, 193, 255, 0.25);

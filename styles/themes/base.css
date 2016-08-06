@@ -23,8 +23,8 @@
 	padding: 5px;
 }
 
-.add-track .track-content {
-	padding: 5px;
+.add-track p:first-of-type {
+	margin-top: 0.2em;
 }
 
 .audio-clip {

@@ -773,6 +773,7 @@ class @AudioEditor extends E.Component
 			style: outline: "none"
 			onMouseDown: (e)=>
 				return if e.isDefaultPrevented()
+				return if closest(e.target, "p")
 				unless e.button > 0
 					e.preventDefault()
 				React.findDOMNode(@).focus()

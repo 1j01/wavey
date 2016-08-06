@@ -17,11 +17,13 @@
 }
 
 /* @FIXME: .add-track just looks silly and out of place being the only text outside of menus and infobars */
-.add-track button {
+.audio-editor .add-track button {
 	font: inherit;
 	font-weight: bold;
 	cursor: pointer;
-	padding: 0;
+	border: 1px solid currentColor;
+	padding: 0.2em;
+	border-radius: 2px;
 }
 
 /* @FIXME: accessibility */

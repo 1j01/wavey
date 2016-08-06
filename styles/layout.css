@@ -48,6 +48,12 @@
 	cursor: default;
 	user-select: none;
 }
+.track p {
+	user-select: text;
+	-ms-user-select: text;
+	-moz-user-select: text;
+	-webkit-user-select: text;
+}
 
 .track-controls {
 	float: left;
