@@ -28,17 +28,14 @@ MIDI is a possibility.
 
 Embedding. Plugins. Desktop apps.
 
-Internationalization with translations and maybe RTL UI.
-[RTLCSS][] can help with UI mirroring,
-but I'd have to update the code for tracks.
-I don't know if mirroring would be appreciated, but I think it could be fun.
+Internationalization and improved accessibility.
 
 
 ### TODO
 
 * **Horizontal scrolling**, and mouse-relative zooming
 * Effects
-* Gain control and panning (maybe as effects? If the effects toolchain is good enough, this might make sense)
+* Gain control and panning (maybe as effects? depends on what the effects UI will look like)
 * Application Cache, because this app can work completely offline
 
 

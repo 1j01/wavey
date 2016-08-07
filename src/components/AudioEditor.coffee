@@ -304,9 +304,8 @@ class @AudioEditor extends E.Component
 	
 	record: =>
 		return if @state.recording
-		# @TODO: use MediaDevices.getUserMedia when available
-		navigator.getUserMedia audio: yes,
-			(stream)=>
+		navigator.mediaDevices.getUserMedia audio: yes
+			.then (stream)=>
 				recording_id = GUID()
 				@undoable (tracks)=>
 					{selection} = @state
@@ -418,7 +417,7 @@ class @AudioEditor extends E.Component
 					@setState recording: yes, =>
 						@play_from start_position
 			
-			(error)=>
+			.catch (error)=>
 				switch error.name
 					when "PermissionDeniedError", "PermissionDismissedError"
 						return
@@ -428,7 +427,7 @@ class @AudioEditor extends E.Component
 						InfoBar.warn "No available recording devices were found. Is one in use?"
 					else
 						InfoBar.warn "Failed to start recording: #{error.name}" + if error.message then ": #{error.message}"
-				console.error "navigator.getUserMedia", error
+				console.error "navigator.mediaDevices.getUserMedia", error
 	
 	stop_recording: =>
 		@pause()
