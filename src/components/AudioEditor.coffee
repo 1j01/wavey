@@ -300,10 +300,12 @@ class @AudioEditor extends E.Component
 	
 	end_recording: =>
 		# method overridden by @record
-		# (and then reset to an empty function when the recording is over)
 	
 	record: =>
 		return if @state.recording
+		# TODO: reuse stream if permissions already granted, as Firefox otherwise asks again
+		# (which would only be good if you wanted to switch recording devices every time)
+		# (Keeping a stream will be necessary for precording as well)
 		navigator.mediaDevices.getUserMedia audio: yes
 			.then (stream)=>
 				recording_id = GUID()
@@ -356,13 +358,7 @@ class @AudioEditor extends E.Component
 					recorder = actx.createScriptProcessor chunk_size, 2, if chrome? then 1 else 0
 					recorder.onaudioprocess = (e)=>
 						
-						if ended
-							source.disconnect()
-							recorder.disconnect()
-							delete window["chrome bug workaround (#{recording_id})"]
-							console.log "onaudioprocess (end)"
-							return
-						console.log "onaudioprocess"
+						console?.log "onaudioprocess", if ended then "(final)" else ""
 						
 						recording.sample_rate = e.inputBuffer.sampleRate
 						
@@ -405,11 +401,17 @@ class @AudioEditor extends E.Component
 								position: start_position + final_recording_length
 								position_time: actx.currentTime
 						
+						if ended
+							source.disconnect()
+							recorder.disconnect()
+							delete window["chrome bug workaround (#{recording_id})"]
+							console?.log "ended recording"
+						
 						save()
-						current_chunk += 1
 						render()
 					
 					source.connect recorder
+					# TODO: Are these chrome hacks still necessary?
 					recorder.connect actx.destination if chrome?
 					# http://stackoverflow.com/questions/24338144/chrome-onaudioprocess-stops-getting-called-after-a-while
 					if chrome? then window["chrome bug workaround (#{recording_id})"] = recorder
