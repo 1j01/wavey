@@ -27,8 +27,21 @@ class @TracksArea extends E.Component
 				if e.target is React.findDOMNode(@)
 					e.preventDefault()
 					editor.deselect()
-			E ".tracks",
-				key: "tracks"
+			E ".track-controls-area",
+				key: "track-controls-area"
+				for track in tracks
+					switch track.type
+						when "beat"
+							E TrackControls, {key: track.id, track, scale, editor}
+						when "audio"
+							E TrackControls, {key: track.id, track, scale, editor}
+						else
+							# This is needed for aligning the track-controls
+							# Could probably use aria-controls or something instead
+							E ".track-controls.no-track-controls", key: track.id
+			
+			E ".track-content-area",
+				key: "track-content-area"
 				# @TODO: touch support
 				# @TODO: double click to select either to the bounds of adjacent audio clips or everything on the track
 				# @TODO: drag and drop the selection?
@@ -111,3 +124,29 @@ class @TracksArea extends E.Component
 					if document_is_basically_empty
 						E ".getting-started",
 							E "p", "To get started, hit record above or add some tracks below."
+	
+	animate: ->
+		# {scale} = @props
+		@animation_frame = requestAnimationFrame => @animate()
+		# if @props.playing
+		# 	if @refs.position_indicator
+		# 		position = @props.position + actx.currentTime - @props.position_time
+		# 		@refs.position_indicator.getDOMNode().style.left = "#{scale * position}px"
+		
+		tracks_area_el = React.findDOMNode(@)
+		tracks_area_rect = tracks_area_el.getBoundingClientRect()
+		track_els = tracks_area_el.querySelectorAll(".track")
+		track_controls_els = tracks_area_el.querySelectorAll(".track-controls")
+		# track_rects = (track_el.getBoundingClientRect() for track_el in track_els)
+		for track_controls_el, i in track_controls_els
+			track_el = track_els[i]
+			# track_rect = track_rects[i]
+			track_rect = track_el.getBoundingClientRect()
+			# track_controls_el.style.top = "#{track_rect.top + parseInt(getComputedStyle(track_el).paddingTop)}px"
+			track_controls_el.style.top = "#{track_rect.top - tracks_area_rect.top + parseInt(getComputedStyle(track_el).paddingTop)}px"
+	
+	componentDidMount: ->
+		@animate()
+	
+	componentWillUnmount: ->
+		cancelAnimationFrame @animation_frame

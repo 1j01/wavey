@@ -32,6 +32,7 @@ class @AudioTrack extends E.Component
 					boxSizing: "content-box"
 				
 				onDragOver: (e)=>
+					# FIXME: incredible lag
 					e.preventDefault()
 					e.dataTransfer.dropEffect = "copy"
 					select_at_mouse e

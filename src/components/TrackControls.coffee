@@ -2,7 +2,8 @@
 class @TrackControls extends E.Component
 	render: ->
 		# @TODO a way to reorder tracks
-		{muted, pinned, track, editor} = @props
+		{track, editor} = @props
+		{muted, pinned} = track
 		{mute_track, unmute_track, pin_track, unpin_track, remove_track} = editor
 		E ".track-controls",
 			E "button.button.remove",

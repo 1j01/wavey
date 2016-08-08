@@ -651,6 +651,7 @@ class @AudioEditor extends E.Component
 	
 	componentWillUpdate: (next_props, next_state)=>
 		# for transitioning track positions
+		# TODO: move this to TracksArea
 		@last_track_rects = null
 		# @TODO: transition removing/unremoving tracks
 		if @state.tracks.length is next_state.tracks.length
@@ -675,8 +676,10 @@ class @AudioEditor extends E.Component
 		if tracks isnt last_state.tracks
 			@update_playback()
 			AudioClip.load_clips tracks
-			
+		
 		# transition track positions
+		# TODO: move this to TracksArea
+		# TODO: handle starting transitions while already transitioning (probably use a rAF loop)
 		transition_seconds = 0.5
 		if @last_track_rects
 			track_els = React.findDOMNode(@).querySelectorAll(".track")

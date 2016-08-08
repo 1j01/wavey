@@ -30,15 +30,19 @@
 	flex: 1;
 	display: flex;
 }
-.tracks {
+.track-content-area {
 	display: flex;
 	flex-direction: column;
 	flex: 1;
-	overflow-x: hidden;
-	overflow-y: auto;
+	/*overflow-x: hidden;*/
+	/*overflow-y: auto;*/
+	overflow: auto;
+	/*margin-left: 6em; /* = .track-controls {width} */
+	/*overflow: visible;*/
 }
 .track {
 	flex-shrink: 0;
+	overflow: visible;
 }
 .track.pinned {
 	order: -1;
@@ -55,12 +59,25 @@
 	-webkit-user-select: text;
 }
 
-.track-controls {
-	float: left;
-	width: 6em; /* = .track-content {margin-left} */
+.tracks-area {
+	min-height: 0; /* needed for vertical scrolling to work in all browsers */
+	/* http://stackoverflow.com/questions/28636832/firefox-overflow-y-not-working-with-nested-flexbox */
+}
+.track-controls-area {
+	width: 104px;
+	overflow: hidden;
+	position: relative;
 }
 .track-controls {
+	/*float: left;*/
+	position: absolute;
+	left: 8px;
+	/*right: 100%;*/
+	/*z-index: 10;*/
+	/*left: -2em;*/
+	/*width: 6em; /* = .track-content {margin-left} */
 	white-space: nowrap;
+	/*margin-left: 10px;*/
 }
 .track-controls > .linked {
 	display: inline-block;
@@ -68,9 +85,7 @@
 	margin-left: 4px;
 }
 .track-content {
-	margin-left: 6em; /* = .track-controls {width} */
 }
-/* @TODO: scrollable track content */
 
 .beat-markings {
 	height: 1em;
