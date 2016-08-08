@@ -133,17 +133,46 @@ class @TracksArea extends E.Component
 		# 		position = @props.position + actx.currentTime - @props.position_time
 		# 		@refs.position_indicator.getDOMNode().style.left = "#{scale * position}px"
 		
+		# TODO: animate tracks ordering and the position indicator here
+		
 		tracks_area_el = React.findDOMNode(@)
 		tracks_area_rect = tracks_area_el.getBoundingClientRect()
 		track_els = tracks_area_el.querySelectorAll(".track")
 		track_controls_els = tracks_area_el.querySelectorAll(".track-controls")
-		# track_rects = (track_el.getBoundingClientRect() for track_el in track_els)
 		for track_controls_el, i in track_controls_els
 			track_el = track_els[i]
-			# track_rect = track_rects[i]
 			track_rect = track_el.getBoundingClientRect()
-			# track_controls_el.style.top = "#{track_rect.top + parseInt(getComputedStyle(track_el).paddingTop)}px"
 			track_controls_el.style.top = "#{track_rect.top - tracks_area_rect.top + parseInt(getComputedStyle(track_el).paddingTop)}px"
+	
+	componentWillUpdate: (next_props, next_state)=>
+		# for transitioning track positions
+		@last_track_rects = null
+		# @TODO: transition removing/unremoving tracks
+		if @props.tracks.length is next_props.tracks.length
+			for track_current, track_index in @props.tracks
+				track_future = next_props.tracks[track_index]
+				if track_future.pinned isnt track_current.pinned
+					track_els = React.findDOMNode(@).querySelectorAll(".track")
+					@last_track_rects = (track_el.getBoundingClientRect() for track_el in track_els)
+	
+	componentDidUpdate: (last_props, last_state)=>
+		# transition track positions
+		# TODO: handle starting transitions while already transitioning (probably use a rAF loop)
+		transition_seconds = 0.5
+		if @last_track_rects
+			track_els = React.findDOMNode(@).querySelectorAll(".track")
+			for track_el, track_index in track_els
+				current_rect = track_el.getBoundingClientRect()
+				last_rect = @last_track_rects[track_index]
+				track_el.style.transform = "translateY(#{last_rect.top - current_rect.top}px)"
+				do (track_el)->
+					setTimeout ->
+						track_el.style.transition = "transform #{transition_seconds}s ease"
+						setTimeout ->
+							track_el.style.transform = "translateY(0)"
+							setTimeout ->
+								track_el.style.transition = ""
+							, transition_seconds * 1000
 	
 	componentDidMount: ->
 		@animate()

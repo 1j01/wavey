@@ -649,18 +649,6 @@ class @AudioEditor extends E.Component
 			.then (rendered_audio_buffer)=>
 				export_audio_buffer_as rendered_audio_buffer, file_type
 	
-	componentWillUpdate: (next_props, next_state)=>
-		# for transitioning track positions
-		# TODO: move this to TracksArea
-		@last_track_rects = null
-		# @TODO: transition removing/unremoving tracks
-		if @state.tracks.length is next_state.tracks.length
-			for track_current, track_index in @state.tracks
-				track_future = next_state.tracks[track_index]
-				if track_future.pinned isnt track_current.pinned
-					track_els = React.findDOMNode(@).querySelectorAll(".track")
-					@last_track_rects = (track_el.getBoundingClientRect() for track_el in track_els)
-	
 	componentDidUpdate: (last_props, last_state)=>
 		{document_id} = @props
 		{tracks, selection, undos, redos} = @state
@@ -676,25 +664,6 @@ class @AudioEditor extends E.Component
 		if tracks isnt last_state.tracks
 			@update_playback()
 			AudioClip.load_clips tracks
-		
-		# transition track positions
-		# TODO: move this to TracksArea
-		# TODO: handle starting transitions while already transitioning (probably use a rAF loop)
-		transition_seconds = 0.5
-		if @last_track_rects
-			track_els = React.findDOMNode(@).querySelectorAll(".track")
-			for track_el, track_index in track_els
-				current_rect = track_el.getBoundingClientRect()
-				last_rect = @last_track_rects[track_index]
-				track_el.style.transform = "translateY(#{last_rect.top - current_rect.top}px)"
-				do (track_el)->
-					setTimeout ->
-						track_el.style.transition = "transform #{transition_seconds}s ease"
-						setTimeout ->
-							track_el.style.transform = "translateY(0)"
-							setTimeout ->
-								track_el.style.transition = ""
-							, transition_seconds * 1000
 	
 	componentDidMount: =>
 		

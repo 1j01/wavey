@@ -42,7 +42,7 @@
 }
 .track {
 	flex-shrink: 0;
-	overflow: visible;
+	/*overflow: visible;*/
 }
 .track.pinned {
 	order: -1;
@@ -69,15 +69,9 @@
 	position: relative;
 }
 .track-controls {
-	/*float: left;*/
 	position: absolute;
 	left: 8px;
-	/*right: 100%;*/
-	/*z-index: 10;*/
-	/*left: -2em;*/
-	/*width: 6em; /* = .track-content {margin-left} */
 	white-space: nowrap;
-	/*margin-left: 10px;*/
 }
 .track-controls > .linked {
 	display: inline-block;
