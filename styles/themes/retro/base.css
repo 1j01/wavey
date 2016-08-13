@@ -108,3 +108,36 @@
 	border-left: 1px solid currentColor;
 	opacity: 0.7;
 }
+
+/* TODO: use a CSS preprocessor so we can do custom scrollbars somewhat sanely */
+
+/*
+::-webkit-scrollbar {
+	/*width: 10px;*/
+	/*height: 10px;*/
+/*	background: black;
+	background: transparent;
+	display: block;
+}
+
+::-webkit-scrollbar * {
+	background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+	border: 1px solid currentColor;
+	/*background: rgba(0,0,0,0.2);*/
+	/*background: currentColor;*/
+	/*opacity: 0.2;*/
+/*}
+::-webkit-scrollbar-thumb:hover {
+	/*background: rgba(0,0,0,0.1);*/
+	/*background: currentColor;*/
+	/*opacity: 0.4;*/
+/*}
+::-webkit-scrollbar-corner {
+	background: black;
+	background: transparent;
+}
+*/
+

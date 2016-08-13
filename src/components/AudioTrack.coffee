@@ -94,12 +94,6 @@ class @AudioTrack extends E.Component
 						style:
 							left: scale * selection.start()
 							width: scale * (selection.end() - selection.start())
-				if position?
-					E ".position",
-						key: "position"
-						ref: "position_indicator"
-						style:
-							left: scale * position
 	
 	animate: ->
 		{scale} = @props

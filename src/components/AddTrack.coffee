@@ -11,7 +11,7 @@ class @AddTrack extends E.Component
 			for file in e.target.files
 				editor.add_clip file
 		
-		E ".track.add-track",
+		E ".track.add-track.timeline-independent",
 			E ".track-content",
 				children
 				E "button.button",

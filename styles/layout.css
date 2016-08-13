@@ -39,6 +39,7 @@
 	overflow: auto;
 	/*margin-left: 6em; /* = .track-controls {width} */
 	/*overflow: visible;*/
+	position: relative;
 }
 .track {
 	flex-shrink: 0;
@@ -46,6 +47,9 @@
 }
 .track.pinned {
 	order: -1;
+}
+.track.timeline-independent {
+	z-index: 2;
 }
 
 .add-track button ~ span {
@@ -105,6 +109,7 @@
 }
 .position {
 	pointer-events: none;
+	z-index: 2;
 }
 
 /* @TODO: remove Gtk-isms */

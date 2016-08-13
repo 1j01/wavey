@@ -130,6 +130,13 @@ class @TracksArea extends E.Component
 						# so we at least try to put it at the bottom
 						order: 100000
 				
+				if position?
+					E ".position",
+						key: "position"
+						ref: "position_indicator"
+						# style:
+						# 	left: scale * position
+				
 				for track in tracks
 					switch track.type
 						when "beat"
@@ -149,21 +156,16 @@ class @TracksArea extends E.Component
 							E "p", "To get started, hit record above or add some tracks below."
 	
 	animate: ->
-		# {scale} = @props
+		{scale} = @props
 		@animation_frame = requestAnimationFrame => @animate()
-		# if @props.playing
-		# 	if @refs.position_indicator
-		# 		position = @props.position + actx.currentTime - @props.position_time
-		# 		@refs.position_indicator.getDOMNode().style.left = "#{scale * position}px"
 		
-		# TODO: animate tracks ordering and the position indicator here
+		# TODO: animate tracks ordering here
 		
 		tracks_area_el = React.findDOMNode(@)
-		# tracks_area_el.style.width = "10000px"
 		tracks_area_rect = tracks_area_el.getBoundingClientRect()
 		
 		tracks_content_area_el = tracks_area_el.querySelector(".track-content-area")
-		# tracks_content_area_el.style.width = "1000px"
+		tracks_content_area_rect = tracks_content_area_el.getBoundingClientRect()
 		
 		track_els = tracks_area_el.querySelectorAll(".track")
 		track_controls_els = tracks_area_el.querySelectorAll(".track-controls")
@@ -173,11 +175,23 @@ class @TracksArea extends E.Component
 			track_controls_el.style.top = "#{track_rect.top - tracks_area_rect.top + parseInt(getComputedStyle(track_el).paddingTop)}px"
 		
 		scroll_x = tracks_content_area_el.scrollLeft
-		for track_el in track_els # when track_el.classList.contains("audio-track")
+		for track_el in track_els
 			track_content_el = track_el.querySelector(".track-content > *")
 			track_el.style.transform = "translateX(#{scroll_x}px)"
-			if track_el.classList.contains("audio-track") or track_el.classList.contains("beat-track")
+			unless track_el.classList.contains("timeline-independent")
 				track_content_el.style.transform = "translateX(#{-scroll_x}px)"
+		
+		
+		# if @props.playing
+		if @refs.position_indicator
+			position_indicator_el = @refs.position_indicator.getDOMNode()
+			position = @props.position + if @props.playing then actx.currentTime - @props.position_time else 0
+			any_old_track_content_el = track_el.querySelector(".track-content")
+			# @refs.position_indicator.getDOMNode().style.left = "#{scale * position + tracks_content_area_rect.left - tracks_content_area_el.scrollLeft}px"
+			rect = any_old_track_content_el.getBoundingClientRect()
+			# @refs.position_indicator.getDOMNode().style.left = "#{scale * position + rect.left - tracks_content_area_rect.left - tracks_content_area_el.scrollLeft}px"
+			position_indicator_el.style.left = "#{scale * position + rect.left - tracks_content_area_rect.left}px"
+			position_indicator_el.style.top = "#{tracks_content_area_el.scrollTop}px"
 	
 	componentWillUpdate: (next_props, next_state)=>
 		# for transitioning track positions
