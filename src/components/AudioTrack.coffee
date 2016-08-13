@@ -5,15 +5,16 @@ class @AudioTrack extends E.Component
 		{clips, muted, pinned} = track
 		
 		select_at_mouse = (e)=>
-			# @FIXME: WET, @TODO: DRY, this was copy/pasted from Tracks::onMouseMove
+			# FIXME: WET, TODO: DRY, NOTE: this was copy/pasted from Tracks::onMouseMove
 			track_content_el = closest e.target, ".track-content"
+			track_content_area_el = closest(e.target, ".track-content-area")
 			return unless track_content_el?
 			
 			track_el = closest e.target, ".track"
 			
-			position_at = (e)->
+			position_at = (e)=>
 				rect = track_content_el.getBoundingClientRect()
-				(e.clientX - rect.left) / scale
+				(e.clientX - rect.left + track_content_area_el.scrollLeft) / scale
 			
 			track_id_at = (e)->
 				track_el = closest e.target, ".track"

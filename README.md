@@ -33,7 +33,6 @@ Internationalization and improved accessibility.
 
 ### TODO
 
-* Finish up horizontal scrolling
 * Mouse-relative zooming (also preferably performant zooming)
 * Effects
 * Gain control and panning (maybe as effects? depends on what the effects UI will look like)

@@ -18,6 +18,16 @@ class @TracksArea extends E.Component
 		for track in tracks when track.type isnt "beat"
 			document_is_basically_empty = no
 		
+		
+		# TODO: decide if this is the ideal or what
+		document_width_padding = window.innerWidth/2
+		
+		# FIXME: XXX: HACK: this is Not the Way
+		HACK_InfoBar_warn = InfoBar.warn
+		InfoBar.warn = ->
+		document_width = editor.get_max_length() * scale + document_width_padding
+		InfoBar.warn = HACK_InfoBar_warn
+		
 		E ".tracks-area",
 			onMouseDown: (e)=>
 				return if e.isDefaultPrevented()
@@ -46,9 +56,12 @@ class @TracksArea extends E.Component
 				# @TODO: double click to select either to the bounds of adjacent audio clips or everything on the track
 				# @TODO: drag and drop the selection?
 				# @TODO: better overall drag and drop feedback
+				# @TODO: scroll by dragging to the left or right edges
 				onMouseDown: (e)=>
+					# FIXME: WET, TODO: DRY, NOTE: this was copy/pasted into AudioTrack's select_at_mouse
 					return unless e.button is 0
 					track_content_el = closest(e.target, ".track-content")
+					track_content_area_el = closest(e.target, ".track-content-area")
 					if closest(track_content_el, ".add-track, .unknown-track")
 						editor.deselect()
 						return
@@ -61,7 +74,7 @@ class @TracksArea extends E.Component
 					
 					position_at = (e)=>
 						rect = track_content_el.getBoundingClientRect()
-						(e.clientX - rect.left) / scale
+						(e.clientX - rect.left + track_content_area_el.scrollLeft) / scale
 					
 					track_id_at = (e)=>
 						track_el = closest e.target, ".track"
@@ -107,6 +120,16 @@ class @TracksArea extends E.Component
 						unless mouse_moved_timewise
 							editor.seek position
 				
+				E ".document-width",
+					key: "document-width"
+					style:
+						width: document_width
+						# NOTE: it apparently needs some height to cause scrolling
+						flex: "0 0 1px"
+						# and we don't want some random extra height somewhere
+						# so we at least try to put it at the bottom
+						order: 100000
+				
 				for track in tracks
 					switch track.type
 						when "beat"
@@ -136,13 +159,25 @@ class @TracksArea extends E.Component
 		# TODO: animate tracks ordering and the position indicator here
 		
 		tracks_area_el = React.findDOMNode(@)
+		# tracks_area_el.style.width = "10000px"
 		tracks_area_rect = tracks_area_el.getBoundingClientRect()
+		
+		tracks_content_area_el = tracks_area_el.querySelector(".track-content-area")
+		# tracks_content_area_el.style.width = "1000px"
+		
 		track_els = tracks_area_el.querySelectorAll(".track")
 		track_controls_els = tracks_area_el.querySelectorAll(".track-controls")
 		for track_controls_el, i in track_controls_els
 			track_el = track_els[i]
 			track_rect = track_el.getBoundingClientRect()
 			track_controls_el.style.top = "#{track_rect.top - tracks_area_rect.top + parseInt(getComputedStyle(track_el).paddingTop)}px"
+		
+		scroll_x = tracks_content_area_el.scrollLeft
+		for track_el in track_els # when track_el.classList.contains("audio-track")
+			track_content_el = track_el.querySelector(".track-content > *")
+			track_el.style.transform = "translateX(#{scroll_x}px)"
+			if track_el.classList.contains("audio-track") or track_el.classList.contains("beat-track")
+				track_content_el.style.transform = "translateX(#{-scroll_x}px)"
 	
 	componentWillUpdate: (next_props, next_state)=>
 		# for transitioning track positions

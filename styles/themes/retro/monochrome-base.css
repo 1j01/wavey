@@ -17,3 +17,5 @@
 .menu-item:focus::after {
 	background: currentColor;
 }
+/* TODO: custom scrollbars */
+
