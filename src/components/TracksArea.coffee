@@ -131,11 +131,9 @@ class @TracksArea extends E.Component
 						order: 100000
 				
 				if position?
-					E ".position",
-						key: "position"
+					E ".position-indicator",
+						key: "position-indicator"
 						ref: "position_indicator"
-						# style:
-						# 	left: scale * position
 				
 				for track in tracks
 					switch track.type
@@ -150,6 +148,10 @@ class @TracksArea extends E.Component
 						else
 							E UnknownTrack, {key: track.id, track, scale, editor}
 				
+				# TODO: redesign AddTrack
+				# currently it looks silly with the position indicator going behind it and popping out a bit at the bottom
+				# it's not really a track
+				# maybe there should just be an import button in the HeaderBar?
 				E AddTrack, {key: "add-track", editor},
 					if document_is_basically_empty
 						E ".getting-started",
@@ -158,8 +160,6 @@ class @TracksArea extends E.Component
 	animate: ->
 		{scale} = @props
 		@animation_frame = requestAnimationFrame => @animate()
-		
-		# TODO: animate tracks ordering here
 		
 		tracks_area_el = React.findDOMNode(@)
 		tracks_area_rect = tracks_area_el.getBoundingClientRect()
@@ -181,47 +181,45 @@ class @TracksArea extends E.Component
 			unless track_el.classList.contains("timeline-independent")
 				track_content_el.style.transform = "translateX(#{-scroll_x}px)"
 		
+		# TODO: animate tracks ordering here
 		
-		# if @props.playing
 		if @refs.position_indicator
 			position_indicator_el = @refs.position_indicator.getDOMNode()
 			position = @props.position + if @props.playing then actx.currentTime - @props.position_time else 0
 			any_old_track_content_el = track_el.querySelector(".track-content")
-			# @refs.position_indicator.getDOMNode().style.left = "#{scale * position + tracks_content_area_rect.left - tracks_content_area_el.scrollLeft}px"
 			rect = any_old_track_content_el.getBoundingClientRect()
-			# @refs.position_indicator.getDOMNode().style.left = "#{scale * position + rect.left - tracks_content_area_rect.left - tracks_content_area_el.scrollLeft}px"
 			position_indicator_el.style.left = "#{scale * position + rect.left - tracks_content_area_rect.left}px"
 			position_indicator_el.style.top = "#{tracks_content_area_el.scrollTop}px"
 	
-	componentWillUpdate: (next_props, next_state)=>
-		# for transitioning track positions
-		@last_track_rects = null
-		# @TODO: transition removing/unremoving tracks
-		if @props.tracks.length is next_props.tracks.length
-			for track_current, track_index in @props.tracks
-				track_future = next_props.tracks[track_index]
-				if track_future.pinned isnt track_current.pinned
-					track_els = React.findDOMNode(@).querySelectorAll(".track")
-					@last_track_rects = (track_el.getBoundingClientRect() for track_el in track_els)
+	# componentWillUpdate: (next_props, next_state)=>
+	# 	# for transitioning track positions
+	# 	@last_track_rects = null
+	# 	# @TODO: transition removing/unremoving tracks
+	# 	if @props.tracks.length is next_props.tracks.length
+	# 		for track_current, track_index in @props.tracks
+	# 			track_future = next_props.tracks[track_index]
+	# 			if track_future.pinned isnt track_current.pinned
+	# 				track_els = React.findDOMNode(@).querySelectorAll(".track")
+	# 				@last_track_rects = (track_el.getBoundingClientRect() for track_el in track_els)
 	
-	componentDidUpdate: (last_props, last_state)=>
-		# transition track positions
-		# TODO: handle starting transitions while already transitioning (probably use a rAF loop)
-		transition_seconds = 0.5
-		if @last_track_rects
-			track_els = React.findDOMNode(@).querySelectorAll(".track")
-			for track_el, track_index in track_els
-				current_rect = track_el.getBoundingClientRect()
-				last_rect = @last_track_rects[track_index]
-				track_el.style.transform = "translateY(#{last_rect.top - current_rect.top}px)"
-				do (track_el)->
-					setTimeout ->
-						track_el.style.transition = "transform #{transition_seconds}s ease"
-						setTimeout ->
-							track_el.style.transform = "translateY(0)"
-							setTimeout ->
-								track_el.style.transition = ""
-							, transition_seconds * 1000
+	# componentDidUpdate: (last_props, last_state)=>
+	# 	# transition track positions
+	# 	# TODO: handle starting transitions while already transitioning (probably use a rAF loop)
+	# 	transition_seconds = 0.5
+	# 	if @last_track_rects
+	# 		track_els = React.findDOMNode(@).querySelectorAll(".track")
+	# 		for track_el, track_index in track_els
+	# 			current_rect = track_el.getBoundingClientRect()
+	# 			last_rect = @last_track_rects[track_index]
+	# 			track_el.style.transform = "translateY(#{last_rect.top - current_rect.top}px)"
+	# 			do (track_el)->
+	# 				setTimeout ->
+	# 					track_el.style.transition = "transform #{transition_seconds}s ease"
+	# 					setTimeout ->
+	# 						track_el.style.transform = "translateY(0)"
+	# 						setTimeout ->
+	# 							track_el.style.transition = ""
+	# 						, transition_seconds * 1000
 	
 	componentDidMount: ->
 		@animate()

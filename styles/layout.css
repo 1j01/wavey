@@ -34,16 +34,11 @@
 	display: flex;
 	flex-direction: column;
 	flex: 1;
-	/*overflow-x: hidden;*/
-	/*overflow-y: auto;*/
 	overflow: auto;
-	/*margin-left: 6em; /* = .track-controls {width} */
-	/*overflow: visible;*/
 	position: relative;
 }
 .track {
 	flex-shrink: 0;
-	/*overflow: hidden;*/
 }
 .track.pinned {
 	order: -1;
@@ -99,7 +94,7 @@
 }
 
 .selection,
-.position {
+.position-indicator {
 	position: absolute;
 	top: 0;
 	height: 100%;
@@ -107,7 +102,7 @@
 .selection {
 	z-index: 1;
 }
-.position {
+.position-indicator {
 	pointer-events: none;
 	z-index: 2;
 }

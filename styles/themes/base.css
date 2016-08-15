@@ -46,19 +46,15 @@
 	opacity: 0.3;
 }
 
-.position {
+.position-indicator {
 	border-left: 1px solid currentColor;
 	opacity: 0.5;
 }
 /* This would be if we were doing an Audacity sort of thing.
-.audio-editor:not(.playing) .position {
+.audio-editor:not(.playing) .position-indicator {
 	opacity: 0;
 }
 */
-/* @TODO: make .position be one element that spans multiple tracks */
-.track:not(:last-child):not(:nth-last-child(2)) .position {
-	height: calc(100% + 10px); /* = .track{height} + .track{padding-top} + .track{padding-bottom} */
-}
 
 .audio-editor button:focus {
 	outline: 0;
