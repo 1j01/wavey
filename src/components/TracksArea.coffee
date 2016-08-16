@@ -177,11 +177,11 @@ class @TracksArea extends E.Component
 		scroll_x = tracks_content_area_el.scrollLeft
 		for track_el in track_els
 			track_content_el = track_el.querySelector(".track-content > *")
-			track_el.style.transform = "translateX(#{scroll_x}px)"
+			track_el.y_offset ?= 0
+			track_el.y_offset /= 1.15
+			track_el.style.transform = "translate(#{scroll_x}px, #{track_el.y_offset}px)"
 			unless track_el.classList.contains("timeline-independent")
 				track_content_el.style.transform = "translateX(#{-scroll_x}px)"
-		
-		# TODO: animate tracks ordering here
 		
 		if @refs.position_indicator
 			position_indicator_el = @refs.position_indicator.getDOMNode()
@@ -191,35 +191,30 @@ class @TracksArea extends E.Component
 			position_indicator_el.style.left = "#{scale * position + rect.left - tracks_content_area_rect.left}px"
 			position_indicator_el.style.top = "#{tracks_content_area_el.scrollTop}px"
 	
-	# componentWillUpdate: (next_props, next_state)=>
-	# 	# for transitioning track positions
-	# 	@last_track_rects = null
-	# 	# @TODO: transition removing/unremoving tracks
-	# 	if @props.tracks.length is next_props.tracks.length
-	# 		for track_current, track_index in @props.tracks
-	# 			track_future = next_props.tracks[track_index]
-	# 			if track_future.pinned isnt track_current.pinned
-	# 				track_els = React.findDOMNode(@).querySelectorAll(".track")
-	# 				@last_track_rects = (track_el.getBoundingClientRect() for track_el in track_els)
+	componentWillUpdate: (next_props, next_state)=>
+		# for transitioning track positions
+		@last_track_rects = {}
+		for track_current, track_index in @props.tracks
+			track_future = next_props.tracks[track_index]
+			track_els = React.findDOMNode(@).querySelectorAll(".track")
+			track_el = track_els[track_index]
+			@last_track_rects[track_current.id] = track_el.getBoundingClientRect()
 	
-	# componentDidUpdate: (last_props, last_state)=>
-	# 	# transition track positions
-	# 	# TODO: handle starting transitions while already transitioning (probably use a rAF loop)
-	# 	transition_seconds = 0.5
-	# 	if @last_track_rects
-	# 		track_els = React.findDOMNode(@).querySelectorAll(".track")
-	# 		for track_el, track_index in track_els
-	# 			current_rect = track_el.getBoundingClientRect()
-	# 			last_rect = @last_track_rects[track_index]
-	# 			track_el.style.transform = "translateY(#{last_rect.top - current_rect.top}px)"
-	# 			do (track_el)->
-	# 				setTimeout ->
-	# 					track_el.style.transition = "transform #{transition_seconds}s ease"
-	# 					setTimeout ->
-	# 						track_el.style.transform = "translateY(0)"
-	# 						setTimeout ->
-	# 							track_el.style.transition = ""
-	# 						, transition_seconds * 1000
+	componentDidUpdate: (last_props, last_state)=>
+		# measure differences in track y positions
+		# if @last_track_rects
+		track_els = React.findDOMNode(@).querySelectorAll(".track")
+		for track_el, track_index in track_els
+			current_rect = track_el.getBoundingClientRect()
+			# last_rect = @last_track_rects[track_index]
+			last_rect = @last_track_rects[track_el.dataset.trackId]
+			if last_rect?
+				track_el.y_offset ?= 0
+				track_el.y_offset += last_rect.top - current_rect.top
+		
+		# update immediately to avoid one-frame artifacts
+		cancelAnimationFrame @animation_frame
+		@animate()
 	
 	componentDidMount: ->
 		@animate()
