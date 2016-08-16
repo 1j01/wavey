@@ -581,7 +581,7 @@ class @AudioEditor extends E.Component
 			for track, track_index in tracks when track.id is track_id by -1
 				tracks.splice track_index, 1
 				if selection?.containsTrack track
-					updated_selection = new Range selection.a, selection.b, (track_id for track_id in selection.tracks when track_id isnt track.id)
+					updated_selection = new Range selection.a, selection.b, (track_id for track_id in selection.track_ids when track_id isnt track.id)
 					if updated_selection.length
 						@select updated_selection
 					else
