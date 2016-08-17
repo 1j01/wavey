@@ -33,6 +33,7 @@ Internationalization and improved accessibility.
 
 ### TODO
 
+* Fix pasting, deleting behavior etc. and get back to solid editing
 * Mouse-relative zooming (also preferably performant zooming)
 * Effects
 * Gain control and panning (maybe as effects? depends on what the effects UI will look like)
