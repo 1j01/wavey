@@ -533,7 +533,7 @@ class @AudioEditor extends E.Component
 								clip.position = clip.time
 								delete clip.time
 					
-					unless clipboard.version is AudioEditor.stuff_version
+					if clipboard.version < AudioEditor.stuff_version
 						InfoBar.warn "The clipboard data was copied from an earlier version of the editor. There is no upgrade path as of yet, sorry."
 						return
 				

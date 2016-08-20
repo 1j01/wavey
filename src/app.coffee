@@ -62,6 +62,7 @@ localforage.getItem "theme", (err, theme)->
 
 @render = ->
 	document_id = (location.hash.match(/document=([\w\-./]*)/) ? [0, "default"])[1]
+	# TODO: render into a container element inside document.body
 	React.render (E AudioEditor, {key: document_id, document_id, themes, set_theme}), document.body
 
 window.addEventListener "hashchange", render

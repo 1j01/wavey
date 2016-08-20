@@ -194,15 +194,16 @@ class @TracksArea extends E.Component
 	
 	componentWillUpdate: (next_props, next_state)=>
 		# for transitioning track positions
+		# get a baseline for measuring differences in track y positions
 		@last_track_rects = {}
 		for track_current, track_index in @props.tracks
-			track_future = next_props.tracks[track_index]
 			track_els = React.findDOMNode(@).querySelectorAll(".track")
 			track_el = track_els[track_index]
 			@last_track_rects[track_current.id] = track_el.getBoundingClientRect()
 	
 	componentDidUpdate: (last_props, last_state)=>
 		# measure differences in track y positions
+		# and add track transitions
 		track_els = React.findDOMNode(@).querySelectorAll(".track")
 		for track_el, track_index in track_els
 			current_rect = track_el.getBoundingClientRect()

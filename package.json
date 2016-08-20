@@ -2,15 +2,9 @@
   "name": "audio-editor",
   "version": "0.0.0",
   "description": "Edit audio simply",
-  "main": "index.html",
+  "author": "Isaiah Odhner <isaiahodhner@gmail.com>",
   "license": "MIT",
-  "scripts": {
-    "start": "nw"
-  },
-  "window": {
-    "icon": "images/icons/48.png",
-    "toolbar": false
-  },
+  "main": "index.html",
   "repository": {
     "type": "git",
     "url": "http://github.com/1j01/audio-editor.git"
@@ -22,6 +16,17 @@
     "nw": "^0.12.3"
   },
   "devDependencies": {
+    "chai": "^3.5.0",
+    "coffee-script": "^1.10.0",
+    "mocha": "^3.0.2",
     "nw-dev": "^1.3.1"
+  },
+  "scripts": {
+    "start": "nw",
+    "test": "mocha --compilers coffee:coffee-script/register"
+  },
+  "window": {
+    "icon": "images/icons/48.png",
+    "toolbar": false
   }
 }
