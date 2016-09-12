@@ -33,7 +33,7 @@ describe "AudioEditor", ->
 	it "should let you pin/unpin tracks"
 	
 	it "should let you record from a mic"
-	it "should let you precord, magically"
+	it "should let you precord, magically" # i.e. from a wand (w/ time spell)
 
 	it "should do scrolling good"
 	it "should do zooming good"
