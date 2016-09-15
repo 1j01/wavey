@@ -1,6 +1,6 @@
 
 {GUID, get_clip_start_end} = require "./helpers.coffee"
-AudioEditor_module = require "./components/AudioEditor.coffee" # for a version number @XXX: @FIXME: ugly dependency cycle hack
+{stuff_version} = require "./versions.coffee"
 
 module.exports =
 class Range
@@ -41,8 +41,7 @@ class Range
 	contents: (tracks)->
 		# returns stuff from tracks within this range
 		
-		{AudioEditor} = AudioEditor_module # @XXX: HACK
-		stuff = {version: AudioEditor.stuff_version, length: @length(), rows: []}
+		stuff = {version: stuff_version, length: @length(), rows: []}
 		
 		for track in tracks when track.type is "audio" and @containsTrack track
 			clips = []

@@ -2,6 +2,7 @@
 {
 	E, closest, GUID, get_clip_start_end, normal_tracks_in
 } = require "../helpers.coffee"
+{document_version, stuff_version} = require "../versions.coffee"
 export_audio_buffer_as = require "../export.coffee"
 ReactDOM = require "react-dom"
 Controls = require "./Controls.coffee"
@@ -36,14 +37,11 @@ class exports.AudioEditor extends E.Component
 			recording: no
 			precording_enabled: no
 	
-	@document_version: 4
-	@stuff_version: 3
-	
 	save: ->
 		{document_id} = @props
 		{tracks, selection, undos, redos} = @state
 		doc = {
-			version: AudioEditor.document_version
+			version: document_version
 			state: {tracks, selection}
 			undos, redos
 		}
@@ -64,10 +62,10 @@ class exports.AudioEditor extends E.Component
 				if not doc.version?
 					InfoBar.warn "This document was created before document storage was even versioned. It cannot be loaded."
 					return
-				if doc.version > AudioEditor.document_version
+				if doc.version > document_version
 					InfoBar.warn "This document was created with a later version of the editor. Reload to get the latest version."
 					return
-				if doc.version < AudioEditor.document_version
+				if doc.version < document_version
 					
 					# upgrading code goes here
 					# for backwards compatible changes, the version number can simply be incremented
@@ -99,7 +97,7 @@ class exports.AudioEditor extends E.Component
 									clip.position = clip.time
 									delete clip.time
 					
-					unless doc.version is AudioEditor.document_version
+					unless doc.version is document_version
 						InfoBar.warn "This document was created with an earlier version of the editor. There is no upgrade path as of yet, sorry."
 						return
 				
@@ -529,10 +527,10 @@ class exports.AudioEditor extends E.Component
 					InfoBar.warn "The clipboard data does not appear to contain a version number. It cannot be pasted."
 					console.warn "clipboard:", clipboard
 					return
-				if clipboard.version > AudioEditor.stuff_version
+				if clipboard.version > stuff_version
 					InfoBar.warn "The clipboard data was copied from a later version of the editor. Reload to get the latest version."
 					return
-				if clipboard.version < AudioEditor.stuff_version
+				if clipboard.version < stuff_version
 					# upgrading code should go here
 					# for backwards compatible changes, the version number can simply be incremented
 					
@@ -546,7 +544,7 @@ class exports.AudioEditor extends E.Component
 								clip.position = clip.time
 								delete clip.time
 					
-					if clipboard.version < AudioEditor.stuff_version
+					if clipboard.version < stuff_version
 						InfoBar.warn "The clipboard data was copied from an earlier version of the editor. There is no upgrade path as of yet, sorry."
 						return
 				
@@ -623,7 +621,7 @@ class exports.AudioEditor extends E.Component
 						
 						clip.length = buffer.length / buffer.sampleRate
 						
-						stuff = {version: AudioEditor.stuff_version, rows: [[clip]], length: clip.length}
+						stuff = {version: stuff_version, rows: [[clip]], length: clip.length}
 						if at_selection
 							@insert stuff, selection.start(), selection.firstTrackID()
 						else
