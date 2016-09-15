@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Audio Editor: Test</title>
+		<link href="../styles/app.css" rel="stylesheet" type="text/css">
+		<link href="../styles/layout.css" rel="stylesheet" type="text/css">
+		<link href="../styles/themes/base.css" rel="stylesheet" type="text/css">
+		<link href="../lib/octicons/octicons.css" rel="stylesheet" type="text/css">
+		<link href="../lib/fontello/css/audio.css" rel="stylesheet" type="text/css">
+		<link rel="icon" href="../images/audio-sandwhich-16.png" sizes="16x16" type="image/png">
+		<meta name="viewport" content="width=device-width, user-scalable=no">
+	</head>
+	<body>
+		<script>
+			window.AudioContext = window.AudioContext || window.webkitAudioContext;
+			window.navigator.getUserMedia = window.navigator.getUserMedia || window.navigator.webkitGetUserMedia || window.navigator.mozGetUserMedia;
+			window.URL = window.URL || window.webkitURL;
+		</script>
+		<script src="../lib/bundle.js"></script>
+		<script>
+			if(window.require){
+				var script = document.createElement("script");
+				script.setAttribute("src", "../node_modules/nw-dev/lib/dev.js");
+				script.setAttribute("defer", "defer");
+				document.body.appendChild(script);
+			}
+		</script>
+	</body>
+</html>

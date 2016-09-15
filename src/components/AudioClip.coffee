@@ -1,5 +1,11 @@
 
-class @AudioClip extends E.Component
+{E} = require "../helpers.coffee"
+InfoBar = require "./InfoBar.coffee"
+
+localforage = require "localforage"
+
+module.exports =
+class AudioClip extends E.Component
 	
 	@audio_buffers = {}
 	@recordings = {}
@@ -91,7 +97,7 @@ class @AudioClip extends E.Component
 			data: {length}
 			xmlns: "http://www.w3.org/svg/2000"
 			viewBox: "0 0 #{width} #{height}"
-			bufferedRendering: "static"
+			# bufferedRendering: "static"
 		},
 			if width
 				at = (x)->

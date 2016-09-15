@@ -1,5 +1,8 @@
 
-class @TrackControls extends E.Component
+{E} = require "../helpers.coffee"
+
+module.exports =
+class TrackControls extends E.Component
 	render: ->
 		# @TODO a way to reorder tracks
 		{track, editor} = @props

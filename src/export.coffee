@@ -1,5 +1,6 @@
 
-@export_audio_buffer_as = (audio_buffer, file_type, number_of_channels, sample_rate)->
+module.exports =
+export_audio_buffer_as = (audio_buffer, file_type, number_of_channels, sample_rate)->
 	
 	number_of_channels ?= audio_buffer.numberOfChannels
 	sample_rate ?= audio_buffer.sampleRate

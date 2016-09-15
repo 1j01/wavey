@@ -1,4 +1,7 @@
 
+{E} = require "../helpers.coffee"
+ReactDOM = require "react-dom"
+
 keys =
 	tab:    9
 	enter:  13
@@ -9,7 +12,8 @@ keys =
 	right:  39
 	down:   40
 
-class @DropdownMenu extends E.Component
+module.exports =
+class DropdownMenu extends E.Component
 	# @TODO: allow dragging down from the DropdownButton
 	render: ->
 		{items, open} = @props
@@ -17,7 +21,7 @@ class @DropdownMenu extends E.Component
 			role: "menu"
 			style: display: ("none" unless open)
 			onKeyDown: (e)=>
-				elements = Array.from React.findDOMNode(@).children
+				elements = Array.from ReactDOM.findDOMNode(@).children
 				
 				go = (delta)=>
 					index = elements.indexOf document.activeElement
@@ -48,7 +52,7 @@ class @DropdownMenu extends E.Component
 	componentDidUpdate: -> @updateOffset()
 	updateOffset: ->
 		return unless @props.open
-		el = React.findDOMNode @
+		el = ReactDOM.findDOMNode @
 		rect = el.getBoundingClientRect()
 		if rect.right >= document.body.clientWidth
 			linked = el.parentElement.nextSibling

@@ -1,5 +1,9 @@
 
-class @Controls extends E.Component
+{E} = require "../helpers.coffee"
+DropdownButton = require "./DropdownButton.coffee"
+
+module.exports =
+class Controls extends E.Component
 	render: ->
 		{playing, recording, selection, precording_enabled, themes, set_theme, editor} = @props
 		{play, pause, seek_to_start, seek_to_end, record, stop_recording, precord, enable_precording, export_as} = editor

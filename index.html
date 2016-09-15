@@ -22,11 +22,12 @@
 	<body class="window-frame active" style="border-radius: 0; margin: 0">
 		<!-- <script src="lib/pep.js"></script> -->
 		<!-- <script src="lib/FileSaver.js"></script> -->
-		<script src="lib/coffee-script.js"></script>
-		<script src="lib/react-0.13.3.js"></script>
-		<script src="lib/react-script-2.0.4.coffee" type="text/coffeescript"></script>
-		<script src="lib/localforage.js"></script>
-		<script src="lib/easing.js"></script>
+		<!--<script src="lib/coffee-script.js"></script>-->
+		<!--<script src="lib/react-0.13.3.js"></script>-->
+		<!--<script src="lib/react-script-2.0.4.coffee" type="text/coffeescript"></script>-->
+		<!--<script src="lib/localforage.js"></script>-->
+		<!--<script src="lib/easing.js"></script>-->
+		<!--
 		<script src="src/helpers.coffee" type="text/coffeescript"></script>
 		<script src="src/export.coffee" type="text/coffeescript"></script>
 		<script src="src/Range.coffee" type="text/coffeescript"></script>
@@ -45,7 +46,13 @@
 		<script src="src/components/UnknownTrack.coffee" type="text/coffeescript"></script>
 		<script src="src/components/AddTrack.coffee" type="text/coffeescript"></script>
 		<script src="src/app.coffee" type="text/coffeescript"></script>
-		<!-- TODO: compile cofffeescript; script order not guarunteed at least in Firefox -->
+		-->
+		<script>
+			window.AudioContext = window.AudioContext || window.webkitAudioContext;
+			window.navigator.getUserMedia = window.navigator.getUserMedia || window.navigator.webkitGetUserMedia || window.navigator.mozGetUserMedia;
+			window.URL = window.URL || window.webkitURL;
+		</script>
+		<script src="lib/bundle.js"></script>
 		<script>
 			if(window.require){
 				var script = document.createElement("script");

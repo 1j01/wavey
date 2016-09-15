@@ -1,5 +1,8 @@
 
-class @InfoBar extends E.Component
+{E} = require "../helpers.coffee"
+
+module.exports =
+class InfoBar extends E.Component
 	
 	@state:
 		message: null
@@ -67,7 +70,8 @@ class @InfoBar extends E.Component
 	# 	next_state.visible isnt @state.visible
 
 ###
-class @InfoBar extends E.Component
+module.exports =
+class InfoBar extends E.Component
 	
 	constructor: ->
 		@state =

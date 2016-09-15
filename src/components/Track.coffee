@@ -1,5 +1,8 @@
 
-class @Track extends E.Component
+{E} = require "../helpers.coffee"
+
+module.exports =
+class Track extends E.Component
 	render: ->
 		{track, editor} = @props
 		{muted, pinned} = track

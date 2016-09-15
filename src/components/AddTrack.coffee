@@ -1,5 +1,8 @@
 
-class @AddTrack extends E.Component
+{E} = require "../helpers.coffee"
+
+module.exports =
+class AddTrack extends E.Component
 	render: ->
 		{editor, children} = @props
 		

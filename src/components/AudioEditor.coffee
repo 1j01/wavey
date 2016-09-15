@@ -1,5 +1,17 @@
 
-class @AudioEditor extends E.Component
+{
+	E, closest, GUID, get_clip_start_end, normal_tracks_in
+} = require "../helpers.coffee"
+export_audio_buffer_as = require "../export.coffee"
+ReactDOM = require "react-dom"
+Controls = require "./Controls.coffee"
+InfoBar = require "./InfoBar.coffee"
+TracksArea = require "./TracksArea.coffee"
+AudioClip = require "./AudioClip.coffee" # for class-level interface (@XXX)
+Range = require "../Range.coffee" # should I rename this AudioRange? (there's a DOM thing called Range)
+localforage = require "localforage"
+
+class exports.AudioEditor extends E.Component
 	
 	copy_of = (o)-> JSON.parse JSON.stringify o
 	
@@ -514,7 +526,8 @@ class @AudioEditor extends E.Component
 			else if clipboard?
 				
 				if not clipboard.version?
-					InfoBar.warn "The clipboard data was copied before clipboard data was versioned. It cannot be pasted."
+					InfoBar.warn "The clipboard data does not appear to contain a version number. It cannot be pasted."
+					console.warn "clipboard:", clipboard
 					return
 				if clipboard.version > AudioEditor.stuff_version
 					InfoBar.warn "The clipboard data was copied from a later version of the editor. Reload to get the latest version."
@@ -626,7 +639,7 @@ class @AudioEditor extends E.Component
 		reader.readAsArrayBuffer file
 	
 	get_sorted_tracks: (tracks)=>
-		track_els = React.findDOMNode(@).querySelectorAll ".track"
+		track_els = ReactDOM.findDOMNode(@).querySelectorAll ".track"
 		track_positions = (track_el.getBoundingClientRect().top for track_el in track_els)
 		track_positions = {}
 		for track_el in track_els
@@ -752,7 +765,7 @@ class @AudioEditor extends E.Component
 				return if closest(e.target, "p")
 				unless e.button > 0
 					e.preventDefault()
-				React.findDOMNode(@).focus()
+				ReactDOM.findDOMNode(@).focus()
 			onDragOver: (e)=>
 				return if e.isDefaultPrevented()
 				e.preventDefault()

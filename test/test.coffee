@@ -5,7 +5,8 @@ describe "AudioEditor", ->
 	it.skip "should load a document", ->
 		# how should this work?
 		# aside from getting React working and hooking stuff up,
-		# am I supposed to prepolulate IndexedDB for this test?
+		# should I try to prepolulate IndexedDB for this test?
+		# or should I just test saving and reloading?
 		document_id = "mocha-test-document"
 		React.render (E AudioEditor, {key: document_id, document_id, themes, set_theme}), document.body
 
@@ -39,3 +40,6 @@ describe "AudioEditor", ->
 	it "should do zooming good"
 	it "should do playback good"
 	it "should do seeking well-ly"
+	
+	it "should scroll down to new tracks when recording or adding files"
+	it "should scroll with the playback position when playing/recording"

@@ -1,5 +1,17 @@
 
-class @TracksArea extends E.Component
+{E, closest} = require "../helpers.coffee"
+ReactDOM = require "react-dom"
+InfoBar = require "./InfoBar.coffee"
+TrackControls = require "./TrackControls.coffee"
+BeatTrack = require "./BeatTrack.coffee"
+AudioTrack = require "./AudioTrack.coffee"
+UnknownTrack = require "./UnknownTrack.coffee"
+AddTrack = require "./AddTrack.coffee"
+Range = require "../Range.coffee"
+easing = require "easingjs"
+
+module.exports =
+class TracksArea extends E.Component
 	render: ->
 		{tracks, position, position_time, scale, playing, editor} = @props
 		
@@ -25,7 +37,7 @@ class @TracksArea extends E.Component
 		# FIXME: XXX: HACK: this is Not the Way
 		HACK_InfoBar_warn = InfoBar.warn
 		InfoBar.warn = ->
-		document_width = editor.get_max_length() * scale + document_width_padding
+		document_width = (editor.get_max_length() ? 0) * scale + document_width_padding
 		InfoBar.warn = HACK_InfoBar_warn
 		
 		E ".tracks-area",
@@ -34,7 +46,7 @@ class @TracksArea extends E.Component
 				return if closest(e.target, "p")
 				unless e.button > 0
 					e.preventDefault()
-				if e.target is React.findDOMNode(@)
+				if e.target is ReactDOM.findDOMNode(@)
 					e.preventDefault()
 					editor.deselect()
 			E ".track-controls-area",
@@ -81,7 +93,7 @@ class @TracksArea extends E.Component
 						if track_el and track_el.dataset.trackId
 							track_el.dataset.trackId
 						else
-							track_els = React.findDOMNode(@).querySelectorAll ".track"
+							track_els = ReactDOM.findDOMNode(@).querySelectorAll ".track"
 							nearest_track_el = track_els[0]
 							distance = Infinity
 							for track_el in track_els when track_el.dataset.trackId
@@ -161,7 +173,7 @@ class @TracksArea extends E.Component
 		{scale} = @props
 		@animation_frame = requestAnimationFrame => @animate()
 		
-		tracks_area_el = React.findDOMNode(@)
+		tracks_area_el = ReactDOM.findDOMNode(@)
 		tracks_area_rect = tracks_area_el.getBoundingClientRect()
 		
 		tracks_content_area_el = tracks_area_el.querySelector(".track-content-area")
@@ -185,7 +197,7 @@ class @TracksArea extends E.Component
 				track_content_el.style.transform = "translateX(#{-scroll_x}px)"
 		
 		if @refs.position_indicator
-			position_indicator_el = @refs.position_indicator.getDOMNode()
+			position_indicator_el = @refs.position_indicator
 			position = @props.position + if @props.playing then actx.currentTime - @props.position_time else 0
 			any_old_track_content_el = track_el.querySelector(".track-content")
 			rect = any_old_track_content_el.getBoundingClientRect()
@@ -197,14 +209,14 @@ class @TracksArea extends E.Component
 		# get a baseline for measuring differences in track y positions
 		@last_track_rects = {}
 		for track_current, track_index in @props.tracks
-			track_els = React.findDOMNode(@).querySelectorAll(".track")
+			track_els = ReactDOM.findDOMNode(@).querySelectorAll(".track")
 			track_el = track_els[track_index]
 			@last_track_rects[track_current.id] = track_el.getBoundingClientRect()
 	
 	componentDidUpdate: (last_props, last_state)=>
 		# measure differences in track y positions
 		# and add track transitions
-		track_els = React.findDOMNode(@).querySelectorAll(".track")
+		track_els = ReactDOM.findDOMNode(@).querySelectorAll(".track")
 		for track_el, track_index in track_els
 			current_rect = track_el.getBoundingClientRect()
 			last_rect = @last_track_rects[track_el.dataset.trackId]

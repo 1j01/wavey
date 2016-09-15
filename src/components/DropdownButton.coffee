@@ -1,5 +1,11 @@
 
-class @DropdownButton extends E.Component
+{E, closest} = require "../helpers.coffee"
+React = require "react"
+ReactDOM = require "react-dom"
+DropdownMenu = require "./DropdownMenu.coffee"
+
+module.exports =
+class DropdownButton extends E.Component
 	@instances: []
 	
 	constructor: ->
@@ -38,7 +44,7 @@ class @DropdownButton extends E.Component
 		else
 			@setState menu_open: yes, =>
 				unless @state.just_opened_via_mousedown
-					React.findDOMNode(@).querySelector(".menu-item").focus()
+					ReactDOM.findDOMNode(@).querySelector(".menu-item").focus()
 			window.removeEventListener "mousedown", @_onmousedown
 			window.addEventListener "mousedown", @_onmousedown = (e)=>
 				unless closest e.target, ".dropdown-button, .menu-positioner"

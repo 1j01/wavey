@@ -1,5 +1,9 @@
 
-class @Range
+{GUID, get_clip_start_end} = require "./helpers.coffee"
+AudioEditor_module = require "./components/AudioEditor.coffee" # for a version number @XXX: @FIXME: ugly dependency cycle hack
+
+module.exports =
+class Range
 	constructor: (@a, @b = @a, @track_ids = [])->
 		unless @track_ids instanceof Array
 			throw new Error "new Range(#{(JSON.stringify a for a in arguments).join ", "}): third argument must be an array of track IDs"
@@ -37,6 +41,7 @@ class @Range
 	contents: (tracks)->
 		# returns stuff from tracks within this range
 		
+		{AudioEditor} = AudioEditor_module # @XXX: HACK
 		stuff = {version: AudioEditor.stuff_version, length: @length(), rows: []}
 		
 		for track in tracks when track.type is "audio" and @containsTrack track

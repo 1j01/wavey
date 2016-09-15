@@ -1,8 +1,13 @@
 
+localforage = require "localforage"
+ReactDOM = require "react-dom"
+{E} = require "./helpers.coffee"
+{AudioEditor} = require "./components/AudioEditor.coffee"
+
 if location.protocol is "http:" and location.host.match /editor|app/
 	location.protocol = "https:"
 
-@actx = new (
+window.actx = new (
 	window.AudioContext ?
 	window.webkitAudioContext ?
 	window.mozAudioContext ?
@@ -18,6 +23,8 @@ themes =
 	"Monochrome Amber": "retro/amber"
 	"Ambergine (aubergine + amber)": "retro/ambergine"
 
+# TODO: avoid all this hackery by post-processing elementary.css to extend to our used classes
+# can then stop using Gtk-isms like GtkInfoBar and GtkLabel as well
 patch_elementary_classes = ->
 	requestAnimationFrame ->
 		for el in document.querySelectorAll ".track-content"
@@ -64,9 +71,9 @@ container = document.createElement("div")
 container.id = "app"
 document.body.appendChild(container)
 
-@render = ->
+window.render = ->
 	document_id = (location.hash.match(/document=([\w\-./]*)/) ? [0, "default"])[1]
-	React.render (E AudioEditor, {key: document_id, document_id, themes, set_theme}), container
+	ReactDOM.render (E AudioEditor, {key: document_id, document_id, themes, set_theme}), container
 
 window.addEventListener "hashchange", render
 render()

@@ -1,5 +1,11 @@
 
-class @AudioTrack extends E.Component
+{E, closest} = require "../helpers.coffee"
+Track = require "./Track.coffee"
+AudioClip = require "./AudioClip.coffee"
+Range = require "../Range.coffee"
+
+module.exports =
+class AudioTrack extends E.Component
 	render: ->
 		{track, selection, position, scale, playing, editor} = @props
 		{clips, muted, pinned} = track
@@ -101,7 +107,7 @@ class @AudioTrack extends E.Component
 		if @props.playing
 			if @refs.position_indicator
 				position = @props.position + actx.currentTime - @props.position_time
-				@refs.position_indicator.getDOMNode().style.left = "#{scale * position}px"
+				@refs.position_indicator.style.left = "#{scale * position}px"
 	
 	componentDidMount: ->
 		@animate()
