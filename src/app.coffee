@@ -15,6 +15,7 @@ window.actx = new (
 	window.msAudioContext
 )
 
+# TODO: dry between this and build.coffee (probably require a JSON file)
 themes =
 	"elementary": "elementary"
 	"elementary Dark": "elementary-dark"
@@ -48,7 +49,7 @@ document.head.appendChild theme_link
 set_theme = (theme)->
 	localforage.setItem "theme", theme
 	
-	theme_link.href = "styles/themes/#{theme}.css"
+	theme_link.href = "build/themes/#{theme}.css"
 	
 	if theme.match /elementary/
 		unless hacky_interval?

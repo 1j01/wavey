@@ -2,6 +2,7 @@
 @import url("./lib/elementary-dark.css");
 @import url("./elementary-shared.css");
 
+/* TODO: merely extend .button:active (in elementary-shared.css) */
 .button[aria-pressed="true"] {
 	color: #97a19e;
 	background-color: rgba(0,0,0,.06);

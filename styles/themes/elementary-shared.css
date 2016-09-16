@@ -29,12 +29,14 @@
 	/* for Microsoft Edge */
 	display: none !important;
 }
+
+/* XXX: ../../...: */
 .controls .floated button[title="Settings"] > i {
-	background: url("./images/gear.svg");
+	background: url("../../styles/themes/images/gear.svg");
 }
 
 .controls .floated button[title="Export"] > i {
-	background: url("./images/document-export.svg");
+	background: url("../../styles/themes/images/document-export.svg");
 }
 
 .beat-track .track-content,

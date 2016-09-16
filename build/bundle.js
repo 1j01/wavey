@@ -23739,7 +23739,7 @@ document.head.appendChild(theme_link);
 
 set_theme = function(theme) {
   localforage.setItem("theme", theme);
-  theme_link.href = "styles/themes/" + theme + ".css";
+  theme_link.href = "build/themes/" + theme + ".css";
   if (theme.match(/elementary/)) {
     if (hacky_interval == null) {
       hacky_interval = setInterval(patch_elementary_classes, 150);
