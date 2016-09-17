@@ -2,23 +2,6 @@
 @import url("./lib/elementary-dark.css");
 @import url("./elementary-shared.css");
 
-/* TODO: merely extend .button:active (in elementary-shared.css) */
-.button[aria-pressed="true"] {
-	color: #97a19e;
-	background-color: rgba(0,0,0,.06);
-	background-image: none;
-	border-color: rgba(0,0,0,.4);
-	box-shadow: inset 0 0 0 1px rgba(0,0,0,.05),0 1px 0 0 rgba(255,255,255,.05);
-	border-color: rgba(0,0,0,.37);
-	text-shadow: 0 1px rgba(0,0,0,.4);
-	icon-shadow: 0 1px rgba(0,0,0,.4);
-}
-
-.menu .menuitem:focus {
-	outline: 0;
-	background-color: rgba(192, 198, 196, 0.15);
-}
-
 .audio-editor {
 	background: #383e41;
 	color: white;
@@ -27,4 +10,9 @@
 .audio-clip {
 	stroke: white;
 	-webkit-filter: drop-shadow(0 1px rgba(0,0,0,.4));
+}
+
+.dropdown-menu {
+	/* XXX: FIXME: should be done from elementary-shared.css */
+	box-shadow: 0 0 0 1px rgba(0,0,0,.6),0 3px 6px rgba(0,0,0,.16),0 3px 6px rgba(0,0,0,.23);
 }

@@ -26,7 +26,7 @@ class InfoBar extends E.Component
 		setTimeout =>
 			render()
 			if @state.visible and not prev_state.visible
-				document.querySelector("GtkInfoBar button.dismiss").focus()
+				document.querySelector(".info-bar button.dismiss").focus()
 		, 50
 	
 	@error: (message)=>
@@ -51,8 +51,7 @@ class InfoBar extends E.Component
 	
 	render: ->
 		{message, message_class, visible} = InfoBar.state
-		# @TODO: remove Gtk-isms
-		E "GtkInfoBar",
+		E ".info-bar",
 			classes: [message_class, if visible then "visible"]
 			role: "alertdialogue" # @FIXME: message can be read multiple times, sometimes repeatedly
 			aria: hidden: not visible
@@ -101,9 +100,8 @@ class InfoBar extends E.Component
 	
 	render: ->
 		{message, message_class, visible} = @state
-		# @TODO: remove Gtk-isms
 		# @TODO: animate appearing/disappearing
-		E "GtkInfoBar",
+		E ".info-bar",
 			classes: [message_class, if visible then "visible"]
 			E "GtkLabel", @state.alert_message
 			E "button.button",

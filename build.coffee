@@ -1,7 +1,8 @@
 
 fs = require("fs")
 postcss = require("postcss")
-atImport = require("postcss-import")
+at_import = require("postcss-import")
+extend = require("postcss-extend")
 
 build_theme = (theme_name, theme_path)->
 	input_file_path = "styles/themes/#{theme_path}"
@@ -9,7 +10,8 @@ build_theme = (theme_name, theme_path)->
 	css = fs.readFileSync(input_file_path, "utf8")
 	
 	postcss()
-		.use(atImport())
+		.use(at_import())
+		.use(extend())
 		.process css,
 			from: input_file_path
 		.then (result)->

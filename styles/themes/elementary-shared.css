@@ -1,4 +1,64 @@
 
+.track-content {
+	@extend .notebook;
+}
+.audio-editor .controls {
+	@extend .titlebar;
+}
+.menu .menu-item {
+	@extend .menu .menuitem;
+}
+.menu .menu-item:focus,
+.menu .menu-item:hover {
+	outline: 0;
+	@extend .menu .menuitem:hover;
+}
+/* XXX: FIXME: why do I need .menu .menu-item:hover explicitly? */
+
+.dropdown-menu {
+	/*@extend .window-frame.active.csd;*/
+	/*@extend .window-frame.menu.csd.active;*/
+	/*@extend .window-frame;*/
+	/*@extend .csd;*/
+	/*@extend .active;*/
+	/* XXX: FIXME: Y U NO WORK? */
+	border-radius: 3px;
+	box-shadow: 0 0 0 1px rgba(0,0,0,.2),0 3px 6px rgba(0,0,0,.16),0 3px 6px rgba(0,0,0,.23);
+	margin: 0;
+}
+.info-bar {
+	@extend GtkInfoBar;
+}
+/*
+.info-bar span {
+	@extend GtkLabel;
+	@extend GtkInfoBar GtkLabel;
+}
+.info-bar.warning span {
+	@extend GtkInfoBar.warning GtkLabel;
+}
+.info-bar.info span {
+	@extend GtkInfoBar.info GtkLabel;
+}
+.info-bar.error span {
+	@extend GtkInfoBar.error GtkLabel;
+}
+.info-bar.question span {
+	@extend GtkInfoBar.question GtkLabel;
+}
+*/
+
+.button[aria-pressed="true"] {
+	@extend .button:active;
+}
+
+/*
+XXX: FIXME: Y U NO WORK?
+.controls .floated button {
+	@extend .titlebar .button.image-button;
+}
+*/
+
 .controls .floated button {
 	border: 1px solid transparent !important;
 	box-shadow: none;
@@ -19,6 +79,7 @@
 	border-color: #3d9bda !important;
 	box-shadow: inset 0 0 0 1px rgba(255,255,255,.05),inset 0 1px 0 0 rgba(255,255,255,.45),inset 0 -1px 0 0 rgba(255,255,255,.15),0 0 0 1px rgba(61,155,218,.25);
 }
+
 .controls .floated button > i {
 	color: transparent !important;
 	text-shadow: none;

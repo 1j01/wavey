@@ -23672,7 +23672,7 @@ module.exports = Range = (function() {
 
 
 },{"./helpers.coffee":192,"./versions.coffee":193}],176:[function(require,module,exports){
-var AudioEditor, E, ReactDOM, container, hacky_interval, localforage, patch_elementary_classes, ref, ref1, ref2, ref3, set_theme, theme_link, themes;
+var AudioEditor, E, ReactDOM, container, localforage, ref, ref1, ref2, ref3, set_theme, theme_link, themes;
 
 localforage = require("localforage");
 
@@ -23697,38 +23697,6 @@ themes = {
   "Ambergine (aubergine + amber)": "retro/ambergine"
 };
 
-patch_elementary_classes = function() {
-  return requestAnimationFrame(function() {
-    var el, i, j, k, l, len, len1, len2, len3, ref4, ref5, ref6, ref7, results;
-    ref4 = document.querySelectorAll(".track-content");
-    for (i = 0, len = ref4.length; i < len; i++) {
-      el = ref4[i];
-      el.classList.add("notebook");
-    }
-    ref5 = document.querySelectorAll(".audio-editor .controls");
-    for (j = 0, len1 = ref5.length; j < len1; j++) {
-      el = ref5[j];
-      el.classList.add("titlebar");
-    }
-    ref6 = document.querySelectorAll(".menu-item");
-    for (k = 0, len2 = ref6.length; k < len2; k++) {
-      el = ref6[k];
-      el.classList.add("menuitem");
-    }
-    ref7 = document.querySelectorAll(".dropdown-menu");
-    results = [];
-    for (l = 0, len3 = ref7.length; l < len3; l++) {
-      el = ref7[l];
-      el.classList.add("window-frame");
-      el.classList.add("active");
-      results.push(el.classList.add("csd"));
-    }
-    return results;
-  });
-};
-
-hacky_interval = null;
-
 theme_link = document.createElement("link");
 
 theme_link.rel = "stylesheet";
@@ -23739,21 +23707,7 @@ document.head.appendChild(theme_link);
 
 set_theme = function(theme) {
   localforage.setItem("theme", theme);
-  theme_link.href = "build/themes/" + theme + ".css";
-  if (theme.match(/elementary/)) {
-    if (hacky_interval == null) {
-      hacky_interval = setInterval(patch_elementary_classes, 150);
-      window.addEventListener("mousedown", patch_elementary_classes);
-      window.addEventListener("mouseup", patch_elementary_classes);
-      return window.addEventListener("keydown", patch_elementary_classes);
-    }
-  } else if (hacky_interval != null) {
-    clearInterval(hacky_interval);
-    hacky_interval = null;
-    window.removeEventListener("mousedown", patch_elementary_classes);
-    window.removeEventListener("mouseup", patch_elementary_classes);
-    return window.removeEventListener("keydown", patch_elementary_classes);
-  }
+  return theme_link.href = "build/themes/" + theme + ".css";
 };
 
 localforage.getItem("theme", function(err, theme) {
@@ -25986,7 +25940,7 @@ module.exports = InfoBar = (function(superClass) {
     return setTimeout(function() {
       render();
       if (InfoBar.state.visible && !prev_state.visible) {
-        return document.querySelector("GtkInfoBar button.dismiss").focus();
+        return document.querySelector(".info-bar button.dismiss").focus();
       }
     }, 50);
   };
@@ -26040,7 +25994,7 @@ module.exports = InfoBar = (function(superClass) {
   InfoBar.prototype.render = function() {
     var message, message_class, ref, visible;
     ref = InfoBar.state, message = ref.message, message_class = ref.message_class, visible = ref.visible;
-    return E("GtkInfoBar", {
+    return E(".info-bar", {
       classes: [message_class, visible ? "visible" : void 0],
       role: "alertdialogue",
       aria: {
@@ -26099,9 +26053,8 @@ class InfoBar extends E.Component
 	
 	render: ->
 		{message, message_class, visible} = @state
-		 * @TODO: remove Gtk-isms
 		 * @TODO: animate appearing/disappearing
-		E "GtkInfoBar",
+		E ".info-bar",
 			classes: [message_class, if visible then "visible"]
 			E "GtkLabel", @state.alert_message
 			E "button.button",

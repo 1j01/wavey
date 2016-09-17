@@ -24,23 +24,6 @@ themes =
 	"Monochrome Amber": "retro/amber"
 	"Ambergine (aubergine + amber)": "retro/ambergine"
 
-# TODO: avoid all this hackery by post-processing elementary.css to extend to our used classes
-# can then stop using Gtk-isms like GtkInfoBar and GtkLabel as well
-patch_elementary_classes = ->
-	requestAnimationFrame ->
-		for el in document.querySelectorAll ".track-content"
-			el.classList.add "notebook"
-		for el in document.querySelectorAll ".audio-editor .controls"
-			el.classList.add "titlebar"
-		for el in document.querySelectorAll ".menu-item"
-			el.classList.add "menuitem"
-		for el in document.querySelectorAll ".dropdown-menu"
-			el.classList.add "window-frame"
-			el.classList.add "active"
-			el.classList.add "csd"
-
-hacky_interval = null
-
 theme_link = document.createElement "link"
 theme_link.rel = "stylesheet"
 theme_link.type = "text/css"
@@ -48,21 +31,7 @@ document.head.appendChild theme_link
 
 set_theme = (theme)->
 	localforage.setItem "theme", theme
-	
 	theme_link.href = "build/themes/#{theme}.css"
-	
-	if theme.match /elementary/
-		unless hacky_interval?
-			hacky_interval = setInterval patch_elementary_classes, 150
-			window.addEventListener "mousedown", patch_elementary_classes
-			window.addEventListener "mouseup", patch_elementary_classes
-			window.addEventListener "keydown", patch_elementary_classes
-	else if hacky_interval?
-		clearInterval hacky_interval
-		hacky_interval = null
-		window.removeEventListener "mousedown", patch_elementary_classes
-		window.removeEventListener "mouseup", patch_elementary_classes
-		window.removeEventListener "keydown", patch_elementary_classes
 
 # @TODO: load theme faster somehow
 localforage.getItem "theme", (err, theme)->

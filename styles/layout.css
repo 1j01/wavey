@@ -107,12 +107,11 @@
 	z-index: 2;
 }
 
-/* @TODO: remove Gtk-isms */
-GtkInfoBar:not(.visible) {
+.info-bar:not(.visible) {
 	height: 0px;
 	border-width: 0px;
 }
-GtkInfoBar {
+.info-bar {
 	width: 100%;
 	display: flex;
 	align-items: center;
@@ -121,7 +120,7 @@ GtkInfoBar {
 	transition: height 0.2s ease;
 	overflow: hidden;
 }
-GtkInfoBar > GtkLabel {
+.info-bar > GtkLabel {
 	flex: 1;
 }
 
