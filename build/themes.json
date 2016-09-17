@@ -1,0 +1,8 @@
+{
+	"elementary": "elementary.css",
+	"elementary Dark": "elementary-dark.css",
+	"Monochrome Aqua": "retro/aqua.css",
+	"Monochrome Green": "retro/green.css",
+	"Monochrome Amber": "retro/amber.css",
+	"Ambergine (aubergine + amber)": "retro/ambergine.css"
+}
