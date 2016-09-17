@@ -1,6 +1,3 @@
 
+$color: #0F0;
 @import url("./monochrome-base.css");
-
-.audio-editor {
-	color: #0F0;
-}

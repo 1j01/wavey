@@ -1,7 +1,7 @@
 
 .audio-editor {
 	background: black;
-	color: white;
+	color: $color;
 }
 
 .track-content {
@@ -9,7 +9,7 @@
 }
 
 .audio-clip {
-	stroke: currentColor;
+	stroke: $color;
 }
 
 /* @FIXME: .add-track just looks silly and out of place being the only text outside of menus and infobars */
@@ -17,7 +17,7 @@
 	font: inherit;
 	font-weight: bold;
 	cursor: pointer;
-	border: 1px solid currentColor;
+	border: 1px solid $color;
 	padding: 0.2em;
 	border-radius: 2px;
 }
@@ -33,7 +33,7 @@
 }
 
 .controls {
-	border-bottom: 1px solid currentColor;
+	border-bottom: 1px solid $color;
 }
 .record {
 	padding-right: 0;
@@ -53,7 +53,7 @@
 	top: 5px; /* = .controls > * { margin-bottom } */
 }
 .menu-positioner .menu {
-	border: 1px solid currentColor;
+	border: 1px solid $color;
 	border-top: 0;
 }
 .menu-positioner .menu::before {
@@ -75,37 +75,30 @@
 	right: 0px;
 	top: 0px;
 	bottom: 0px;
-	border: 1px solid currentColor;
+	border: 1px solid $color;
 	border-top: 0;
 }
 .menu-item {
 	padding: 4px 6px;
 	position: relative;
 }
-.menu-item:hover::after,
-.menu-item:active::after,
-.menu-item:focus::after {
-	content: "";
-	pointer-events: none;
-	position: absolute;
-	left: 0px;
-	right: 0px;
-	top: 0px;
-	bottom: 0px;
-	background: currentColor;
-	opacity: 0.2;
+.selection,
+.menu-item:hover,
+.menu-item:active,
+.menu-item:focus {
+	background: color($secondary-color alpha(20%));
 }
 
 .selection {
-	box-shadow: 0 0 0px 1px currentColor;
+	box-shadow: 0 0 0px 1px color($secondary-color alpha(50%));
 }
 .selection.cursor { /* 0-width selection */
 	box-shadow: none;
-	border-left: 1px solid currentColor;
+	border-left: 1px solid $secondary-color;
 	opacity: 0.7;
 }
 
-/* TODO: use a CSS preprocessor so we can do custom scrollbars somewhat sanely */
+/* TODO: scrollbars! */
 
 /*
 ::-webkit-scrollbar {
@@ -121,14 +114,14 @@
 }
 
 ::-webkit-scrollbar-thumb {
-	border: 1px solid currentColor;
+	border: 1px solid $color;
 	/*background: rgba(0,0,0,0.2);*/
-	/*background: currentColor;*/
+	/*background: $color;*/
 	/*opacity: 0.2;*/
 /*}
 ::-webkit-scrollbar-thumb:hover {
 	/*background: rgba(0,0,0,0.1);*/
-	/*background: currentColor;*/
+	/*background: $color;*/
 	/*opacity: 0.4;*/
 /*}
 ::-webkit-scrollbar-corner {
