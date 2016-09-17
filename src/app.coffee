@@ -26,9 +26,9 @@ set_theme = (theme)->
 	localforage.setItem "theme", theme
 	theme_link.href = "build/themes/#{theme}"
 
-# @TODO: load theme faster somehow
+# TODO: load theme faster/earlier somehow?
 localforage.getItem "theme", (err, theme)->
-	set_theme theme ? "elementary"
+	set_theme theme ? "elementary.css"
 
 container = document.createElement("div")
 container.id = "app"

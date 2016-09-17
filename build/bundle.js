@@ -23713,7 +23713,7 @@ set_theme = function(theme) {
 };
 
 localforage.getItem("theme", function(err, theme) {
-  return set_theme(theme != null ? theme : "elementary");
+  return set_theme(theme != null ? theme : "elementary.css");
 });
 
 container = document.createElement("div");

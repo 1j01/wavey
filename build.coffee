@@ -1,8 +1,8 @@
 
-fs = require("fs")
-postcss = require("postcss")
-at_import = require("postcss-import")
-extend = require("postcss-extend")
+fs = require "fs"
+postcss = require "postcss"
+at_import = require "postcss-import"
+extend = require "postcss-extend"
 
 build_theme = (theme_name, theme_path)->
 	input_file_path = "styles/themes/#{theme_path}"
@@ -26,7 +26,7 @@ themes =
 	"Monochrome Amber": "retro/amber.css"
 	"Ambergine (aubergine + amber)": "retro/ambergine.css"
 
-fs.writeFileSync "build/themes.json", JSON.stringify(themes, null, "\t"), "utf8"
+fs.writeFileSync("build/themes.json", JSON.stringify(themes, null, "\t"), "utf8")
 
 for theme_name, theme_path of themes
 	build_theme(theme_name, theme_path)
