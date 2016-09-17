@@ -24,7 +24,8 @@ document.head.appendChild theme_link
 
 set_theme = (theme)->
 	localforage.setItem "theme", theme
-	theme_link.href = "build/themes/#{theme}"
+	# XXX: absolute URL
+	theme_link.href = "/build/themes/#{theme}"
 
 # TODO: load theme faster/earlier somehow?
 localforage.getItem "theme", (err, theme)->

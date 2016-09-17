@@ -23709,7 +23709,7 @@ document.head.appendChild(theme_link);
 
 set_theme = function(theme) {
   localforage.setItem("theme", theme);
-  return theme_link.href = "build/themes/" + theme;
+  return theme_link.href = "/build/themes/" + theme;
 };
 
 localforage.getItem("theme", function(err, theme) {
