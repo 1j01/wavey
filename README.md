@@ -1,5 +1,5 @@
 
-# [<img src="images/wavey-logo-512.png" height="32"> Wavey][app] Audio Editor
+# [![Wavey](images/wavey-logotype-medium.png)][app] Audio Editor
 
 [Wavey is the audio editor of the future.][app]
 
