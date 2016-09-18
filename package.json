@@ -1,5 +1,5 @@
 {
-  "name": "audio-editor",
+  "name": "wavey",
   "version": "0.0.0",
   "description": "Edit audio simply",
   "author": "Isaiah Odhner <isaiahodhner@gmail.com>",
@@ -7,10 +7,10 @@
   "main": "index.html",
   "repository": {
     "type": "git",
-    "url": "http://github.com/1j01/audio-editor.git"
+    "url": "http://github.com/1j01/wavey.git"
   },
   "bugs": {
-    "url": "http://github.com/1j01/audio-editor/issues"
+    "url": "http://github.com/1j01/wavey/issues"
   },
   "dependencies": {
     "nw": "^0.12.3"

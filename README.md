@@ -1,7 +1,7 @@
 
-# [![](images/icon-32.png) Audio Editor][app]
+# [<img src="images/wavey-logo-512.png" height="32"> Wavey][app] Audio Editor
 
-[This is the audio editor of the future.][app]
+[Wavey is the audio editor of the future.][app]
 
 
 ### Features
@@ -27,6 +27,8 @@ You will be able to "precord" up to five minutes or as long as precording has be
 MIDI is a possibility.
 
 Embedding. Plugins. Desktop apps.
+
+Interoperability with Audacity (exporting/importing project files).
 
 Internationalization and improved accessibility.
 
@@ -73,12 +75,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 
--------
-
-### P.S.
-
-What do you think of the name Wavey editor? (not "Wavy" editor)
-
 [app]: https://audioeditor.ml/
 [elementary OS]: https://elementary.io/
 [elementary.css]: https://github.com/1j01/elementary.css/
@@ -86,4 +82,4 @@ What do you think of the name Wavey editor? (not "Wavy" editor)
 [CoffeeScript]: http://coffeescript.org/
 [React]: https://facebook.github.io/react/
 [ReactScript]: https://github.com/1j01/react-script
-[new issue]: https://github.com/1j01/audio-editor/issues/new
+[new issue]: https://github.com/1j01/wavey/issues/new

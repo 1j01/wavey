@@ -1,5 +1,5 @@
 {
-	"name": "Audio Editor",
+	"name": "Wavey",
 	"version": "0.0.0",
 	"description": "Edit audio simply",
 	"icons": {
@@ -12,7 +12,7 @@
 			"filters": {
 				"type": [ "audio/*" ]
 			},
-			"href": "/audio-editor/",
+			"href": "/",
 			"disposition": "window",
 			"returnValue": true
 		}
@@ -22,6 +22,6 @@
 		"name": "Isaiah Odhner",
 		"url": "http://1j01.github.io/"
 	},
-	"launch_path": "/audio-editor/",
+	"launch_path": "/",
 	"default_locale": "en"
 }
