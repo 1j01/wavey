@@ -1,5 +1,5 @@
 
-@import url("./lib/elementary-dark.css");
+@import url("../../node_modules/elementary.css/lib/elementary-dark.css");
 @import url("./elementary-shared.css");
 
 .audio-editor {
