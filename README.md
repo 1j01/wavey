@@ -15,22 +15,30 @@
 
 ### Future Features
 
-Note how the bar with beat markings is a track. It would become a metronome when unmuted.
+* Note how the bar with beat markings is a track. It would become a metronome when unmuted.
+It's a simplification of the concepts over DAWs which traditionally have a separate metronome.
+There will still need to be a way to specify the BPM, and
+it would also be good to have BPM detection and
+variable BPM support (possibly tying into some general automation system).
 
-Tracks can be pinned to the top,
+* Tracks can be pinned to the top,
 which should easy the pain when you have many tracks with audio clips
 you want to line up with some main audio track(s).
-**Currently this breaks pasting, among other things.**
+**This was partially implemented, and it broke pasting, among other things.**
 
-You will be able to "precord" up to five minutes or as long as precording has been enabled. 
+* You will be able to "precord" up to five minutes as long as precording has been enabled. 
 
-MIDI is a possibility.
+* MIDI is a possibility. It might involve an expanded view to edit the notes, but it would be inline in the track.
 
-Embedding. Plugins. Desktop apps.
+* Plugins
 
-Interoperability with Audacity (exporting/importing project files).
+* Desktop apps; app embedding
 
-Internationalization and improved accessibility.
+* Interoperability with Audacity (exporting/importing project files)
+
+* Internationalization
+
+* Improve accessibility
 
 
 ### TODO
@@ -40,6 +48,8 @@ Internationalization and improved accessibility.
 * Effects
 * Gain control and panning (maybe as effects? depends on what the effects UI will look like)
 * Application Cache, because this app can work completely offline
+* Storage management (or rather out-of-storage management, especially)
+* Support web intents
 
 
 ### Contributing
