@@ -27,6 +27,7 @@
     "postcss": "^5.2.0",
     "postcss-extend": "^1.0.5",
     "postcss-import": "^8.1.2",
+    "postcss-url": "^5.1.2",
     "precss": "^1.4.0",
     "react": "^15.3.1",
     "react-dom": "^15.3.1",

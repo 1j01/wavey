@@ -91,13 +91,12 @@ XXX: FIXME: Y U NO WORK?
 	display: none !important;
 }
 
-/* XXX: ../../...: */
 .controls .floated button[title="Settings"] > i {
-	background: url("../../styles/themes/images/gear.svg");
+	background: url("images/gear.svg");
 }
 
 .controls .floated button[title="Export"] > i {
-	background: url("../../styles/themes/images/document-export.svg");
+	background: url("images/document-export.svg");
 }
 
 .beat-track .track-content,

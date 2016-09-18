@@ -25,6 +25,7 @@ document.head.appendChild theme_link
 set_theme = (theme)->
 	localforage.setItem "theme", theme
 	# XXX: absolute URL
+	# FIXME: URL resolution in NW.js app
 	theme_link.href = "/build/themes/#{theme}"
 
 # TODO: load theme faster/earlier somehow?
