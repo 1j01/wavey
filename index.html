@@ -15,11 +15,7 @@
 		<intent action="http://webintents.org/edit" type="audio/*"></intent>
 	</head>
 	<body class="window-frame active" style="border-radius: 0; margin: 0">
-		<script>
-			window.AudioContext = window.AudioContext || window.webkitAudioContext;
-			window.navigator.getUserMedia = window.navigator.getUserMedia || window.navigator.webkitGetUserMedia || window.navigator.mozGetUserMedia;
-			window.URL = window.URL || window.webkitURL;
-		</script>
+		<script src="lib/polyfill.js"></script>
 		<script src="build/bundle.js"></script>
 		<script>
 			if(window.require){

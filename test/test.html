@@ -14,11 +14,7 @@
 		<meta name="viewport" content="width=device-width, user-scalable=no">
 	</head>
 	<body>
-		<script>
-			window.AudioContext = window.AudioContext || window.webkitAudioContext;
-			window.navigator.getUserMedia = window.navigator.getUserMedia || window.navigator.webkitGetUserMedia || window.navigator.mozGetUserMedia;
-			window.URL = window.URL || window.webkitURL;
-		</script>
+		<script src="../lib/polyfill.js"></script>
 		<script src="../build/bundle.js"></script>
 		<script>
 			if(window.require){

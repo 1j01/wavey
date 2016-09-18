@@ -10,13 +10,6 @@ exports.GUID = ->
 	crypto.getRandomValues array
 	("00000000#{n.toString 16}".slice -8 for n in array).join ""
 
-exports.closest = (elem, selector)->
-	matches = elem.matches ? elem.webkitMatchesSelector ? elem.mozMatchesSelector ? elem.msMatchesSelector
-	while elem
-		return elem if matches.call elem, selector
-		elem = elem.parentElement
-	no
-
 # has to be after exports.E is defined (@XXX)
 AudioClip = require "./components/AudioClip.coffee" # for class-level interface (@XXX)
 

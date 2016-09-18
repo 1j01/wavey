@@ -1,5 +1,5 @@
 
-{E, closest} = require "../helpers.coffee"
+{E} = require "../helpers.coffee"
 ReactDOM = require "react-dom"
 InfoBar = require "./InfoBar.coffee"
 TrackControls = require "./TrackControls.coffee"
@@ -43,7 +43,7 @@ class TracksArea extends E.Component
 		E ".tracks-area",
 			onMouseDown: (e)=>
 				return if e.isDefaultPrevented()
-				return if closest(e.target, "p")
+				return if e.target.closest("p")
 				unless e.button > 0
 					e.preventDefault()
 				if e.target is ReactDOM.findDOMNode(@)
@@ -72,13 +72,13 @@ class TracksArea extends E.Component
 				onMouseDown: (e)=>
 					# FIXME: WET, TODO: DRY, NOTE: this was copy/pasted into AudioTrack's select_at_mouse
 					return unless e.button is 0
-					track_content_el = closest(e.target, ".track-content")
-					track_content_area_el = closest(e.target, ".track-content-area")
-					if closest(track_content_el, ".add-track, .unknown-track")
+					track_content_el = e.target.closest(".track-content")
+					track_content_area_el = e.target.closest(".track-content-area")
+					if track_content_el?.closest(".add-track, .unknown-track")
 						editor.deselect()
 						return
 					unless track_content_el
-						unless closest(e.target, ".track-controls")
+						unless e.target.closest(".track-controls")
 							e.preventDefault()
 							editor.deselect()
 						return
@@ -89,11 +89,11 @@ class TracksArea extends E.Component
 						(e.clientX - rect.left + track_content_area_el.scrollLeft) / scale
 					
 					track_id_at = (e)=>
-						track_el = closest e.target, ".track"
+						track_el = e.target.closest(".track")
 						if track_el and track_el.dataset.trackId
 							track_el.dataset.trackId
 						else
-							track_els = ReactDOM.findDOMNode(@).querySelectorAll ".track"
+							track_els = ReactDOM.findDOMNode(@).querySelectorAll(".track")
 							nearest_track_el = track_els[0]
 							distance = Infinity
 							for track_el in track_els when track_el.dataset.trackId

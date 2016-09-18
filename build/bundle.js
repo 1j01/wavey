@@ -23987,12 +23987,12 @@ module.exports = AudioClip = (function(superClass) {
 
 
 },{"../helpers.coffee":193,"./InfoBar.coffee":187,"localforage":4}],180:[function(require,module,exports){
-var AudioClip, Controls, E, GUID, InfoBar, Range, ReactDOM, TracksArea, closest, document_version, export_audio_buffer_as, get_clip_start_end, localforage, normal_tracks_in, ref, ref1, stuff_version,
+var AudioClip, Controls, E, GUID, InfoBar, Range, ReactDOM, TracksArea, document_version, export_audio_buffer_as, get_clip_start_end, localforage, normal_tracks_in, ref, ref1, stuff_version,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
-ref = require("../helpers.coffee"), E = ref.E, closest = ref.closest, GUID = ref.GUID, get_clip_start_end = ref.get_clip_start_end, normal_tracks_in = ref.normal_tracks_in;
+ref = require("../helpers.coffee"), E = ref.E, GUID = ref.GUID, get_clip_start_end = ref.get_clip_start_end, normal_tracks_in = ref.normal_tracks_in;
 
 ref1 = require("../versions.coffee"), document_version = ref1.document_version, stuff_version = ref1.stuff_version;
 
@@ -25185,7 +25185,7 @@ exports.AudioEditor = (function(superClass) {
           if (e.isDefaultPrevented()) {
             return;
           }
-          if (closest(e.target, "p")) {
+          if (e.target.closest("p")) {
             return;
           }
           if (!(e.button > 0)) {
@@ -25265,11 +25265,11 @@ exports.AudioEditor = (function(superClass) {
 
 
 },{"../Range.coffee":176,"../export.coffee":192,"../helpers.coffee":193,"../versions.coffee":194,"./AudioClip.coffee":179,"./Controls.coffee":184,"./InfoBar.coffee":187,"./TracksArea.coffee":190,"localforage":4,"react-dom":5}],181:[function(require,module,exports){
-var AudioClip, AudioTrack, E, Range, Track, closest, ref,
+var AudioClip, AudioTrack, E, Range, Track,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
-ref = require("../helpers.coffee"), E = ref.E, closest = ref.closest;
+E = require("../helpers.coffee").E;
 
 Track = require("./Track.coffee");
 
@@ -25285,25 +25285,25 @@ module.exports = AudioTrack = (function(superClass) {
   }
 
   AudioTrack.prototype.render = function() {
-    var chunk_size, clip, clips, editor, i, muted, num_chunks, one_channel, pinned, playing, position, recording, recording_length, ref1, scale, select_at_mouse, selection, track;
-    ref1 = this.props, track = ref1.track, selection = ref1.selection, position = ref1.position, scale = ref1.scale, playing = ref1.playing, editor = ref1.editor;
+    var chunk_size, clip, clips, editor, i, muted, num_chunks, one_channel, pinned, playing, position, recording, recording_length, ref, scale, select_at_mouse, selection, track;
+    ref = this.props, track = ref.track, selection = ref.selection, position = ref.position, scale = ref.scale, playing = ref.playing, editor = ref.editor;
     clips = track.clips, muted = track.muted, pinned = track.pinned;
     select_at_mouse = (function(_this) {
       return function(e) {
         var position_at, track_content_area_el, track_content_el, track_el, track_id, track_id_at;
-        track_content_el = closest(e.target, ".track-content");
-        track_content_area_el = closest(e.target, ".track-content-area");
+        track_content_el = e.target.closest(".track-content");
+        track_content_area_el = e.target.closest(".track-content-area");
         if (track_content_el == null) {
           return;
         }
-        track_el = closest(e.target, ".track");
+        track_el = e.target.closest(".track");
         position_at = function(e) {
           var rect;
           rect = track_content_el.getBoundingClientRect();
           return (e.clientX - rect.left + track_content_area_el.scrollLeft) / scale;
         };
         track_id_at = function(e) {
-          track_el = closest(e.target, ".track");
+          track_el = e.target.closest(".track");
           return track_el.dataset.trackId;
         };
         position = position_at(e);
@@ -25334,20 +25334,20 @@ module.exports = AudioTrack = (function(superClass) {
       })(this),
       onDrop: (function(_this) {
         return function(e) {
-          var file, j, len, ref2, results;
+          var file, j, len, ref1, results;
           e.preventDefault();
           select_at_mouse(e);
-          ref2 = e.dataTransfer.files;
+          ref1 = e.dataTransfer.files;
           results = [];
-          for (j = 0, len = ref2.length; j < len; j++) {
-            file = ref2[j];
+          for (j = 0, len = ref1.length; j < len; j++) {
+            file = ref1[j];
             results.push(editor.add_clip(file, true));
           }
           return results;
         };
       })(this)
     }, (function() {
-      var j, len, ref2, ref3, ref4, results;
+      var j, len, ref1, ref2, ref3, results;
       results = [];
       for (i = j = 0, len = clips.length; j < len; i = ++j) {
         clip = clips[i];
@@ -25355,10 +25355,10 @@ module.exports = AudioTrack = (function(superClass) {
         recording_length = recording != null ? recording.length != null ? recording.length : (one_channel = recording.chunks[0], num_chunks = one_channel.length, num_chunks > 0 ? (chunk_size = one_channel[0].length, chunk_size * num_chunks / recording.sample_rate) : 0) : void 0;
         results.push(E(AudioClip, {
           key: clip.id,
-          length: (ref2 = clip.length) != null ? ref2 : recording_length,
-          offset: (ref3 = clip.offset) != null ? ref3 : 0,
+          length: (ref1 = clip.length) != null ? ref1 : recording_length,
+          offset: (ref2 = clip.offset) != null ? ref2 : 0,
           scale: scale,
-          sample_rate: clip.recording_id != null ? recording != null ? recording.sample_rate : void 0 : (ref4 = AudioClip.audio_buffers[clip.audio_id]) != null ? ref4.sampleRate : void 0,
+          sample_rate: clip.recording_id != null ? recording != null ? recording.sample_rate : void 0 : (ref3 = AudioClip.audio_buffers[clip.audio_id]) != null ? ref3.sampleRate : void 0,
           data: clip.recording_id != null ? recording != null ? recording.chunks : null : AudioClip.audio_buffers[clip.audio_id],
           editor: editor,
           style: {
@@ -25618,12 +25618,12 @@ module.exports = Controls = (function(superClass) {
 
 
 },{"../helpers.coffee":193,"./DropdownButton.coffee":185}],185:[function(require,module,exports){
-var DropdownButton, DropdownMenu, E, React, ReactDOM, closest, ref,
+var DropdownButton, DropdownMenu, E, React, ReactDOM,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
-ref = require("../helpers.coffee"), E = ref.E, closest = ref.closest;
+E = require("../helpers.coffee").E;
 
 React = require("react");
 
@@ -25681,11 +25681,11 @@ module.exports = DropdownButton = (function(superClass) {
   };
 
   DropdownButton.prototype.toggleMenu = function() {
-    var b, i, len, menu_open, ref1;
+    var b, i, len, menu_open, ref;
     menu_open = this.state.menu_open;
-    ref1 = DropdownButton.instances;
-    for (i = 0, len = ref1.length; i < len; i++) {
-      b = ref1[i];
+    ref = DropdownButton.instances;
+    for (i = 0, len = ref.length; i < len; i++) {
+      b = ref[i];
       b.setState({
         menu_open: false
       });
@@ -25707,7 +25707,7 @@ module.exports = DropdownButton = (function(superClass) {
       window.removeEventListener("mousedown", this._onmousedown);
       return window.addEventListener("mousedown", this._onmousedown = (function(_this) {
         return function(e) {
-          if (!closest(e.target, ".dropdown-button, .menu-positioner")) {
+          if (!e.target.closest(".dropdown-button, .menu-positioner")) {
             return _this.setState({
               menu_open: false
             });
@@ -25718,9 +25718,9 @@ module.exports = DropdownButton = (function(superClass) {
   };
 
   DropdownButton.prototype.render = function() {
-    var children, item, mainButton, menu, menu_open, ref1, tabIndex, title;
+    var children, item, mainButton, menu, menu_open, ref, tabIndex, title;
     menu_open = this.state.menu_open;
-    ref1 = this.props, children = ref1.children, title = ref1.title, tabIndex = ref1.tabIndex, mainButton = ref1.mainButton, menu = ref1.menu;
+    ref = this.props, children = ref.children, title = ref.title, tabIndex = ref.tabIndex, mainButton = ref.mainButton, menu = ref.menu;
     return E("span.dropdown-button-container", {
       "class": (menu_open ? "menu-open" : void 0),
       aria: {
@@ -26164,12 +26164,12 @@ module.exports = TrackControls = (function(superClass) {
 
 
 },{"../helpers.coffee":193}],190:[function(require,module,exports){
-var AddTrack, AudioTrack, BeatTrack, E, InfoBar, Range, ReactDOM, TrackControls, TracksArea, UnknownTrack, closest, easing, ref,
+var AddTrack, AudioTrack, BeatTrack, E, InfoBar, Range, ReactDOM, TrackControls, TracksArea, UnknownTrack, easing,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
-ref = require("../helpers.coffee"), E = ref.E, closest = ref.closest;
+E = require("../helpers.coffee").E;
 
 ReactDOM = require("react-dom");
 
@@ -26199,8 +26199,8 @@ module.exports = TracksArea = (function(superClass) {
   }
 
   TracksArea.prototype.render = function() {
-    var HACK_InfoBar_warn, document_is_basically_empty, document_width, document_width_padding, drag, editor, j, len, playing, position, position_time, ref1, ref2, scale, track, tracks;
-    ref1 = this.props, tracks = ref1.tracks, position = ref1.position, position_time = ref1.position_time, scale = ref1.scale, playing = ref1.playing, editor = ref1.editor;
+    var HACK_InfoBar_warn, document_is_basically_empty, document_width, document_width_padding, drag, editor, j, len, playing, position, position_time, ref, ref1, scale, track, tracks;
+    ref = this.props, tracks = ref.tracks, position = ref.position, position_time = ref.position_time, scale = ref.scale, playing = ref.playing, editor = ref.editor;
     drag = (function(_this) {
       return function(range, to_position, to_track_id) {
         var from_track, include_tracks, j, k, len, len1, sorted_tracks, to_track, track;
@@ -26241,7 +26241,7 @@ module.exports = TracksArea = (function(superClass) {
     document_width_padding = window.innerWidth / 2;
     HACK_InfoBar_warn = InfoBar.warn;
     InfoBar.warn = function() {};
-    document_width = ((ref2 = editor.get_max_length()) != null ? ref2 : 0) * scale + document_width_padding;
+    document_width = ((ref1 = editor.get_max_length()) != null ? ref1 : 0) * scale + document_width_padding;
     InfoBar.warn = HACK_InfoBar_warn;
     return E(".tracks-area", {
       onMouseDown: (function(_this) {
@@ -26249,7 +26249,7 @@ module.exports = TracksArea = (function(superClass) {
           if (e.isDefaultPrevented()) {
             return;
           }
-          if (closest(e.target, "p")) {
+          if (e.target.closest("p")) {
             return;
           }
           if (!(e.button > 0)) {
@@ -26300,14 +26300,14 @@ module.exports = TracksArea = (function(superClass) {
           if (e.button !== 0) {
             return;
           }
-          track_content_el = closest(e.target, ".track-content");
-          track_content_area_el = closest(e.target, ".track-content-area");
-          if (closest(track_content_el, ".add-track, .unknown-track")) {
+          track_content_el = e.target.closest(".track-content");
+          track_content_area_el = e.target.closest(".track-content-area");
+          if (track_content_el != null ? track_content_el.closest(".add-track, .unknown-track") : void 0) {
             editor.deselect();
             return;
           }
           if (!track_content_el) {
-            if (!closest(e.target, ".track-controls")) {
+            if (!e.target.closest(".track-controls")) {
               e.preventDefault();
               editor.deselect();
             }
@@ -26321,7 +26321,7 @@ module.exports = TracksArea = (function(superClass) {
           };
           track_id_at = function(e) {
             var _distance, distance, k, len1, nearest_track_el, rect, track_el, track_els;
-            track_el = closest(e.target, ".track");
+            track_el = e.target.closest(".track");
             if (track_el && track_el.dataset.trackId) {
               return track_el.dataset.trackId;
             } else {
@@ -26388,7 +26388,7 @@ module.exports = TracksArea = (function(superClass) {
       key: "position-indicator",
       ref: "position_indicator"
     }) : void 0, (function() {
-      var k, len1, ref3, results;
+      var k, len1, ref2, results;
       results = [];
       for (k = 0, len1 = tracks.length; k < len1; k++) {
         track = tracks[k];
@@ -26410,7 +26410,7 @@ module.exports = TracksArea = (function(superClass) {
               position_time: position_time,
               playing: playing,
               editor: editor,
-              selection: (((ref3 = this.props.selection) != null ? ref3.containsTrack(track) : void 0) ? this.props.selection : void 0)
+              selection: (((ref2 = this.props.selection) != null ? ref2.containsTrack(track) : void 0) ? this.props.selection : void 0)
             }));
             break;
           default:
@@ -26430,7 +26430,7 @@ module.exports = TracksArea = (function(superClass) {
   };
 
   TracksArea.prototype.animate = function() {
-    var any_old_track_content_el, fn, i, j, k, l, len, len1, len2, position, position_indicator_el, rect, ref1, scale, scroll_x, track_content_el, track_controls_el, track_controls_els, track_el, track_els, track_rect, tracks_area_el, tracks_area_rect, tracks_content_area_el, tracks_content_area_rect, y_offset;
+    var any_old_track_content_el, fn, i, j, k, l, len, len1, len2, position, position_indicator_el, rect, ref, scale, scroll_x, track_content_el, track_controls_el, track_controls_els, track_el, track_els, track_rect, tracks_area_el, tracks_area_rect, tracks_content_area_el, tracks_content_area_rect, y_offset;
     scale = this.props.scale;
     this.animation_frame = requestAnimationFrame((function(_this) {
       return function() {
@@ -26457,9 +26457,9 @@ module.exports = TracksArea = (function(superClass) {
         track_el.y_offset_fns = [];
       }
       y_offset = 0;
-      ref1 = track_el.y_offset_fns;
-      for (l = 0, len2 = ref1.length; l < len2; l++) {
-        fn = ref1[l];
+      ref = track_el.y_offset_fns;
+      for (l = 0, len2 = ref.length; l < len2; l++) {
+        fn = ref[l];
         y_offset += fn();
       }
       track_el.style.transform = "translate(" + scroll_x + "px, " + y_offset + "px)";
@@ -26478,12 +26478,12 @@ module.exports = TracksArea = (function(superClass) {
   };
 
   TracksArea.prototype.componentWillUpdate = function(next_props, next_state) {
-    var j, len, ref1, results, track_current, track_el, track_els, track_index;
+    var j, len, ref, results, track_current, track_el, track_els, track_index;
     this.last_track_rects = {};
-    ref1 = this.props.tracks;
+    ref = this.props.tracks;
     results = [];
-    for (track_index = j = 0, len = ref1.length; j < len; track_index = ++j) {
-      track_current = ref1[track_index];
+    for (track_index = j = 0, len = ref.length; j < len; track_index = ++j) {
+      track_current = ref[track_index];
       track_els = ReactDOM.findDOMNode(this).querySelectorAll(".track");
       track_el = track_els[track_index];
       results.push(this.last_track_rects[track_current.id] = track_el.getBoundingClientRect());
@@ -26671,18 +26671,6 @@ exports.GUID = function() {
     }
     return results;
   })()).join("");
-};
-
-exports.closest = function(elem, selector) {
-  var matches, ref, ref1, ref2;
-  matches = (ref = (ref1 = (ref2 = elem.matches) != null ? ref2 : elem.webkitMatchesSelector) != null ? ref1 : elem.mozMatchesSelector) != null ? ref : elem.msMatchesSelector;
-  while (elem) {
-    if (matches.call(elem, selector)) {
-      return elem;
-    }
-    elem = elem.parentElement;
-  }
-  return false;
 };
 
 AudioClip = require("./components/AudioClip.coffee");

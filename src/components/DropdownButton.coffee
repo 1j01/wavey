@@ -1,5 +1,5 @@
 
-{E, closest} = require "../helpers.coffee"
+{E} = require "../helpers.coffee"
 React = require "react"
 ReactDOM = require "react-dom"
 DropdownMenu = require "./DropdownMenu.coffee"
@@ -47,7 +47,7 @@ class DropdownButton extends E.Component
 					ReactDOM.findDOMNode(@).querySelector(".menu-item").focus()
 			window.removeEventListener "mousedown", @_onmousedown
 			window.addEventListener "mousedown", @_onmousedown = (e)=>
-				unless closest e.target, ".dropdown-button, .menu-positioner"
+				unless e.target.closest(".dropdown-button, .menu-positioner")
 					@setState menu_open: no
 	
 	render: ->

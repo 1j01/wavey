@@ -1,7 +1,5 @@
 
-{
-	E, closest, GUID, get_clip_start_end, normal_tracks_in
-} = require "../helpers.coffee"
+{E, GUID, get_clip_start_end, normal_tracks_in} = require "../helpers.coffee"
 {document_version, stuff_version} = require "../versions.coffee"
 export_audio_buffer_as = require "../export.coffee"
 ReactDOM = require "react-dom"
@@ -760,7 +758,7 @@ class exports.AudioEditor extends E.Component
 			style: outline: "none"
 			onMouseDown: (e)=>
 				return if e.isDefaultPrevented()
-				return if closest(e.target, "p")
+				return if e.target.closest("p")
 				unless e.button > 0
 					e.preventDefault()
 				ReactDOM.findDOMNode(@).focus()
