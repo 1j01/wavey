@@ -87,7 +87,6 @@
     opacity: 0.7
 }
 ::-webkit-scrollbar {
-    background: black;
     background: transparent;
     display: block
 }
@@ -95,45 +94,14 @@
     background: transparent
 }
 ::-webkit-scrollbar-corner {
-    background: black;
     background: transparent
 }
-/* "Basic"(?) scrollbars:
-::-webkit-scrollbar-thumb {
-	/*border: 1px solid $color;*/
-/*	background: color($color alpha(0.2));
-	/*background: $color;*/
-/*	border: 1px solid black;
-	/*background: rgba(0,0,0,0.2);*/
-/*background: $color;*/
-/*}
-::-webkit-scrollbar-thumb:hover {
-	background: color($color alpha(0.4));
-}
-*/
-/* Sleek, minimal scrollbars:
-::-webkit-scrollbar-track:vertical {
-	border-left: 1px solid color($color alpha(0.2));
-}
-::-webkit-scrollbar-thumb:vertical {
-	border-left: 1px solid $color;
-}
-::-webkit-scrollbar-track:horizontal {
-	border-top: 1px solid color($color alpha(0.2));
-}
-::-webkit-scrollbar-thumb:horizontal {
-	border-top: 1px solid $color;
-}
-*/
-/* Simplistic flat scrollbars: */
 ::-webkit-scrollbar-track {
-    /*border: 1px solid $color;*/
     border: 1px solid transparent;
     background: rgba(255, 166, 0, 0.1)
 }
 ::-webkit-scrollbar-thumb {
     border: 1px solid transparent;
-    /*box-shadow: inset 0px 0px 0px 1px $color;*/
     background: rgba(255, 166, 0, 0.2)
 }
 ::-webkit-scrollbar-thumb:hover {
