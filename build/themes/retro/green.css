@@ -1,112 +1,118 @@
 
 .audio-editor {
-    background: black;
-    color: #0F0
+	background: black;
+	color: #0F0;
 }
+
 .track-content {
-    padding: 2px
+	padding: 2px;
 }
+
 .audio-clip {
-    stroke: #0F0
+	stroke: #0F0;
 }
+
 /* @FIXME: .add-track just looks silly and out of place being the only text outside of menus and infobars */
 .audio-editor .add-track button {
-    font: inherit;
-    font-weight: bold;
-    cursor: pointer;
-    border: 1px solid #0F0;
-    padding: 0.2em;
-    border-radius: 2px
+	font: inherit;
+	font-weight: bold;
+	cursor: pointer;
+	border: 1px solid #0F0;
+	padding: 0.2em;
+	border-radius: 2px;
 }
+
 /* @FIXME: accessibility */
 .audio-editor button {
-    background: transparent;
-    border: 0;
-    color: inherit
+	background: transparent;
+	border: 0;
+	color: inherit;
 }
 .audio-editor button[aria-pressed="false"] > * {
-    opacity: 0.2
+	opacity: 0.2;
 }
+
 .controls {
-    border-bottom: 1px solid #0F0
+	border-bottom: 1px solid #0F0;
 }
 .record {
-    padding-right: 0
+	padding-right: 0;
 }
 .dropdown-button {
-    padding-left: 0;
-    vertical-align: middle
+	padding-left: 0;
+	vertical-align: middle;
 }
 .controls, .controls > span, .dropdown-button-container, .menu-positioner, .menu-positioner .menu {
-    background: inherit
+	background: inherit;
 }
 .controls .menu-positioner .menu {
-    top: 5px
-    /* = .controls > * { margin-bottom } */
+	top: 5px; /* = .controls > * { margin-bottom } */
 }
 .menu-positioner .menu {
-    border: 1px solid #0F0;
-    border-top: 0
+	border: 1px solid #0F0;
+	border-top: 0;
 }
 .menu-positioner .menu::before {
-    content: "";
-    pointer-events: none;
-    position: absolute;
-    left: -1px;
-    right: -1px;
-    top: 1px;
-    bottom: -1px;
-    background: inherit;
-    z-index: -1
+	content: "";
+	pointer-events: none;
+	position: absolute;
+	left: -1px;
+	right: -1px;
+	top: 1px;
+	bottom: -1px;
+	background: inherit;
+	z-index: -1;
 }
 .menu-positioner .menu::after {
-    content: "";
-    pointer-events: none;
-    position: absolute;
-    left: 0px;
-    right: 0px;
-    top: 0px;
-    bottom: 0px;
-    border: 1px solid #0F0;
-    border-top: 0
+	content: "";
+	pointer-events: none;
+	position: absolute;
+	left: 0px;
+	right: 0px;
+	top: 0px;
+	bottom: 0px;
+	border: 1px solid #0F0;
+	border-top: 0;
 }
 .menu-item {
-    padding: 4px 6px;
-    position: relative
+	padding: 4px 6px;
+	position: relative;
 }
 .selection, .menu-item:hover, .menu-item:active, .menu-item:focus {
-    background: rgba(0, 255, 0, 0.2)
+	background: rgba(0, 255, 0, 0.2);
 }
+
 .selection {
-    box-shadow: 0 0 0px 1px rgba(0, 255, 0, 0.5)
+	box-shadow: 0 0 0px 1px rgba(0, 255, 0, 0.5);
 }
-.selection.cursor {
-    /* 0-width selection */
-    box-shadow: none;
-    border-left: 1px solid #0F0;
-    opacity: 0.7
+.selection.cursor { /* 0-width selection */
+	box-shadow: none;
+	border-left: 1px solid #0F0;
+	opacity: 0.7;
 }
+
 ::-webkit-scrollbar {
-    background: transparent;
-    display: block
+	background: transparent;
+	display: block;
 }
 ::-webkit-scrollbar * {
-    background: transparent
+	background: transparent;
 }
 ::-webkit-scrollbar-corner {
-    background: transparent
+	background: transparent;
 }
+
 ::-webkit-scrollbar-track {
-    border: 1px solid transparent;
-    background: rgba(0, 255, 0, 0.1)
+	border: 1px solid transparent;
+	background: rgba(0, 255, 0, 0.1);
 }
 ::-webkit-scrollbar-thumb {
-    border: 1px solid transparent;
-    background: rgba(0, 255, 0, 0.2)
+	border: 1px solid transparent;
+	background: rgba(0, 255, 0, 0.2);
 }
 ::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 255, 0, 0.5)
+	background: rgba(0, 255, 0, 0.5);
 }
 ::-webkit-scrollbar-thumb:active {
-    background: #0F0
+	background: #0F0;
 }

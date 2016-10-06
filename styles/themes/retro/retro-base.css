@@ -1,6 +1,8 @@
 
+$background-color: black !default;
+
 .audio-editor {
-	background: black;
+	background: $background-color;
 	color: $color;
 }
 

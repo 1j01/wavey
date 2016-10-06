@@ -71,8 +71,8 @@ XXX: FIXME: Y U NO WORK?
 }
 .controls .floated button:active,
 .controls .floated .menu-open button {
-    background: rgba(0, 0, 0, 0.15);
-    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.15);
+	background: rgba(0, 0, 0, 0.15);
+	box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.15);
 }
 .controls .floated button:focus {
 	border-radius: 2px !important;

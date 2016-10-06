@@ -16,6 +16,7 @@
     "nw": "^0.12.3"
   },
   "devDependencies": {
+    "async": "^2.0.1",
     "browserify": "^13.1.0",
     "chai": "^3.5.0",
     "coffee-script": "^1.10.0",
@@ -24,11 +25,14 @@
     "localforage": "^1.4.2",
     "mocha": "^3.0.2",
     "nw-dev": "^1.3.1",
-    "postcss": "^5.2.0",
+    "postcss": "^5.2.4",
+    "postcss-advanced-variables": "^1.2.2",
+    "postcss-color-function": "^2.0.1",
+    "postcss-debug": "^0.4.2",
+    "postcss-easy-import": "^1.0.1",
     "postcss-extend": "^1.0.5",
-    "postcss-import": "^8.1.2",
+    "postcss-import": "^7.1.3",
     "postcss-url": "^5.1.2",
-    "precss": "^1.4.0",
     "react": "^15.3.1",
     "react-dom": "^15.3.1",
     "react-script": "^2.0.5",
@@ -38,6 +42,7 @@
   "scripts": {
     "start": "nw",
     "build-themes": "coffee build.coffee",
+    "build-themes-debug": "coffee --nodejs \"--inspect=8082 --debug-brk\" build.coffee",
     "build": "browserify -t coffeeify src/app.coffee -o build/bundle.js",
     "watch": "watchify -t coffeeify src/app.coffee -o build/bundle.js",
     "test": "mocha --compilers coffee:coffee-script/register"

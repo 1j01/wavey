@@ -1,14 +1,17 @@
 
 .audio-editor {
-	background: black;
+	background: #230213;
 	color: #FFA600;
 }
+
 .track-content {
 	padding: 2px;
 }
+
 .audio-clip {
 	stroke: #FFA600;
 }
+
 /* @FIXME: .add-track just looks silly and out of place being the only text outside of menus and infobars */
 .audio-editor .add-track button {
 	font: inherit;
@@ -18,6 +21,7 @@
 	padding: 0.2em;
 	border-radius: 2px;
 }
+
 /* @FIXME: accessibility */
 .audio-editor button {
 	background: transparent;
@@ -27,6 +31,7 @@
 .audio-editor button[aria-pressed="false"] > * {
 	opacity: 0.2;
 }
+
 .controls {
 	border-bottom: 1px solid #FFA600;
 }
@@ -41,8 +46,7 @@
 	background: inherit;
 }
 .controls .menu-positioner .menu {
-	top: 5px;
-	/* = .controls > * { margin-bottom } */
+	top: 5px; /* = .controls > * { margin-bottom } */
 }
 .menu-positioner .menu {
 	border: 1px solid #FFA600;
@@ -77,15 +81,16 @@
 .selection, .menu-item:hover, .menu-item:active, .menu-item:focus {
 	background: rgba(255, 175, 237, 0.2);
 }
+
 .selection {
 	box-shadow: 0 0 0px 1px rgba(255, 175, 237, 0.5);
 }
-.selection.cursor {
-	/* 0-width selection */
+.selection.cursor { /* 0-width selection */
 	box-shadow: none;
 	border-left: 1px solid #FFAFED;
 	opacity: 0.7;
 }
+
 ::-webkit-scrollbar {
 	background: transparent;
 	display: block;
@@ -96,6 +101,7 @@
 ::-webkit-scrollbar-corner {
 	background: transparent;
 }
+
 ::-webkit-scrollbar-track {
 	border: 1px solid transparent;
 	background: rgba(255, 166, 0, 0.1);
@@ -111,9 +117,6 @@
 	background: #FFA600;
 }
 
-.audio-editor {
-	background: #230213;
-}
 .selection {
-	background: rgba(57, 26, 58, 0.5); /* this amounts to a slight tweak */
+	background: rgba(57, 26, 58, 0.5); /* tweak */
 }

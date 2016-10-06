@@ -1,6 +1,6 @@
 
-@import url("../../node_modules/elementary.css/lib/elementary-dark.css");
-@import url("./elementary-shared.css");
+@import "../../node_modules/elementary.css/lib/elementary-dark.css";
+@import "./elementary-shared.css";
 
 .audio-editor {
 	background: #383e41;

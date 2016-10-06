@@ -1,11 +1,9 @@
 
 $color: #FFA600;
 $secondary-color: #FFAFED;
-@import url("./retro-base.css");
+$background-color: #230213;
+@import "./retro-base.css";
 
-.audio-editor {
-	background: #230213;
-}
 .selection {
-	background: rgba(57, 26, 58, 0.5); /* this amounts to a slight tweak */
+	background: rgba(57, 26, 58, 0.5); /* tweak */
 }
