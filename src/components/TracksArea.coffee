@@ -153,8 +153,7 @@ class TracksArea extends E.Component
 							E BeatTrack, {key: track.id, track, scale, editor}
 						when "audio"
 							E AudioTrack, {
-								key: track.id, track, scale
-								position, position_time, playing, editor
+								key: track.id, track, scale, editor
 								selection: (@props.selection if @props.selection?.containsTrack track)
 							}
 						else

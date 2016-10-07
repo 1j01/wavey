@@ -7,7 +7,7 @@ Range = require "../Range.coffee"
 module.exports =
 class AudioTrack extends E.Component
 	render: ->
-		{track, selection, position, scale, playing, editor} = @props
+		{track, selection, scale, editor} = @props
 		{clips, muted, pinned} = track
 		
 		select_at_mouse = (e)=>
@@ -100,17 +100,3 @@ class AudioTrack extends E.Component
 						style:
 							left: scale * selection.start()
 							width: scale * (selection.end() - selection.start())
-	
-	animate: ->
-		{scale} = @props
-		@animation_frame = requestAnimationFrame => @animate()
-		if @props.playing
-			if @refs.position_indicator
-				position = @props.position + actx.currentTime - @props.position_time
-				@refs.position_indicator.style.left = "#{scale * position}px"
-	
-	componentDidMount: ->
-		@animate()
-	
-	componentWillUnmount: ->
-		cancelAnimationFrame @animation_frame
