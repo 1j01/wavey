@@ -3,11 +3,9 @@ fs = require "fs"
 async = require "async"
 postcss = require "postcss"
 # sugarss = require "sugarss"
-# precss = require "precss"
-# url = require "postcss-url"
 {createDebugger, matcher} = require "postcss-debug"
 
-# TODO: preprocess non-theme-specific css, watch automatically, and use SugarSS
+# TODO: preprocess non-theme-specific css, watch automatically
 
 debug = createDebugger([
 	matcher.regex(/amber/)
@@ -20,17 +18,14 @@ build_theme = (theme_path, callback)->
 		return callback(err) if err
 		
 		postcss(debug([
-			# precss()
 			require("postcss-import")
 			# require("postcss-easy-import")
-			# require("postcss-partial-import")
 			require("postcss-advanced-variables")
 			require("postcss-color-function")
 			require("postcss-extend")
 			require("postcss-url")(url: "rebase")
 		]))
-		# postcss([...], parser: sugarss)
-		.process(css, from: input_file_path, to: output_file_path)
+		.process(css, from: input_file_path, to: output_file_path) #, parser: sugarss
 		.then (result)->
 			fs.writeFile output_file_path, result.css, "utf8", (err)->
 				return callback(err) if err
