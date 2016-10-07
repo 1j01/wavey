@@ -10,49 +10,12 @@ class AudioTrack extends E.Component
 		{track, selection, scale, editor} = @props
 		{clips, muted, pinned} = track
 		
-		select_at_mouse = (e)=>
-			# FIXME: WET, TODO: DRY, NOTE: this was copy/pasted from Tracks::onMouseMove
-			track_content_el = e.target.closest(".track-content")
-			track_content_area_el = e.target.closest(".track-content-area")
-			return unless track_content_el?
-			
-			track_el = e.target.closest(".track")
-			
-			position_at = (e)=>
-				rect = track_content_el.getBoundingClientRect()
-				(e.clientX - rect.left + track_content_area_el.scrollLeft) / scale
-			
-			track_id_at = (e)->
-				track_el = e.target.closest(".track")
-				track_el.dataset.trackId
-			
-			position = position_at e
-			track_id = track_id_at e
-			
-			editor.select new Range position, position, [track_id]
-		
 		E Track, {track, editor},
 			E ".audio-clips",
 				style:
 					position: "relative"
 					height: 80 # = canvas height
 					boxSizing: "content-box"
-				
-				onDragOver: (e)=>
-					# FIXME: incredible lag
-					e.preventDefault()
-					e.dataTransfer.dropEffect = "copy"
-					select_at_mouse e
-				
-				onDragLeave: (e)=>
-					editor.deselect()
-				
-				onDrop: (e)=>
-					e.preventDefault()
-					select_at_mouse e
-					# @TODO: order by position in this array, not by how long each clip takes to load
-					for file in e.dataTransfer.files
-						editor.add_clip file, yes
 				
 				for clip, i in clips
 					recording = AudioClip.recordings[clip.recording_id]

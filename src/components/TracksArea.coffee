@@ -26,6 +26,28 @@ class TracksArea extends E.Component
 					sorted_tracks.slice sorted_tracks.indexOf(to_track), sorted_tracks.indexOf(from_track) + 1
 			new Range range.a, Math.max(0, to_position), [range.firstTrackID()].concat(track.id for track in include_tracks when track.id isnt range.firstTrackID())
 		
+		select_at_mouse = (e)=>
+			# FIXME: WET, TODO: DRY, NOTE: this was copy/pasted from Tracks::onMouseMove
+			track_content_el = e.target.closest(".track-content")
+			track_content_area_el = e.target.closest(".track-content-area")
+			return unless track_content_el?
+			
+			track_el = e.target.closest(".track")
+			
+			position_at = (e)=>
+				rect = track_content_el.getBoundingClientRect()
+				(e.clientX - rect.left + track_content_area_el.scrollLeft) / scale
+			
+			track_id_at = (e)->
+				track_el = e.target.closest(".track")
+				track_el.dataset.trackId
+			
+			position = position_at e
+			track_id = track_id_at e
+			
+			editor.select new Range position, position, [track_id]
+		
+		
 		document_is_basically_empty = yes
 		for track in tracks when track.type isnt "beat"
 			document_is_basically_empty = no
@@ -58,7 +80,7 @@ class TracksArea extends E.Component
 						when "audio"
 							E TrackControls, {key: track.id, track, scale, editor}
 						else
-							# This is needed for aligning the track-controls
+							# XXX: This is needed for associating the track-controls with the track
 							# Could probably use aria-controls or something instead
 							E ".track-controls.no-track-controls", key: track.id
 			
@@ -69,6 +91,26 @@ class TracksArea extends E.Component
 				# @TODO: drag and drop the selection?
 				# @TODO: better overall drag and drop feedback
 				# @TODO: scroll by dragging to the left or right edges
+				
+				onDragOver: (e)=>
+					# console.log "dragover"
+					# FIXME: incredible lag
+					e.preventDefault()
+					e.dataTransfer.dropEffect = "copy"
+					if Math.random() < 0.5
+						select_at_mouse e
+				
+				onDragLeave: (e)=>
+					editor.deselect()
+				
+				onDrop: (e)=>
+					console.log "drop"
+					e.preventDefault()
+					select_at_mouse e
+					# @TODO: order by position in this array, not by how long each clip takes to load
+					for file in e.dataTransfer.files
+						editor.add_clip file, yes
+				
 				onMouseDown: (e)=>
 					# FIXME: WET, TODO: DRY, NOTE: this was copy/pasted into AudioTrack's select_at_mouse
 					return unless e.button is 0
