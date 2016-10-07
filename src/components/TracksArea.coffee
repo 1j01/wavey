@@ -27,7 +27,7 @@ class TracksArea extends E.Component
 			new Range range.a, Math.max(0, to_position), [range.firstTrackID()].concat(track.id for track in include_tracks when track.id isnt range.firstTrackID())
 		
 		select_at_mouse = (e)=>
-			# FIXME: WET, TODO: DRY, NOTE: this was copy/pasted from Tracks::onMouseMove
+			# FIXME: WET, TODO: DRY, NOTE: this was copy/pasted from onMouseMove
 			track_content_el = e.target.closest(".track-content")
 			track_content_area_el = e.target.closest(".track-content-area")
 			return unless track_content_el?
@@ -93,18 +93,22 @@ class TracksArea extends E.Component
 				# @TODO: scroll by dragging to the left or right edges
 				
 				onDragOver: (e)=>
-					# console.log "dragover"
 					# FIXME: incredible lag
 					e.preventDefault()
 					e.dataTransfer.dropEffect = "copy"
 					if Math.random() < 0.5
+						unless editor.state.moving_selection
+							editor.setState moving_selection: yes
+							window.addEventListener "dragend", dragEnd = (e)=>
+								window.removeEventListener "dragend", dragEnd
+								editor.setState moving_selection: no
+								editor.save()
 						select_at_mouse e
 				
 				onDragLeave: (e)=>
 					editor.deselect()
 				
 				onDrop: (e)=>
-					console.log "drop"
 					e.preventDefault()
 					select_at_mouse e
 					# @TODO: order by position in this array, not by how long each clip takes to load
@@ -112,7 +116,7 @@ class TracksArea extends E.Component
 						editor.add_clip file, yes
 				
 				onMouseDown: (e)=>
-					# FIXME: WET, TODO: DRY, NOTE: this was copy/pasted into AudioTrack's select_at_mouse
+					# FIXME: WET, TODO: DRY, NOTE: this was copy/pasted into select_at_mouse
 					return unless e.button is 0
 					track_content_el = e.target.closest(".track-content")
 					track_content_area_el = e.target.closest(".track-content-area")
@@ -149,6 +153,8 @@ class TracksArea extends E.Component
 					position = position_at e
 					track_id = track_id_at e
 					
+					editor.setState moving_selection: yes
+					
 					if e.shiftKey
 						editor.select drag @props.selection, position, track_id
 					else
@@ -173,6 +179,8 @@ class TracksArea extends E.Component
 						window.removeEventListener "mousemove", onMouseMove
 						unless mouse_moved_timewise
 							editor.seek position
+						editor.setState moving_selection: no
+						editor.save()
 				
 				E ".document-width",
 					key: "document-width"

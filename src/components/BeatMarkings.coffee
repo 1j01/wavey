@@ -16,3 +16,7 @@ class BeatMarkings extends E.Component
 							key: "#{x}+#{xs}/4"
 							style: position: "absolute", left: "#{x*scale+xs*scale/4}px"
 				]
+	
+	shouldComponentUpdate: (last_props)->
+		# @props.document_width isnt last_props.document_width or
+		@props.scale isnt last_props.scale

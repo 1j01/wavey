@@ -24072,7 +24072,8 @@ exports.AudioEditor = (function(superClass) {
       scale: 90,
       selection: null,
       recording: false,
-      precording_enabled: false
+      precording_enabled: false,
+      moving_selection: false
     };
   }
 
@@ -25028,10 +25029,10 @@ exports.AudioEditor = (function(superClass) {
   };
 
   AudioEditor.prototype.componentDidUpdate = function(last_props, last_state) {
-    var document_id, redos, ref2, selection, tracks, undos;
+    var document_id, moving_selection, redos, ref2, selection, tracks, undos;
     document_id = this.props.document_id;
-    ref2 = this.state, tracks = ref2.tracks, selection = ref2.selection, undos = ref2.undos, redos = ref2.redos;
-    if (tracks !== last_state.tracks || selection !== last_state.selection || undos !== last_state.undos || redos !== last_state.redos) {
+    ref2 = this.state, tracks = ref2.tracks, selection = ref2.selection, undos = ref2.undos, redos = ref2.redos, moving_selection = ref2.moving_selection;
+    if (tracks !== last_state.tracks || (selection !== last_state.selection && !moving_selection) || undos !== last_state.undos || redos !== last_state.redos) {
       this.save();
     }
     if (tracks !== last_state.tracks) {
@@ -25385,6 +25386,10 @@ module.exports = BeatMarkings = (function(superClass) {
       }
       return results;
     })());
+  };
+
+  BeatMarkings.prototype.shouldComponentUpdate = function(last_props) {
+    return this.props.scale !== last_props.scale;
   };
 
   return BeatMarkings;
@@ -26247,9 +26252,22 @@ module.exports = TracksArea = (function(superClass) {
       key: "track-content-area",
       onDragOver: (function(_this) {
         return function(e) {
+          var dragEnd;
           e.preventDefault();
           e.dataTransfer.dropEffect = "copy";
           if (Math.random() < 0.5) {
+            if (!editor.state.moving_selection) {
+              editor.setState({
+                moving_selection: true
+              });
+              window.addEventListener("dragend", dragEnd = function(e) {
+                window.removeEventListener("dragend", dragEnd);
+                editor.setState({
+                  moving_selection: false
+                });
+                return editor.save();
+              });
+            }
             return select_at_mouse(e);
           }
         };
@@ -26262,7 +26280,6 @@ module.exports = TracksArea = (function(superClass) {
       onDrop: (function(_this) {
         return function(e) {
           var file, k, len1, ref2, results;
-          console.log("drop");
           e.preventDefault();
           select_at_mouse(e);
           ref2 = e.dataTransfer.files;
@@ -26325,6 +26342,9 @@ module.exports = TracksArea = (function(superClass) {
           };
           position = position_at(e);
           track_id = track_id_at(e);
+          editor.setState({
+            moving_selection: true
+          });
           if (e.shiftKey) {
             editor.select(drag(_this.props.selection, position, track_id));
           } else {
@@ -26352,8 +26372,12 @@ module.exports = TracksArea = (function(superClass) {
             window.removeEventListener("mouseup", onMouseUp);
             window.removeEventListener("mousemove", onMouseMove);
             if (!mouse_moved_timewise) {
-              return editor.seek(position);
+              editor.seek(position);
             }
+            editor.setState({
+              moving_selection: false
+            });
+            return editor.save();
           });
         };
       })(this)

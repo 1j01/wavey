@@ -34,6 +34,7 @@ class exports.AudioEditor extends E.Component
 			selection: null
 			recording: no
 			precording_enabled: no
+			moving_selection: no
 	
 	save: ->
 		{document_id} = @props
@@ -660,11 +661,11 @@ class exports.AudioEditor extends E.Component
 	
 	componentDidUpdate: (last_props, last_state)=>
 		{document_id} = @props
-		{tracks, selection, undos, redos} = @state
+		{tracks, selection, undos, redos, moving_selection} = @state
 		
 		if (
 			tracks isnt last_state.tracks or
-			selection isnt last_state.selection or
+			(selection isnt last_state.selection and not moving_selection) or
 			undos isnt last_state.undos or
 			redos isnt last_state.redos
 		)

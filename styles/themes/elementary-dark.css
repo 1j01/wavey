@@ -2,6 +2,9 @@
 @import "../../node_modules/elementary.css/lib/elementary-dark.css";
 @import "./elementary-shared.css";
 
+/* FIXME: border around selection is light on the left/right
+but on the top/bottom it's cut off by the border of the track */
+
 .audio-editor {
 	background: #383e41;
 	color: white;
