@@ -1,11 +1,11 @@
 
-{E} = require "../helpers.coffee"
+{E, Component} = require "../helpers.coffee"
 Track = require "./Track.coffee"
 AudioClip = require "./AudioClip.coffee"
 Range = require "../Range.coffee"
 
 module.exports =
-class AudioTrack extends E.Component
+class AudioTrack extends Component
 	render: ->
 		{track, selection, scale, editor} = @props
 		{clips, muted, pinned} = track

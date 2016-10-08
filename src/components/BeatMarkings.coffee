@@ -1,8 +1,8 @@
 
-{E} = require "../helpers.coffee"
+{E, Component} = require "../helpers.coffee"
 
 module.exports =
-class BeatMarkings extends E.Component
+class BeatMarkings extends Component
 	render: ->
 		{scale} = @props
 		E ".beat-markings", style: position: "relative",

@@ -1,5 +1,5 @@
 
-{E} = require "../helpers.coffee"
+{E, Component} = require "../helpers.coffee"
 ReactDOM = require "react-dom"
 
 keys =
@@ -13,7 +13,7 @@ keys =
 	down:   40
 
 module.exports =
-class DropdownMenu extends E.Component
+class DropdownMenu extends Component
 	# @TODO: allow dragging down from the DropdownButton
 	render: ->
 		{items, open} = @props

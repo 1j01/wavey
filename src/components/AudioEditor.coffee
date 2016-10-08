@@ -1,5 +1,5 @@
 
-{E, GUID, get_clip_start_end, normal_tracks_in} = require "../helpers.coffee"
+{E, Component, GUID, get_clip_start_end, normal_tracks_in} = require "../helpers.coffee"
 {document_version, stuff_version} = require "../versions.coffee"
 export_audio_buffer_as = require "../export.coffee"
 ReactDOM = require "react-dom"
@@ -10,7 +10,7 @@ AudioClip = require "./AudioClip.coffee" # for class-level interface (@XXX)
 Range = require "../Range.coffee" # should I rename this AudioRange? (there's a DOM thing called Range)
 localforage = require "localforage"
 
-class exports.AudioEditor extends E.Component
+class exports.AudioEditor extends Component
 	
 	copy_of = (o)-> JSON.parse JSON.stringify o
 	

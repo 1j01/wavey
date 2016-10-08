@@ -1,11 +1,11 @@
 
-{E} = require "../helpers.coffee"
+{E, Component} = require "../helpers.coffee"
 InfoBar = require "./InfoBar.coffee"
 
 localforage = require "localforage"
 
 module.exports =
-class AudioClip extends E.Component
+class AudioClip extends Component
 	
 	@audio_buffers = {}
 	@recordings = {}

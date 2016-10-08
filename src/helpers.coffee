@@ -3,7 +3,7 @@ React = require "react"
 ReactScript = require "react-script"
 
 exports.E = ReactScript
-exports.E.Component = React.Component
+exports.Component = React.Component
 
 exports.GUID = ->
 	array = new Uint32Array 4

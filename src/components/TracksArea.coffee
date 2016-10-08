@@ -1,5 +1,5 @@
 
-{E} = require "../helpers.coffee"
+{E, Component} = require "../helpers.coffee"
 ReactDOM = require "react-dom"
 InfoBar = require "./InfoBar.coffee"
 TrackControls = require "./TrackControls.coffee"
@@ -11,7 +11,7 @@ Range = require "../Range.coffee"
 easing = require "easingjs"
 
 module.exports =
-class TracksArea extends E.Component
+class TracksArea extends Component
 	render: ->
 		{tracks, position, position_time, scale, playing, editor} = @props
 		

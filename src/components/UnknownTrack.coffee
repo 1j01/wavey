@@ -1,9 +1,9 @@
 
-{E} = require "../helpers.coffee"
+{E, Component} = require "../helpers.coffee"
 Track = require "./Track.coffee"
 
 module.exports =
-class UnknownTrack extends E.Component
+class UnknownTrack extends Component
 	render: ->
 		{track, editor} = @props
 		E Track, {track, editor, className: "unknown-track timeline-independent"},

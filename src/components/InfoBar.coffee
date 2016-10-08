@@ -1,8 +1,8 @@
 
-{E} = require "../helpers.coffee"
+{E, Component} = require "../helpers.coffee"
 
 module.exports =
-class InfoBar extends E.Component
+class InfoBar extends Component
 	
 	@state:
 		message: null
@@ -70,7 +70,7 @@ class InfoBar extends E.Component
 
 ###
 module.exports =
-class InfoBar extends E.Component
+class InfoBar extends Component
 	
 	constructor: ->
 		@state =

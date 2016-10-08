@@ -1,11 +1,11 @@
 
-{E} = require "../helpers.coffee"
+{E, Component} = require "../helpers.coffee"
 React = require "react"
 ReactDOM = require "react-dom"
 DropdownMenu = require "./DropdownMenu.coffee"
 
 module.exports =
-class DropdownButton extends E.Component
+class DropdownButton extends Component
 	@instances: []
 	
 	constructor: ->
