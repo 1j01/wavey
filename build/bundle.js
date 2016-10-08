@@ -23917,8 +23917,8 @@ module.exports = AudioClip = (function(superClass) {
   };
 
   AudioClip.prototype.render = function() {
-    var at, audio_buffer, chunk_length, chunk_x, data, height, i, key, length, offset, pathdata, ref1, ref2, sample_rate, scale, style, typed_array, typed_arrays, width, x, y;
-    ref1 = this.props, data = ref1.data, sample_rate = ref1.sample_rate, length = ref1.length, offset = ref1.offset, scale = ref1.scale, style = ref1.style;
+    var at, audio_buffer, chunk_length, chunk_x, data, height, i, key, length, offset, pathdata, position, ref1, ref2, sample_rate, scale, typed_array, typed_arrays, width, x, y;
+    ref1 = this.props, data = ref1.data, sample_rate = ref1.sample_rate, length = ref1.length, offset = ref1.offset, scale = ref1.scale, position = ref1.position;
     if (data instanceof Array) {
       typed_arrays = data[0];
       chunk_length = (ref2 = typed_arrays[0]) != null ? ref2.length : void 0;
@@ -23938,7 +23938,10 @@ module.exports = AudioClip = (function(superClass) {
     width = (length != null ? length : 0) * scale;
     height = 80;
     return E("svg.audio-clip", {
-      style: style,
+      style: {
+        position: "absolute",
+        left: position * scale
+      },
       width: width,
       height: height,
       data: {
@@ -23979,7 +23982,7 @@ module.exports = AudioClip = (function(superClass) {
   };
 
   AudioClip.prototype.shouldComponentUpdate = function(last_props) {
-    return this.props.data !== last_props.data || this.props.offset !== last_props.offset || this.props.length !== last_props.length || this.props.scale !== last_props.scale;
+    return this.props.data !== last_props.data || this.props.offset !== last_props.offset || this.props.length !== last_props.length || this.props.position !== last_props.position || this.props.scale !== last_props.scale;
   };
 
   return AudioClip;
@@ -25308,16 +25311,13 @@ module.exports = AudioTrack = (function(superClass) {
         recording_length = recording != null ? recording.length != null ? recording.length : (one_channel = recording.chunks[0], num_chunks = one_channel.length, num_chunks > 0 ? (chunk_size = one_channel[0].length, chunk_size * num_chunks / recording.sample_rate) : 0) : void 0;
         results.push(E(AudioClip, {
           key: clip.id,
+          position: clip.position,
           length: (ref2 = clip.length) != null ? ref2 : recording_length,
           offset: (ref3 = clip.offset) != null ? ref3 : 0,
           scale: scale,
           sample_rate: clip.recording_id != null ? recording != null ? recording.sample_rate : void 0 : (ref4 = AudioClip.audio_buffers[clip.audio_id]) != null ? ref4.sampleRate : void 0,
           data: clip.recording_id != null ? recording != null ? recording.chunks : null : AudioClip.audio_buffers[clip.audio_id],
-          editor: editor,
-          style: {
-            position: "absolute",
-            left: clip.position * scale
-          }
+          editor: editor
         }));
       }
       return results;

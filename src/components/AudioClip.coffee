@@ -73,7 +73,7 @@ class AudioClip extends Component
 				@load_clip clip
 	
 	render: ->
-		{data, sample_rate, length, offset, scale, style} = @props
+		{data, sample_rate, length, offset, scale, position} = @props
 		
 		if data instanceof Array
 			typed_arrays = data[0]
@@ -92,7 +92,9 @@ class AudioClip extends Component
 		# @TODO: visualize multiple channels
 		
 		E "svg.audio-clip", {
-			style
+			style:
+				position: "absolute"
+				left: position * scale
 			width, height
 			data: {length}
 			xmlns: "http://www.w3.org/svg/2000"
@@ -118,4 +120,5 @@ class AudioClip extends Component
 		@props.data isnt last_props.data or
 		@props.offset isnt last_props.offset or
 		@props.length isnt last_props.length or
+		@props.position isnt last_props.position or
 		@props.scale isnt last_props.scale

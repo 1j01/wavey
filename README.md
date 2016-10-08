@@ -24,9 +24,8 @@ variable BPM support (possibly tying into some general automation system).
 * Tracks can be pinned to the top,
 which should easy the pain when you have many tracks with audio clips
 you want to line up with some main audio track(s).
-**This was partially implemented, and it broke pasting, among other things.**
 
-* You will be able to "precord" up to five minutes as long as precording has been enabled. 
+* You will be able to "precord" up to five minutes as long as precording has been enabled.
 
 * MIDI is a possibility. It might involve an expanded view to edit the notes, but it would be inline in the track.
 
@@ -43,12 +42,13 @@ you want to line up with some main audio track(s).
 
 ### TODO
 
-* Fix pasting, deleting behavior etc. and get back to solid editing
+* Fix pasting across non-consecutive tracks
+* Fix pasting placing the cursor across all tracks after the top track
 * Mouse-relative zooming (also preferably performant zooming)
 * Effects
 * Gain control and panning (maybe as effects? depends on what the effects UI will look like)
 * Application Cache, because this app can work completely offline
-* Storage management (or rather out-of-storage management, especially)
+* Storage management (especially out-of-storage management)
 * Support web intents
 
 

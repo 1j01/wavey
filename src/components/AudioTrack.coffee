@@ -34,6 +34,7 @@ class AudioTrack extends Component
 					
 					E AudioClip,
 						key: clip.id
+						position: clip.position
 						length: clip.length ? recording_length
 						offset: clip.offset ? 0
 						scale: scale
@@ -51,11 +52,6 @@ class AudioTrack extends Component
 							else
 								AudioClip.audio_buffers[clip.audio_id]
 						editor: editor
-						style:
-							position: "absolute"
-							left: clip.position * scale
-							# marginTop: (i + 1) * 2
-							# border: "2px dotted ##{clip.id.match /[0-9A-F]{6}/i}"
 				if selection?
 					E ".selection",
 						key: "selection"
