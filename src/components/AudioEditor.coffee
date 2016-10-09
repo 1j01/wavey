@@ -33,6 +33,7 @@ class exports.AudioEditor extends Component
 			scale: 90
 			selection: null
 			recording: no
+			audio_stream: null
 			precording_enabled: no
 			moving_selection: no
 	
@@ -310,124 +311,13 @@ class exports.AudioEditor extends Component
 	end_recording: =>
 		# method overridden by @record
 	
-	record: =>
-		return if @state.recording
-		# TODO: reuse stream if permissions already granted, as Firefox otherwise asks again
-		# (which would only be good if you wanted to switch recording devices every time)
-		# (Keeping a stream will be necessary for precording as well)
+	get_audio_stream: (success_callback)=>
+		if @state.audio_stream
+			return success_callback(@state.audio_stream)
+		
 		navigator.mediaDevices.getUserMedia audio: yes
 			.then (stream)=>
-				recording_id = GUID()
-				@undoable (tracks)=>
-					{selection} = @state
-					if selection?
-						start_position = selection.start()
-						sorted_audio_tracks = (track for track in @get_sorted_tracks tracks when track.type is "audio")
-						track = selection.firstTrack(sorted_audio_tracks)
-					if track?
-						for clip in track.clips
-							{clip_start, clip_end} = get_clip_start_end clip
-							if clip_end > start_position
-								track = null # track is no good, but keep the start position
-					# @TODO: maybe make a helper that adds a track if there's no selection
-					# and inserts a given clip
-					if not track?
-						start_position ?= 0
-						track = {id: GUID(), type: "audio", clips: []}
-						tracks.push track
-						if start_position > 0
-							@select new Range start_position, start_position, [track.id]
-					
-					clip =
-						id: GUID()
-						audio_id: recording_id
-						recording_id: recording_id
-						position: start_position
-						offset: 0
-					
-					track.clips.push clip
-					
-					source = actx.createMediaStreamSource stream
-					
-					recording =
-						id: recording_id
-						chunks: [[], []]
-						chunk_ids: [[], []]
-						length: 0
-					
-					AudioClip.recordings[clip.recording_id] = recording
-					AudioClip.loading[clip.audio_id] = yes
-					
-					current_chunk = 0
-					chunk_size = 2 ** 14 # samples (2 to an integer power between 8 and 14 inclusive)
-					
-					ended = no
-					final_recording_length = undefined
-					
-					recorder = actx.createScriptProcessor chunk_size, 2, if chrome? then 1 else 0
-					recorder.onaudioprocess = (e)=>
-						
-						console?.log "onaudioprocess", if ended then "(final)" else ""
-						
-						recording.sample_rate = e.inputBuffer.sampleRate
-						
-						chunks = []
-						chunk_ids = []
-						for i in [0...e.inputBuffer.numberOfChannels]
-							# new Float32Array necessary in chrome
-							data = new Float32Array e.inputBuffer.getChannelData i
-							chunks.push recording.chunks[i].concat [data]
-							chunk_ids.push recording.chunk_ids[i].concat [chunk_id = GUID()]
-							do (chunk_id, data)=>
-								localforage.setItem "recording:#{recording_id}:chunk:#{chunk_id}", data, (err)=>
-									if err
-										InfoBar.warn "Failing to store recording! #{err.message}"
-										console.error "Failed to store recording chunk", err
-						recording.chunks = chunks
-						recording.chunk_ids = chunk_ids
-						recording.length = final_recording_length ? chunk_ids[0].length * data.length / recording.sample_rate
-						
-						save = =>
-							localforage.setItem "recording:#{clip.recording_id}", {
-								id: recording.id
-								sample_rate: recording.sample_rate
-								chunk_ids: recording.chunk_ids
-								length: recording.length
-							}, (err)=>
-								if err
-									InfoBar.warn "Failing to store recording! #{err.message}"
-									console.error "Failed to store recording metadata", err
-						
-						@end_recording = =>
-							return if ended
-							console.log "last recording.length", recording.length
-							final_recording_length = recording.length = @get_current_position() - start_position
-							console.log "final_recording_length", final_recording_length
-							save()
-							ended = yes
-							@setState
-								recording: no
-								position: start_position + final_recording_length
-								position_time: actx.currentTime
-						
-						if ended
-							source.disconnect()
-							recorder.disconnect()
-							delete window["chrome bug workaround (#{recording_id})"]
-							console?.log "ended recording"
-						
-						save()
-						render()
-					
-					source.connect recorder
-					# TODO: Are these chrome hacks still necessary?
-					recorder.connect actx.destination if chrome?
-					# http://stackoverflow.com/questions/24338144/chrome-onaudioprocess-stops-getting-called-after-a-while
-					if chrome? then window["chrome bug workaround (#{recording_id})"] = recorder
-					
-					@setState recording: yes, =>
-						@play_from start_position
-			
+				success_callback(stream)
 			.catch (error)=>
 				switch error.name
 					when "PermissionDeniedError", "PermissionDismissedError"
@@ -439,6 +329,122 @@ class exports.AudioEditor extends Component
 					else
 						InfoBar.warn "Failed to start recording: #{error.name}" + if error.message then ": #{error.message}" else ""
 				console.error "navigator.mediaDevices.getUserMedia", error
+	
+	record: =>
+		return if @state.recording
+		@get_audio_stream (stream)=>
+			recording_id = GUID()
+			@undoable (tracks)=>
+				{selection} = @state
+				if selection?
+					start_position = selection.start()
+					sorted_audio_tracks = (track for track in @get_sorted_tracks tracks when track.type is "audio")
+					track = selection.firstTrack(sorted_audio_tracks)
+				if track?
+					for clip in track.clips
+						{clip_start, clip_end} = get_clip_start_end clip
+						if clip_end > start_position
+							track = null # track is no good, but keep the start position
+				# @TODO: maybe make a helper that adds a track if there's no selection
+				# and inserts a given clip
+				if not track?
+					start_position ?= 0
+					track = {id: GUID(), type: "audio", clips: []}
+					tracks.push track
+					if start_position > 0
+						@select new Range start_position, start_position, [track.id]
+				
+				clip =
+					id: GUID()
+					audio_id: recording_id
+					recording_id: recording_id
+					position: start_position
+					offset: 0
+				
+				track.clips.push clip
+				
+				source = actx.createMediaStreamSource stream
+				
+				recording =
+					id: recording_id
+					chunks: [[], []]
+					chunk_ids: [[], []]
+					length: 0
+				
+				AudioClip.recordings[clip.recording_id] = recording
+				AudioClip.loading[clip.audio_id] = yes
+				
+				current_chunk = 0
+				chunk_size = 2 ** 14 # samples (2 to an integer power between 8 and 14 inclusive)
+				
+				ended = no
+				final_recording_length = undefined
+				
+				recorder = actx.createScriptProcessor chunk_size, 2, if chrome? then 1 else 0
+				recorder.onaudioprocess = (e)=>
+					
+					console?.log "onaudioprocess", if ended then "(final)" else ""
+					
+					recording.sample_rate = e.inputBuffer.sampleRate
+					
+					chunks = []
+					chunk_ids = []
+					for i in [0...e.inputBuffer.numberOfChannels]
+						# new Float32Array necessary in chrome
+						data = new Float32Array e.inputBuffer.getChannelData i
+						chunks.push recording.chunks[i].concat [data]
+						chunk_ids.push recording.chunk_ids[i].concat [chunk_id = GUID()]
+						do (chunk_id, data)=>
+							localforage.setItem "recording:#{recording_id}:chunk:#{chunk_id}", data, (err)=>
+								if err
+									InfoBar.warn "Failing to store recording! #{err.message}"
+									console.error "Failed to store recording chunk", err
+					recording.chunks = chunks
+					recording.chunk_ids = chunk_ids
+					recording.length = final_recording_length ? chunk_ids[0].length * data.length / recording.sample_rate
+					
+					save = =>
+						localforage.setItem "recording:#{clip.recording_id}", {
+							id: recording.id
+							sample_rate: recording.sample_rate
+							chunk_ids: recording.chunk_ids
+							length: recording.length
+						}, (err)=>
+							if err
+								InfoBar.warn "Failing to store recording! #{err.message}"
+								console.error "Failed to store recording metadata", err
+					
+					@end_recording = =>
+						return if ended
+						console.log "last recording.length", recording.length
+						final_recording_length = recording.length = @get_current_position() - start_position
+						console.log "final_recording_length", final_recording_length
+						save()
+						ended = yes
+						@setState
+							recording: no
+							position: start_position + final_recording_length
+							position_time: actx.currentTime
+					
+					if ended
+						source.disconnect()
+						recorder.disconnect()
+						delete window["chrome bug workaround (#{recording_id})"]
+						console?.log "ended recording"
+					
+					save()
+					render()
+				
+				source.connect recorder
+				# TODO: Are these chrome hacks still necessary?
+				recorder.connect actx.destination if chrome?
+				# http://stackoverflow.com/questions/24338144/chrome-onaudioprocess-stops-getting-called-after-a-while
+				if chrome? then window["chrome bug workaround (#{recording_id})"] = recorder
+				
+				@setState
+					recording: yes
+					audio_stream: stream
+					=> @play_from start_position
 	
 	stop_recording: =>
 		@pause()

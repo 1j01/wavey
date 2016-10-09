@@ -24003,6 +24003,7 @@ exports.AudioEditor = (function(superClass) {
     this.precord = bind(this.precord, this);
     this.stop_recording = bind(this.stop_recording, this);
     this.record = bind(this.record, this);
+    this.get_audio_stream = bind(this.get_audio_stream, this);
     this.end_recording = bind(this.end_recording, this);
     this.update_playback = bind(this.update_playback, this);
     this.pause = bind(this.pause, this);
@@ -24029,6 +24030,7 @@ exports.AudioEditor = (function(superClass) {
       scale: 90,
       selection: null,
       recording: false,
+      audio_stream: null,
       precording_enabled: false,
       moving_selection: false
     };
@@ -24445,13 +24447,42 @@ exports.AudioEditor = (function(superClass) {
 
   AudioEditor.prototype.end_recording = function() {};
 
-  AudioEditor.prototype.record = function() {
-    if (this.state.recording) {
-      return;
+  AudioEditor.prototype.get_audio_stream = function(success_callback) {
+    if (this.state.audio_stream) {
+      return success_callback(this.state.audio_stream);
     }
     return navigator.mediaDevices.getUserMedia({
       audio: true
     }).then((function(_this) {
+      return function(stream) {
+        return success_callback(stream);
+      };
+    })(this))["catch"]((function(_this) {
+      return function(error) {
+        switch (error.name) {
+          case "PermissionDeniedError":
+          case "PermissionDismissedError":
+            return;
+          case "NotFoundError":
+          case "DevicesNotFoundError":
+            InfoBar.warn("No recording devices were found.");
+            break;
+          case "SourceUnavailableError":
+            InfoBar.warn("No available recording devices were found. Is one in use?");
+            break;
+          default:
+            InfoBar.warn(("Failed to start recording: " + error.name) + (error.message ? ": " + error.message : ""));
+        }
+        return console.error("navigator.mediaDevices.getUserMedia", error);
+      };
+    })(this));
+  };
+
+  AudioEditor.prototype.record = function() {
+    if (this.state.recording) {
+      return;
+    }
+    return this.get_audio_stream((function(_this) {
       return function(stream) {
         var recording_id;
         recording_id = GUID();
@@ -24592,29 +24623,12 @@ exports.AudioEditor = (function(superClass) {
             window["chrome bug workaround (" + recording_id + ")"] = recorder;
           }
           return _this.setState({
-            recording: true
+            recording: true,
+            audio_stream: stream
           }, function() {
             return _this.play_from(start_position);
           });
         });
-      };
-    })(this))["catch"]((function(_this) {
-      return function(error) {
-        switch (error.name) {
-          case "PermissionDeniedError":
-          case "PermissionDismissedError":
-            return;
-          case "NotFoundError":
-          case "DevicesNotFoundError":
-            InfoBar.warn("No recording devices were found.");
-            break;
-          case "SourceUnavailableError":
-            InfoBar.warn("No available recording devices were found. Is one in use?");
-            break;
-          default:
-            InfoBar.warn(("Failed to start recording: " + error.name) + (error.message ? ": " + error.message : ""));
-        }
-        return console.error("navigator.mediaDevices.getUserMedia", error);
       };
     })(this));
   };
