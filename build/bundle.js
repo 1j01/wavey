@@ -24651,13 +24651,14 @@ exports.AudioEditor = (function(superClass) {
           case "PermissionDismissedError":
             return;
           case "NotFoundError":
+          case "DevicesNotFoundError":
             InfoBar.warn("No recording devices were found.");
             break;
           case "SourceUnavailableError":
             InfoBar.warn("No available recording devices were found. Is one in use?");
             break;
           default:
-            InfoBar.warn(("Failed to start recording: " + error.name) + (error.message ? ": " + error.message : void 0));
+            InfoBar.warn(("Failed to start recording: " + error.name) + (error.message ? ": " + error.message : ""));
         }
         return console.error("navigator.mediaDevices.getUserMedia", error);
       };

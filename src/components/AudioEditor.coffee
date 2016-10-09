@@ -432,12 +432,12 @@ class exports.AudioEditor extends Component
 				switch error.name
 					when "PermissionDeniedError", "PermissionDismissedError"
 						return
-					when "NotFoundError"
+					when "NotFoundError", "DevicesNotFoundError"
 						InfoBar.warn "No recording devices were found."
 					when "SourceUnavailableError"
 						InfoBar.warn "No available recording devices were found. Is one in use?"
 					else
-						InfoBar.warn "Failed to start recording: #{error.name}" + if error.message then ": #{error.message}"
+						InfoBar.warn "Failed to start recording: #{error.name}" + if error.message then ": #{error.message}" else ""
 				console.error "navigator.mediaDevices.getUserMedia", error
 	
 	stop_recording: =>
