@@ -6,12 +6,14 @@
 
 ### Features
 
-* Drag and drop audio files or record from a microphone
+* Drag and drop audio files or record from a microphone*
 * Always saved locally, including persistent undo/redo and selection
 * Several themes, including light and dark [elementary OS][] themes via [elementary.css][], and some retro themes
 * Fully scalable graphics, from the icons to the waveforms
 * Export the document or a selected range as WAV or MP3
 
+*Audio recording quality may or may not match native applications in a given browser.
+Record redundantly with another application if it matters to you.
 
 ### Future Features
 
@@ -29,6 +31,12 @@ you want to line up with some main audio track(s).
 
 * MIDI is a possibility. It might involve an expanded view to edit the notes, but it would be inline in the track.
 
+* Effects! I'm holding off on adding status quo gain and panning UI because
+I think if the effects UI is good enough, they should be able to simply be effects.
+They (or just gain) may warrant some shortcutting, such as being added by default to the effects chain,
+but they probably shouldn't be separate from it.
+After all they *are* effects and you'll want to be able to automate them just the same.
+
 * Plugins
 
 * Desktop apps; app embedding
@@ -44,9 +52,7 @@ you want to line up with some main audio track(s).
 
 * Fix pasting across non-consecutive tracks
 * Fix pasting placing the cursor across all tracks after the top track
-* Mouse-relative zooming (also preferably performant zooming)
-* Effects
-* Gain control and panning (maybe as effects? depends on what the effects UI will look like)
+* Mouse-relative zooming (preferably performant and smoothly animated)
 * Application Cache, because this app can work completely offline
 * Storage management (especially out-of-storage management)
 * Support web intents
