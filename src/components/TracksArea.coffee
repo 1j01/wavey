@@ -63,6 +63,7 @@ class TracksArea extends Component
 		
 		E ".tracks-area",
 			onMouseDown: (e)=>
+				# TODO: DRY onMouseDowns
 				return if e.isDefaultPrevented()
 				return if e.target.closest("p")
 				unless e.button > 0
@@ -70,6 +71,7 @@ class TracksArea extends Component
 				if e.target is ReactDOM.findDOMNode(@)
 					e.preventDefault()
 					editor.deselect()
+					getSelection().removeAllRanges()
 			E ".track-controls-area",
 				key: "track-controls-area"
 				for track in tracks
@@ -117,17 +119,20 @@ class TracksArea extends Component
 						editor.add_clip file, yes
 				
 				onMouseDown: (e)=>
+					# TODO: DRY onMouseDowns
 					# TODO: DRY, parts were copy/pasted into select_at_mouse
 					return unless e.button is 0
 					track_content_el = e.target.closest(".track-content")
 					track_content_area_el = e.target.closest(".track-content-area")
 					if track_content_el?.closest(".timeline-independent")
 						editor.deselect()
+						getSelection().removeAllRanges()
 						return
 					unless track_content_el
 						unless e.target.closest(".track-controls")
 							e.preventDefault()
 							editor.deselect()
+						getSelection().removeAllRanges()
 						return
 					e.preventDefault()
 					

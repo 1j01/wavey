@@ -54,7 +54,7 @@ class Controls extends Component
 				E "button.button",
 					title: "Import tracks"
 					onClick: import_files
-					E "i.icon-add-track"
+					E "i.icon-add-track" # TODO: decent icon; probably use symbolic icons from elementary
 				E DropdownButton,
 					title: "Export"
 					menu: [

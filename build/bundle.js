@@ -26194,7 +26194,8 @@ module.exports = TracksArea = (function(superClass) {
           }
           if (e.target === ReactDOM.findDOMNode(_this)) {
             e.preventDefault();
-            return editor.deselect();
+            editor.deselect();
+            return getSelection().removeAllRanges();
           }
         };
       })(this)
@@ -26282,6 +26283,7 @@ module.exports = TracksArea = (function(superClass) {
           track_content_area_el = e.target.closest(".track-content-area");
           if (track_content_el != null ? track_content_el.closest(".timeline-independent") : void 0) {
             editor.deselect();
+            getSelection().removeAllRanges();
             return;
           }
           if (!track_content_el) {
@@ -26289,6 +26291,7 @@ module.exports = TracksArea = (function(superClass) {
               e.preventDefault();
               editor.deselect();
             }
+            getSelection().removeAllRanges();
             return;
           }
           e.preventDefault();
