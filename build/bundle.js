@@ -26092,6 +26092,10 @@ module.exports = TrackControls = (function(superClass) {
     }, E("i.octicon.octicon-pin"))));
   };
 
+  TrackControls.prototype.shouldComponentUpdate = function(next_props, next_state) {
+    return next_props.track.id !== this.props.track.id || next_props.track.muted !== this.props.track.muted || next_props.track.pinned !== this.props.track.pinned;
+  };
+
   return TrackControls;
 
 })(Component);

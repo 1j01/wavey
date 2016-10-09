@@ -33,3 +33,8 @@ class TrackControls extends Component
 						else
 							pin_track track.id
 					E "i.octicon.octicon-pin"
+	
+	shouldComponentUpdate: (next_props, next_state)->
+		next_props.track.id isnt @props.track.id or
+		next_props.track.muted isnt @props.track.muted or
+		next_props.track.pinned isnt @props.track.pinned

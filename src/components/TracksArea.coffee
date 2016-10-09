@@ -93,7 +93,7 @@ class TracksArea extends Component
 				# @TODO: scroll by dragging to the left or right edges
 				
 				onDragOver: (e)=>
-					# FIXME: incredible lag
+					# FIXME: lags a bit in chrome
 					e.preventDefault()
 					e.dataTransfer.dropEffect = "copy"
 					if Math.random() < 0.5
