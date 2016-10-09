@@ -6,7 +6,8 @@ module.exports =
 class Controls extends Component
 	render: ->
 		{playing, recording, selection, precording_enabled, themes, set_theme, editor} = @props
-		{play, pause, seek_to_start, seek_to_end, record, stop_recording, precord, enable_precording, export_as} = editor
+		{play, pause, seek_to_start, seek_to_end, record, stop_recording, precord, enable_precording, export_as, import_files} = editor
+		
 		E ".controls",
 			# role: "menubar"
 			# @TODO: left/right arrow keys?
@@ -50,6 +51,10 @@ class Controls extends Component
 							{label: "Enable precording", action: -> enable_precording 60 * 5}
 						]
 			E "span.floated", style: float: "right",
+				E "button.button",
+					title: "Import tracks"
+					onClick: import_files
+					E "i.icon-add-track"
 				E DropdownButton,
 					title: "Export"
 					menu: [

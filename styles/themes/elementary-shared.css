@@ -99,6 +99,10 @@ XXX: FIXME: Y U NO WORK?
 	background: url("images/document-export.svg");
 }
 
+.controls .floated button[title="Import tracks"] > i {
+	background: url("images/document-import.svg");
+}
+
 .beat-track .track-content,
 .unknown-track .track-content {
 	height: 24px; /* = height of buttons */
@@ -109,8 +113,8 @@ XXX: FIXME: Y U NO WORK?
 	padding: 0 3px;
 }
 
-.add-track .track-content {
-	padding: 1em;
+.getting-started p {
+	margin: 1em;
 }
 
 .selection {

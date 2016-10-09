@@ -644,6 +644,19 @@ class exports.AudioEditor extends Component
 		tracks.slice().sort (track_a, track_b)->
 			track_positions[track_a.id] - track_positions[track_b.id]
 	
+	import_files: =>
+		input = document.createElement "input"
+		input.type = "file"
+		input.multiple = yes
+		input.accept = "audio/*"
+		input.addEventListener "change", (e)=>
+			# TODO: add tracks in the order we get them, not by how long each clip takes to load
+			# do it by making loading state placeholder track/clip representations
+			# also DRY with code in TracksArea
+			for file in e.target.files
+				@add_clip file
+		input.click()
+	
 	export_as: (file_type, range)=>
 		sample_rate = 44100
 		if range?

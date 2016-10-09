@@ -23681,7 +23681,7 @@ module.exports = Range = (function() {
 })();
 
 
-},{"./helpers.coffee":193,"./versions.coffee":194}],177:[function(require,module,exports){
+},{"./helpers.coffee":192,"./versions.coffee":193}],177:[function(require,module,exports){
 var AudioEditor, E, ReactDOM, container, localforage, ref, ref1, ref2, ref3, set_theme, theme_link, themes;
 
 localforage = require("localforage");
@@ -23739,54 +23739,7 @@ window.addEventListener("hashchange", render);
 render();
 
 
-},{"../build/themes.json":1,"./components/AudioEditor.coffee":180,"./helpers.coffee":193,"localforage":29,"react-dom":30}],178:[function(require,module,exports){
-var AddTrack, Component, E, ref,
-  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-  hasProp = {}.hasOwnProperty;
-
-ref = require("../helpers.coffee"), E = ref.E, Component = ref.Component;
-
-module.exports = AddTrack = (function(superClass) {
-  extend(AddTrack, superClass);
-
-  function AddTrack() {
-    return AddTrack.__super__.constructor.apply(this, arguments);
-  }
-
-  AddTrack.prototype.render = function() {
-    var children, editor, input, ref1;
-    ref1 = this.props, editor = ref1.editor, children = ref1.children;
-    input = document.createElement("input");
-    input.type = "file";
-    input.multiple = true;
-    input.accept = "audio/*";
-    input.addEventListener("change", (function(_this) {
-      return function(e) {
-        var file, i, len, ref2, results;
-        ref2 = e.target.files;
-        results = [];
-        for (i = 0, len = ref2.length; i < len; i++) {
-          file = ref2[i];
-          results.push(editor.add_clip(file));
-        }
-        return results;
-      };
-    })(this));
-    return E(".track.add-track.timeline-independent", E(".track-content", children, E("button.button", {
-      onClick: (function(_this) {
-        return function() {
-          return input.click();
-        };
-      })(this)
-    }, "Choose Files"), " or drag and drop"));
-  };
-
-  return AddTrack;
-
-})(Component);
-
-
-},{"../helpers.coffee":193}],179:[function(require,module,exports){
+},{"../build/themes.json":1,"./components/AudioEditor.coffee":179,"./helpers.coffee":192,"localforage":29,"react-dom":30}],178:[function(require,module,exports){
 var AudioClip, Component, E, InfoBar, localforage, ref,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -23990,7 +23943,7 @@ module.exports = AudioClip = (function(superClass) {
 })(Component);
 
 
-},{"../helpers.coffee":193,"./InfoBar.coffee":187,"localforage":29}],180:[function(require,module,exports){
+},{"../helpers.coffee":192,"./InfoBar.coffee":186,"localforage":29}],179:[function(require,module,exports){
 var AudioClip, Component, Controls, E, GUID, InfoBar, Range, ReactDOM, TracksArea, document_version, export_audio_buffer_as, get_clip_start_end, localforage, normal_tracks_in, ref, ref1, stuff_version,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -24029,6 +23982,7 @@ exports.AudioEditor = (function(superClass) {
     this.componentDidMount = bind(this.componentDidMount, this);
     this.componentDidUpdate = bind(this.componentDidUpdate, this);
     this.export_as = bind(this.export_as, this);
+    this.import_files = bind(this.import_files, this);
     this.get_sorted_tracks = bind(this.get_sorted_tracks, this);
     this.remove_track = bind(this.remove_track, this);
     this.unpin_track = bind(this.unpin_track, this);
@@ -25012,6 +24966,27 @@ exports.AudioEditor = (function(superClass) {
     });
   };
 
+  AudioEditor.prototype.import_files = function() {
+    var input;
+    input = document.createElement("input");
+    input.type = "file";
+    input.multiple = true;
+    input.accept = "audio/*";
+    input.addEventListener("change", (function(_this) {
+      return function(e) {
+        var file, j, len, ref2, results;
+        ref2 = e.target.files;
+        results = [];
+        for (j = 0, len = ref2.length; j < len; j++) {
+          file = ref2[j];
+          results.push(_this.add_clip(file));
+        }
+        return results;
+      };
+    })(this));
+    return input.click();
+  };
+
   AudioEditor.prototype.export_as = function(file_type, range) {
     var length, number_of_channels, oactx, sample_rate, start;
     sample_rate = 44100;
@@ -25270,7 +25245,7 @@ exports.AudioEditor = (function(superClass) {
 })(Component);
 
 
-},{"../Range.coffee":176,"../export.coffee":192,"../helpers.coffee":193,"../versions.coffee":194,"./AudioClip.coffee":179,"./Controls.coffee":184,"./InfoBar.coffee":187,"./TracksArea.coffee":190,"localforage":29,"react-dom":30}],181:[function(require,module,exports){
+},{"../Range.coffee":176,"../export.coffee":191,"../helpers.coffee":192,"../versions.coffee":193,"./AudioClip.coffee":178,"./Controls.coffee":183,"./InfoBar.coffee":186,"./TracksArea.coffee":189,"localforage":29,"react-dom":30}],180:[function(require,module,exports){
 var AudioClip, AudioTrack, Component, E, Range, Track, ref,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -25337,7 +25312,7 @@ module.exports = AudioTrack = (function(superClass) {
 })(Component);
 
 
-},{"../Range.coffee":176,"../helpers.coffee":193,"./AudioClip.coffee":179,"./Track.coffee":188}],182:[function(require,module,exports){
+},{"../Range.coffee":176,"../helpers.coffee":192,"./AudioClip.coffee":178,"./Track.coffee":187}],181:[function(require,module,exports){
 var BeatMarkings, Component, E, ref,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -25398,7 +25373,7 @@ module.exports = BeatMarkings = (function(superClass) {
 })(Component);
 
 
-},{"../helpers.coffee":193}],183:[function(require,module,exports){
+},{"../helpers.coffee":192}],182:[function(require,module,exports){
 var BeatMarkings, BeatTrack, Component, E, Track, ref,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -25432,7 +25407,7 @@ module.exports = BeatTrack = (function(superClass) {
 })(Component);
 
 
-},{"../helpers.coffee":193,"./BeatMarkings.coffee":182,"./Track.coffee":188}],184:[function(require,module,exports){
+},{"../helpers.coffee":192,"./BeatMarkings.coffee":181,"./Track.coffee":187}],183:[function(require,module,exports){
 var Component, Controls, DropdownButton, E, ref,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -25449,9 +25424,9 @@ module.exports = Controls = (function(superClass) {
   }
 
   Controls.prototype.render = function() {
-    var editor, enable_precording, export_as, id, name, pause, play, playing, precord, precording_enabled, record, recording, ref1, seek_to_end, seek_to_start, selection, set_theme, stop_recording, themes;
+    var editor, enable_precording, export_as, id, import_files, name, pause, play, playing, precord, precording_enabled, record, recording, ref1, seek_to_end, seek_to_start, selection, set_theme, stop_recording, themes;
     ref1 = this.props, playing = ref1.playing, recording = ref1.recording, selection = ref1.selection, precording_enabled = ref1.precording_enabled, themes = ref1.themes, set_theme = ref1.set_theme, editor = ref1.editor;
-    play = editor.play, pause = editor.pause, seek_to_start = editor.seek_to_start, seek_to_end = editor.seek_to_end, record = editor.record, stop_recording = editor.stop_recording, precord = editor.precord, enable_precording = editor.enable_precording, export_as = editor.export_as;
+    play = editor.play, pause = editor.pause, seek_to_start = editor.seek_to_start, seek_to_end = editor.seek_to_end, record = editor.record, stop_recording = editor.stop_recording, precord = editor.precord, enable_precording = editor.enable_precording, export_as = editor.export_as, import_files = editor.import_files;
     return E(".controls", E("button.button.play-pause", {
       "class": playing ? "pause" : "play",
       title: playing ? "Pause" : "Play",
@@ -25500,7 +25475,10 @@ module.exports = Controls = (function(superClass) {
       style: {
         float: "right"
       }
-    }, E(DropdownButton, {
+    }, E("button.button", {
+      title: "Import tracks",
+      onClick: import_files
+    }, E("i.icon-add-track")), E(DropdownButton, {
       title: "Export",
       menu: [
         {
@@ -25551,7 +25529,7 @@ module.exports = Controls = (function(superClass) {
 })(Component);
 
 
-},{"../helpers.coffee":193,"./DropdownButton.coffee":185}],185:[function(require,module,exports){
+},{"../helpers.coffee":192,"./DropdownButton.coffee":184}],184:[function(require,module,exports){
 var Component, DropdownButton, DropdownMenu, E, React, ReactDOM, ref,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -25724,7 +25702,7 @@ module.exports = DropdownButton = (function(superClass) {
 })(Component);
 
 
-},{"../helpers.coffee":193,"./DropdownMenu.coffee":186,"react":175,"react-dom":30}],186:[function(require,module,exports){
+},{"../helpers.coffee":192,"./DropdownMenu.coffee":185,"react":175,"react-dom":30}],185:[function(require,module,exports){
 var Component, DropdownMenu, E, ReactDOM, keys, ref,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty,
@@ -25838,7 +25816,7 @@ module.exports = DropdownMenu = (function(superClass) {
 })(Component);
 
 
-},{"../helpers.coffee":193,"react-dom":30}],187:[function(require,module,exports){
+},{"../helpers.coffee":192,"react-dom":30}],186:[function(require,module,exports){
 var Component, E, InfoBar, ref,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -26000,7 +25978,7 @@ class InfoBar extends Component
  */
 
 
-},{"../helpers.coffee":193}],188:[function(require,module,exports){
+},{"../helpers.coffee":192}],187:[function(require,module,exports){
 var Component, E, Track, ref,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -26035,7 +26013,7 @@ module.exports = Track = (function(superClass) {
 })(Component);
 
 
-},{"../helpers.coffee":193}],189:[function(require,module,exports){
+},{"../helpers.coffee":192}],188:[function(require,module,exports){
 var Component, E, TrackControls, ref,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -26101,8 +26079,8 @@ module.exports = TrackControls = (function(superClass) {
 })(Component);
 
 
-},{"../helpers.coffee":193}],190:[function(require,module,exports){
-var AddTrack, AudioTrack, BeatTrack, Component, E, InfoBar, Range, ReactDOM, TrackControls, TracksArea, UnknownTrack, easing, ref,
+},{"../helpers.coffee":192}],189:[function(require,module,exports){
+var AudioTrack, BeatTrack, Component, E, InfoBar, Range, ReactDOM, TrackControls, TracksArea, UnknownTrack, easing, ref,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -26120,8 +26098,6 @@ BeatTrack = require("./BeatTrack.coffee");
 AudioTrack = require("./AudioTrack.coffee");
 
 UnknownTrack = require("./UnknownTrack.coffee");
-
-AddTrack = require("./AddTrack.coffee");
 
 Range = require("../Range.coffee");
 
@@ -26304,7 +26280,7 @@ module.exports = TracksArea = (function(superClass) {
           }
           track_content_el = e.target.closest(".track-content");
           track_content_area_el = e.target.closest(".track-content-area");
-          if (track_content_el != null ? track_content_el.closest(".add-track, .unknown-track") : void 0) {
+          if (track_content_el != null ? track_content_el.closest(".timeline-independent") : void 0) {
             editor.deselect();
             return;
           }
@@ -26429,10 +26405,9 @@ module.exports = TracksArea = (function(superClass) {
         }
       }
       return results;
-    }).call(this), E(AddTrack, {
-      key: "add-track",
-      editor: editor
-    }, document_is_basically_empty ? E(".getting-started", E("p", "To get started, hit record above or add some tracks below.")) : void 0)));
+    }).call(this), document_is_basically_empty ? E(".track.getting-started.timeline-independent", {
+      key: "getting-on-track"
+    }, E(".track-content", E("p", "To get started, hit record above or drag and drop to add some tracks."))) : void 0));
   };
 
   TracksArea.prototype.animate = function() {
@@ -26546,7 +26521,7 @@ module.exports = TracksArea = (function(superClass) {
 })(Component);
 
 
-},{"../Range.coffee":176,"../helpers.coffee":193,"./AddTrack.coffee":178,"./AudioTrack.coffee":181,"./BeatTrack.coffee":183,"./InfoBar.coffee":187,"./TrackControls.coffee":189,"./UnknownTrack.coffee":191,"easingjs":3,"react-dom":30}],191:[function(require,module,exports){
+},{"../Range.coffee":176,"../helpers.coffee":192,"./AudioTrack.coffee":180,"./BeatTrack.coffee":182,"./InfoBar.coffee":186,"./TrackControls.coffee":188,"./UnknownTrack.coffee":190,"easingjs":3,"react-dom":30}],190:[function(require,module,exports){
 var Component, E, Track, UnknownTrack, ref,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -26577,7 +26552,7 @@ module.exports = UnknownTrack = (function(superClass) {
 })(Component);
 
 
-},{"../helpers.coffee":193,"./Track.coffee":188}],192:[function(require,module,exports){
+},{"../helpers.coffee":192,"./Track.coffee":187}],191:[function(require,module,exports){
 var export_audio_buffer_as;
 
 module.exports = export_audio_buffer_as = function(audio_buffer, file_type, number_of_channels, sample_rate) {
@@ -26653,7 +26628,7 @@ module.exports = export_audio_buffer_as = function(audio_buffer, file_type, numb
 };
 
 
-},{}],193:[function(require,module,exports){
+},{}],192:[function(require,module,exports){
 var AudioClip, React, ReactScript;
 
 React = require("react");
@@ -26704,7 +26679,7 @@ exports.normal_tracks_in = function(tracks) {
 };
 
 
-},{"./components/AudioClip.coffee":179,"react":175,"react-script":31}],194:[function(require,module,exports){
+},{"./components/AudioClip.coffee":178,"react":175,"react-script":31}],193:[function(require,module,exports){
 exports.document_version = 4;
 
 exports.stuff_version = 3;

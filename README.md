@@ -7,7 +7,7 @@
 ### Features
 
 * Drag and drop audio files or record from a microphone*
-* Always saved locally, including persistent undo/redo and selection
+* Always saved locally, including persistent undo/redo and selection; saves *while* you're recording
 * Several themes, including light and dark [elementary OS][] themes via [elementary.css][], and some retro themes
 * Fully scalable graphics, from the icons to the waveforms
 * Export the document or a selected range as WAV or MP3
@@ -21,7 +21,7 @@ Record redundantly with another application if it matters to you.
 It's a simplification of the concepts over DAWs which traditionally have a separate metronome.
 There will still need to be a way to specify the BPM, and
 it would also be good to have BPM detection and
-variable BPM support (possibly tying into some general automation system).
+variable BPM support (hopefully tying into a general automation system).
 
 * Tracks can be pinned to the top,
 which should easy the pain when you have many tracks with audio clips
@@ -61,7 +61,7 @@ After all they *are* effects and you'll want to be able to automate them just th
 ### Contributing
 
 Contributions and criticism welcome.
-[Open up an issue][new issue] to discuss features, problems, or improvements.
+[Open up an issue][new issue] to discuss features, problems, or improvements!
 
 This project is built with [CoffeeScript][], [React][], and [ReactScript][].
 

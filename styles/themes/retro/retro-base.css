@@ -14,13 +14,10 @@ $background-color: black !default;
 	stroke: $color;
 }
 
-/* @FIXME: .add-track just looks silly and out of place being the only text outside of menus and infobars */
-.audio-editor .add-track button {
+.audio-editor .info-bar .button {
 	font: inherit;
-	font-weight: bold;
-	cursor: pointer;
 	border: 1px solid $color;
-	padding: 0.2em;
+	padding: 0.2em 0.4em;
 	border-radius: 2px;
 }
 

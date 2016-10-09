@@ -6,7 +6,6 @@ TrackControls = require "./TrackControls.coffee"
 BeatTrack = require "./BeatTrack.coffee"
 AudioTrack = require "./AudioTrack.coffee"
 UnknownTrack = require "./UnknownTrack.coffee"
-AddTrack = require "./AddTrack.coffee"
 Range = require "../Range.coffee"
 easing = require "easingjs"
 
@@ -27,7 +26,7 @@ class TracksArea extends Component
 			new Range range.a, Math.max(0, to_position), [range.firstTrackID()].concat(track.id for track in include_tracks when track.id isnt range.firstTrackID())
 		
 		select_at_mouse = (e)=>
-			# FIXME: WET, TODO: DRY, NOTE: this was copy/pasted from onMouseMove
+			# TODO: DRY, parts were copy/pasted from onMouseMove
 			track_content_el = e.target.closest(".track-content")
 			track_content_area_el = e.target.closest(".track-content-area")
 			return unless track_content_el?
@@ -53,7 +52,7 @@ class TracksArea extends Component
 			document_is_basically_empty = no
 		
 		
-		# TODO: decide if this is the ideal or what
+		# TODO: decide if this is the ideal or what (seems pretty decent)
 		document_width_padding = window.innerWidth/2
 		
 		# FIXME: XXX: HACK: this is Not the Way
@@ -111,16 +110,18 @@ class TracksArea extends Component
 				onDrop: (e)=>
 					e.preventDefault()
 					select_at_mouse e
-					# @TODO: order by position in this array, not by how long each clip takes to load
+					# TODO: add tracks in the order we get them, not by how long each clip takes to load
+					# do it by making loading state placeholder track/clip representations
+					# also DRY with code in AudioEditor
 					for file in e.dataTransfer.files
 						editor.add_clip file, yes
 				
 				onMouseDown: (e)=>
-					# FIXME: WET, TODO: DRY, NOTE: this was copy/pasted into select_at_mouse
+					# TODO: DRY, parts were copy/pasted into select_at_mouse
 					return unless e.button is 0
 					track_content_el = e.target.closest(".track-content")
 					track_content_area_el = e.target.closest(".track-content-area")
-					if track_content_el?.closest(".add-track, .unknown-track")
+					if track_content_el?.closest(".timeline-independent")
 						editor.deselect()
 						return
 					unless track_content_el
@@ -209,14 +210,10 @@ class TracksArea extends Component
 						else
 							E UnknownTrack, {key: track.id, track, scale, editor}
 				
-				# TODO: redesign AddTrack
-				# currently it looks silly with the position indicator going behind it and popping out a bit at the bottom
-				# it's not really a track
-				# maybe there should just be an import button in the HeaderBar?
-				E AddTrack, {key: "add-track", editor},
-					if document_is_basically_empty
-						E ".getting-started",
-							E "p", "To get started, hit record above or add some tracks below."
+				if document_is_basically_empty
+					E ".track.getting-started.timeline-independent", {key: "getting-on-track"},
+						E ".track-content",
+							E "p", "To get started, hit record above or drag and drop to add some tracks."
 	
 	animate: ->
 		{scale} = @props

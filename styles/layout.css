@@ -47,10 +47,6 @@
 	z-index: 2;
 }
 
-.add-track button ~ span {
-	cursor: default;
-	user-select: none;
-}
 .track p {
 	user-select: text;
 	-ms-user-select: text;
