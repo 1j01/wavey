@@ -24395,7 +24395,9 @@ exports.AudioEditor = (function(superClass) {
                     }
                   }
                 }
-                source.buffer = recording.audio_buffer;
+                if (recording.audio_buffer != null) {
+                  source.buffer = recording.audio_buffer;
+                }
                 clip_length = (ref7 = clip.length) != null ? ref7 : recording.length;
               } else {
                 source.buffer = AudioClip.audio_buffers[clip.audio_id];

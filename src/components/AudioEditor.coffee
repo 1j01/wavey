@@ -273,7 +273,8 @@ class exports.AudioEditor extends Component
 									for channel, channel_index in recording.chunks
 										for chunk, chunk_index in channel
 											recording.audio_buffer.copyToChannel chunk, channel_index, chunk_index * chunk.length
-							source.buffer = recording.audio_buffer
+							if recording.audio_buffer?
+								source.buffer = recording.audio_buffer
 							clip_length = clip.length ? recording.length
 						else
 							source.buffer = AudioClip.audio_buffers[clip.audio_id]
@@ -344,7 +345,7 @@ class exports.AudioEditor extends Component
 					for clip in track.clips
 						{clip_start, clip_end} = get_clip_start_end clip
 						if clip_end > start_position
-							track = null # track is no good, but keep the start position
+							track = null # we'll create a new track, but keep the start position
 				# @TODO: maybe make a helper that adds a track if there's no selection
 				# and inserts a given clip
 				if not track?
