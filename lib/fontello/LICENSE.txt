@@ -3,20 +3,11 @@ Font license info
 
 ## Font Awesome
 
-   Copyright (C) 2012 by Dave Gandy
+   Copyright (C) 2016 by Dave Gandy
 
    Author:    Dave Gandy
    License:   SIL ()
    Homepage:  http://fortawesome.github.com/Font-Awesome/
-
-
-## Entypo
-
-   Copyright (C) 2012 by Daniel Bruce
-
-   Author:    Daniel Bruce
-   License:   SIL (http://scripts.sil.org/OFL)
-   Homepage:  http://www.entypo.com
 
 
 ## MFG Labs
@@ -35,6 +26,15 @@ Font license info
    Author:    Mapbox
    License:   BSD (https://github.com/mapbox/maki/blob/gh-pages/LICENSE.txt)
    Homepage:  http://mapbox.com/maki/
+
+
+## Entypo
+
+   Copyright (C) 2012 by Daniel Bruce
+
+   Author:    Daniel Bruce
+   License:   SIL (http://scripts.sil.org/OFL)
+   Homepage:  http://www.entypo.com
 
 
 ## Typicons

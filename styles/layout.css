@@ -8,16 +8,24 @@
 	flex-direction: column;
 }
 
-.controls {
+.controls,
+.playback-controls,
+.document-controls {
 	display: flex;
+	flex-direction: row;
 	align-items: center;
 	justify-content: space-between;
 }
 
+.controls .linked > *,
+.controls i,
+.dropdown-button-container,
+.menu-positioner {
+	display: inline-block;
+	vertical-align: bottom; /* always specify vertical-align for inline-blocks */
+}
 .menu-positioner {
 	position: relative;
-	display: inline-block;
-	vertical-align: bottom;
 	margin: 0 !important;
 	padding: 0 !important;
 }
@@ -76,7 +84,7 @@
 }
 .track-controls > .linked {
 	display: inline-block;
-	vertical-align: top;
+	vertical-align: top; /* always specify vertical-align for inline-blocks */
 	margin-left: 4px;
 }
 .track-content {

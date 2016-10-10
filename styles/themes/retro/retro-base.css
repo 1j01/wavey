@@ -33,6 +33,7 @@ $background-color: black !default;
 
 .controls {
 	border-bottom: 1px solid $color;
+	position: relative;
 }
 .record {
 	padding-right: 0;
@@ -40,6 +41,10 @@ $background-color: black !default;
 .dropdown-button {
 	padding-left: 0;
 	vertical-align: middle;
+}
+.menu-positioner {
+	bottom: 0;
+	position: absolute;
 }
 .menu-positioner .menu {
 	background-color: $background-color;

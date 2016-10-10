@@ -27,16 +27,6 @@
 	margin: 0;
 }
 
-/* XXX: this is a bit weird, changing the display style between themes */
-/* but I want the menus to be flesh with the buttons in elementary themes */
-/* and right at the bottom of the headerbar in retro themes */
-/* how was this working before? was it doing the same thing but not explicitly? */
-/* the special case should really be in retro-base.css */
-/* currently the retro alignment relies on there not being vertical padding or a set height on .controls */
-.dropdown-button-container {
-	display: inline-block;
-}
-
 .info-bar {
 	@extend GtkInfoBar;
 }
@@ -110,7 +100,7 @@ XXX: FIXME: Y U NO WORK?
 	background: url("images/document-export.svg");
 }
 
-.document-controls .icon-add-track {
+.document-controls .icon-import {
 	background: url("images/document-import.svg");
 }
 

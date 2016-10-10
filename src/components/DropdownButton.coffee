@@ -56,17 +56,6 @@ class DropdownButton extends Component
 		E "span.dropdown-button-container",
 			class: ("menu-open" if menu_open)
 			aria: expanded: menu_open
-			E ".menu-positioner",
-					style: position: "relative", display: "inline-block"
-					E DropdownMenu,
-						open: menu_open
-						items:
-							for item in menu when item?
-								do (item)=>
-									label: item.label
-									action: =>
-										@setState menu_open: no
-										item.action()
 			E "span.linked",
 				mainButton
 				E "button.button.dropdown-button",
@@ -81,3 +70,13 @@ class DropdownButton extends Component
 					title: title
 					tabIndex: tabIndex
 					if children?.length or React.isValidElement(children) then children else E "i.octicon.octicon-chevron-down"
+			E ".menu-positioner",
+					E DropdownMenu,
+						open: menu_open
+						items:
+							for item in menu when item?
+								do (item)=>
+									label: item.label
+									action: =>
+										@setState menu_open: no
+										item.action()

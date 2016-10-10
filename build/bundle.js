@@ -25507,7 +25507,7 @@ module.exports = Controls = (function(superClass) {
     })), E(".document-controls", E("button.button", {
       title: "Import tracks",
       onClick: import_files
-    }, E("i.icon-add-track")), E(DropdownButton, {
+    }, E("i.icon-import")), E(DropdownButton, {
       title: "Export",
       menu: [
         {
@@ -25667,37 +25667,7 @@ module.exports = DropdownButton = (function(superClass) {
       aria: {
         expanded: menu_open
       }
-    }, E(".menu-positioner", {
-      style: {
-        position: "relative",
-        display: "inline-block"
-      }
-    }, E(DropdownMenu, {
-      open: menu_open,
-      items: (function() {
-        var i, len, results;
-        results = [];
-        for (i = 0, len = menu.length; i < len; i++) {
-          item = menu[i];
-          if (item != null) {
-            results.push((function(_this) {
-              return function(item) {
-                return {
-                  label: item.label,
-                  action: function() {
-                    _this.setState({
-                      menu_open: false
-                    });
-                    return item.action();
-                  }
-                };
-              };
-            })(this)(item));
-          }
-        }
-        return results;
-      }).call(this)
-    })), E("span.linked", mainButton, E("button.button.dropdown-button", {
+    }, E("span.linked", mainButton, E("button.button.dropdown-button", {
       aria: {
         haspopup: true
       },
@@ -25723,7 +25693,32 @@ module.exports = DropdownButton = (function(superClass) {
       })(this),
       title: title,
       tabIndex: tabIndex
-    }, (children != null ? children.length : void 0) || React.isValidElement(children) ? children : E("i.octicon.octicon-chevron-down"))));
+    }, (children != null ? children.length : void 0) || React.isValidElement(children) ? children : E("i.octicon.octicon-chevron-down"))), E(".menu-positioner", E(DropdownMenu, {
+      open: menu_open,
+      items: (function() {
+        var i, len, results;
+        results = [];
+        for (i = 0, len = menu.length; i < len; i++) {
+          item = menu[i];
+          if (item != null) {
+            results.push((function(_this) {
+              return function(item) {
+                return {
+                  label: item.label,
+                  action: function() {
+                    _this.setState({
+                      menu_open: false
+                    });
+                    return item.action();
+                  }
+                };
+              };
+            })(this)(item));
+          }
+        }
+        return results;
+      }).call(this)
+    })));
   };
 
   return DropdownButton;
@@ -25823,20 +25818,23 @@ module.exports = DropdownMenu = (function(superClass) {
   };
 
   DropdownMenu.prototype.updateOffset = function() {
-    var el, linked, linked_rect, rect;
+    var dropdown_button_container, el, linked, linked_rect, rect;
     if (!this.props.open) {
       return;
     }
     el = ReactDOM.findDOMNode(this);
     rect = el.getBoundingClientRect();
-    if (rect.right >= document.body.clientWidth) {
-      linked = el.parentElement.nextSibling;
-      if (linked != null ? linked.classList.contains("linked") : void 0) {
-        linked_rect = linked.getBoundingClientRect();
-        return el.style.left = (linked_rect.width - rect.width) + "px";
+    dropdown_button_container = el.closest(".dropdown-button-container");
+    linked = dropdown_button_container.querySelector(".linked, button");
+    if (linked != null) {
+      linked_rect = linked.getBoundingClientRect();
+      if ((linked_rect != null ? linked_rect : rect).left + rect.width >= document.body.clientWidth) {
+        return el.style.left = (-rect.width) + "px";
       } else {
-        return el.style.left = "auto";
+        return el.style.left = (-linked_rect.width) + "px";
       }
+    } else {
+      return el.style.left = "auto";
     }
   };
 

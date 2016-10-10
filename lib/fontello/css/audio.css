@@ -1,10 +1,11 @@
 @font-face {
   font-family: 'audio';
-  src: url('../font/audio.eot?81874647');
-  src: url('../font/audio.eot?81874647#iefix') format('embedded-opentype'),
-       url('../font/audio.woff?81874647') format('woff'),
-       url('../font/audio.ttf?81874647') format('truetype'),
-       url('../font/audio.svg?81874647#audio') format('svg');
+  src: url('../font/audio.eot?25952138');
+  src: url('../font/audio.eot?25952138#iefix') format('embedded-opentype'),
+       url('../font/audio.woff2?25952138') format('woff2'),
+       url('../font/audio.woff?25952138') format('woff'),
+       url('../font/audio.ttf?25952138') format('truetype'),
+       url('../font/audio.svg?25952138#audio') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -14,7 +15,7 @@
 @media screen and (-webkit-min-device-pixel-ratio:0) {
   @font-face {
     font-family: 'audio';
-    src: url('../font/audio.svg?81874647#audio') format('svg');
+    src: url('../font/audio.svg?25952138#audio') format('svg');
   }
 }
 */
@@ -60,7 +61,6 @@
 .icon-volume-up:before { content: '\e803'; } /* '' */
 .icon-mic:before { content: '\e804'; } /* '' */
 .icon-circle-empty:before { content: '\e805'; } /* '' */
-.icon-add-track:before { content: '\e806'; } /* '' */
 .icon-reorder-handle:before { content: '\e807'; } /* '' */
 .icon-theme:before { content: '\e808'; } /* '' */
 .icon-share:before { content: '\e809'; } /* '' */
@@ -75,6 +75,7 @@
 .icon-loop:before { content: '\e812'; } /* '' */
 .icon-clock:before { content: '\e813'; } /* '' */
 .icon-x:before { content: '\e814'; } /* '' */
+.icon-export:before { content: '\e815'; } /* '' */
 .icon-file:before { content: '\e816'; } /* '' */
-.icon-export:before { content: '\e819'; } /* '' */
+.icon-import:before { content: '\e817'; } /* '' */
 .icon-folder:before { content: '\e81a'; } /* '' */

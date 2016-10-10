@@ -54,10 +54,13 @@ class DropdownMenu extends Component
 		return unless @props.open
 		el = ReactDOM.findDOMNode @
 		rect = el.getBoundingClientRect()
-		if rect.right >= document.body.clientWidth
-			linked = el.parentElement.nextSibling
-			if linked?.classList.contains "linked"
-				linked_rect = linked.getBoundingClientRect()
-				el.style.left = "#{linked_rect.width - rect.width}px"
+		dropdown_button_container = el.closest(".dropdown-button-container")
+		linked = dropdown_button_container.querySelector(".linked, button")
+		if linked?
+			linked_rect = linked.getBoundingClientRect()
+			if (linked_rect ? rect).left + rect.width >= document.body.clientWidth
+				el.style.left = "#{-rect.width}px"
 			else
-				el.style.left = "auto"
+				el.style.left = "#{-linked_rect.width}px"
+		else
+			el.style.left = "auto"
