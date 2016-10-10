@@ -23681,7 +23681,7 @@ module.exports = Range = (function() {
 })();
 
 
-},{"./helpers.coffee":192,"./versions.coffee":193}],177:[function(require,module,exports){
+},{"./helpers.coffee":193,"./versions.coffee":194}],177:[function(require,module,exports){
 var AudioEditor, E, ReactDOM, container, localforage, ref, ref1, ref2, ref3, set_theme, theme_link, themes;
 
 localforage = require("localforage");
@@ -23739,60 +23739,50 @@ window.addEventListener("hashchange", render);
 render();
 
 
-},{"../build/themes.json":1,"./components/AudioEditor.coffee":179,"./helpers.coffee":192,"localforage":29,"react-dom":30}],178:[function(require,module,exports){
-var AudioClip, Component, E, InfoBar, localforage, ref,
-  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-  hasProp = {}.hasOwnProperty;
-
-ref = require("../helpers.coffee"), E = ref.E, Component = ref.Component;
-
-InfoBar = require("./InfoBar.coffee");
+},{"../build/themes.json":1,"./components/AudioEditor.coffee":180,"./helpers.coffee":193,"localforage":29,"react-dom":30}],178:[function(require,module,exports){
+var AudioClipStorage, localforage;
 
 localforage = require("localforage");
 
-module.exports = AudioClip = (function(superClass) {
+module.exports = AudioClipStorage = (function() {
   var throttle;
 
-  extend(AudioClip, superClass);
+  function AudioClipStorage() {}
 
-  function AudioClip() {
-    return AudioClip.__super__.constructor.apply(this, arguments);
-  }
+  AudioClipStorage.audio_buffers = {};
 
-  AudioClip.audio_buffers = {};
+  AudioClipStorage.recordings = {};
 
-  AudioClip.recordings = {};
-
-  AudioClip.loading = {};
+  AudioClipStorage.loading = {};
 
   throttle = 0;
 
-  AudioClip.load_clip = function(clip) {
-    if (AudioClip.audio_buffers[clip.audio_id] != null) {
+  AudioClipStorage.load_clip = function(clip, InfoBar) {
+    if (AudioClipStorage.audio_buffers[clip.audio_id] != null) {
       return;
     }
-    if (AudioClip.loading[clip.audio_id] != null) {
+    if (AudioClipStorage.loading[clip.audio_id] != null) {
       return;
     }
-    AudioClip.loading[clip.audio_id] = true;
+    AudioClipStorage.loading[clip.audio_id] = true;
     if (clip.recording_id != null) {
       return localforage.getItem("recording:" + clip.recording_id, function(err, recording) {
-        var channel_chunk_ids, channel_index, chunk_id, chunk_index, chunks, j, len1, loaded, ref1, results;
+        var channel_chunk_ids, channel_index, chunk_id, chunk_index, chunks, i, len, loaded, ref, results;
         if (err) {
           InfoBar.error("Failed to load recording.\n" + err.message);
           throw err;
         } else if (recording) {
-          AudioClip.recordings[clip.recording_id] = recording;
+          AudioClipStorage.recordings[clip.recording_id] = recording;
           chunks = [[], []];
           loaded = 0;
-          ref1 = recording.chunk_ids;
+          ref = recording.chunk_ids;
           results = [];
-          for (channel_index = j = 0, len1 = ref1.length; j < len1; channel_index = ++j) {
-            channel_chunk_ids = ref1[channel_index];
+          for (channel_index = i = 0, len = ref.length; i < len; channel_index = ++i) {
+            channel_chunk_ids = ref[channel_index];
             results.push((function() {
-              var k, len2, results1;
+              var j, len1, results1;
               results1 = [];
-              for (chunk_index = k = 0, len2 = channel_chunk_ids.length; k < len2; chunk_index = ++k) {
+              for (chunk_index = j = 0, len1 = channel_chunk_ids.length; j < len1; chunk_index = ++j) {
                 chunk_id = channel_chunk_ids[chunk_index];
                 results1.push((function(_this) {
                   return function(channel_chunk_ids, channel_index, chunk_id, chunk_index) {
@@ -23821,7 +23811,7 @@ module.exports = AudioClip = (function(superClass) {
                 })(this)(channel_chunk_ids, channel_index, chunk_id, chunk_index));
               }
               return results1;
-            }).call(AudioClip));
+            }).call(AudioClipStorage));
           }
           return results;
         } else {
@@ -23836,7 +23826,7 @@ module.exports = AudioClip = (function(superClass) {
           throw err;
         } else if (array_buffer) {
           return actx.decodeAudioData(array_buffer, function(buffer) {
-            AudioClip.audio_buffers[clip.audio_id] = buffer;
+            AudioClipStorage.audio_buffers[clip.audio_id] = buffer;
             InfoBar.hide("Not all tracks have finished loading.");
             return render();
           });
@@ -23848,19 +23838,19 @@ module.exports = AudioClip = (function(superClass) {
     }
   };
 
-  AudioClip.load_clips = function(tracks) {
-    var clip, j, len1, results, track;
+  AudioClipStorage.load_clips = function(tracks, InfoBar) {
+    var clip, i, len, results, track;
     results = [];
-    for (j = 0, len1 = tracks.length; j < len1; j++) {
-      track = tracks[j];
+    for (i = 0, len = tracks.length; i < len; i++) {
+      track = tracks[i];
       if (track.type === "audio") {
         results.push((function() {
-          var k, len2, ref1, results1;
-          ref1 = track.clips;
+          var j, len1, ref, results1;
+          ref = track.clips;
           results1 = [];
-          for (k = 0, len2 = ref1.length; k < len2; k++) {
-            clip = ref1[k];
-            results1.push(this.load_clip(clip));
+          for (j = 0, len1 = ref.length; j < len1; j++) {
+            clip = ref[j];
+            results1.push(this.load_clip(clip, InfoBar));
           }
           return results1;
         }).call(this));
@@ -23868,6 +23858,31 @@ module.exports = AudioClip = (function(superClass) {
     }
     return results;
   };
+
+  return AudioClipStorage;
+
+})();
+
+
+},{"localforage":29}],179:[function(require,module,exports){
+var AudioClip, Component, E, InfoBar, audio_clips, localforage, ref,
+  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+ref = require("../helpers.coffee"), E = ref.E, Component = ref.Component;
+
+InfoBar = require("./InfoBar.coffee");
+
+audio_clips = require("../audio-clips.coffee");
+
+localforage = require("localforage");
+
+module.exports = AudioClip = (function(superClass) {
+  extend(AudioClip, superClass);
+
+  function AudioClip() {
+    return AudioClip.__super__.constructor.apply(this, arguments);
+  }
 
   AudioClip.prototype.render = function() {
     var at, audio_buffer, chunk_length, chunk_x, data, height, i, key, length, offset, pathdata, position, ref1, ref2, sample_rate, scale, typed_array, typed_arrays, width, x, y;
@@ -23943,8 +23958,8 @@ module.exports = AudioClip = (function(superClass) {
 })(Component);
 
 
-},{"../helpers.coffee":192,"./InfoBar.coffee":186,"localforage":29}],179:[function(require,module,exports){
-var AudioClip, Component, Controls, E, GUID, InfoBar, Range, ReactDOM, TracksArea, document_version, export_audio_buffer_as, get_clip_start_end, localforage, normal_tracks_in, ref, ref1, stuff_version,
+},{"../audio-clips.coffee":178,"../helpers.coffee":193,"./InfoBar.coffee":187,"localforage":29}],180:[function(require,module,exports){
+var Component, Controls, E, GUID, InfoBar, Range, ReactDOM, TracksArea, audio_clips, document_version, export_audio_buffer_as, get_clip_start_end, localforage, normal_tracks_in, ref, ref1, stuff_version,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -23963,7 +23978,7 @@ InfoBar = require("./InfoBar.coffee");
 
 TracksArea = require("./TracksArea.coffee");
 
-AudioClip = require("./AudioClip.coffee");
+audio_clips = require("../audio-clips.coffee");
 
 Range = require("../Range.coffee");
 
@@ -24246,7 +24261,7 @@ exports.AudioEditor = (function(superClass) {
         for (k = 0, len1 = ref2.length; k < len1; k++) {
           clip = ref2[k];
           if (clip.recording_id) {
-            recording = AudioClip.recordings[clip.recording_id];
+            recording = audio_clips.recordings[clip.recording_id];
             if (recording) {
               max_length = Math.max(max_length, clip.position + ((ref3 = (ref4 = clip.length) != null ? ref4 : recording.length) != null ? ref3 : 0));
             } else {
@@ -24254,7 +24269,7 @@ exports.AudioEditor = (function(superClass) {
               return;
             }
           } else {
-            audio_buffer = AudioClip.audio_buffers[clip.audio_id];
+            audio_buffer = audio_clips.audio_buffers[clip.audio_id];
             if (audio_buffer) {
               max_length = Math.max(max_length, clip.position + clip.length);
             } else {
@@ -24357,7 +24372,7 @@ exports.AudioEditor = (function(superClass) {
         ref2 = track.clips;
         for (k = 0, len1 = ref2.length; k < len1; k++) {
           clip = ref2[k];
-          loaded = clip.recording_id ? ((ref3 = AudioClip.recordings[clip.recording_id]) != null ? ref3.chunks : void 0) != null : AudioClip.audio_buffers[clip.audio_id] != null;
+          loaded = clip.recording_id ? ((ref3 = audio_clips.recordings[clip.recording_id]) != null ? ref3.chunks : void 0) != null : audio_clips.audio_buffers[clip.audio_id] != null;
           if (!loaded) {
             InfoBar.warn("Not all tracks have finished loading.");
             throw new Error("Not all tracks have finished loading.");
@@ -24381,7 +24396,7 @@ exports.AudioEditor = (function(superClass) {
               source = actx.createBufferSource();
               source.gain = actx.createGain();
               if (clip.recording_id) {
-                recording = AudioClip.recordings[clip.recording_id];
+                recording = audio_clips.recordings[clip.recording_id];
                 if (recording.audio_buffer == null) {
                   if ((ref5 = recording.chunks[0]) != null ? ref5.length : void 0) {
                     recording.audio_buffer = actx.createBuffer(recording.chunks.length, recording.chunks[0].length * recording.chunks[0][0].length, recording.sample_rate);
@@ -24400,7 +24415,7 @@ exports.AudioEditor = (function(superClass) {
                 }
                 clip_length = (ref7 = clip.length) != null ? ref7 : recording.length;
               } else {
-                source.buffer = AudioClip.audio_buffers[clip.audio_id];
+                source.buffer = audio_clips.audio_buffers[clip.audio_id];
                 clip_length = clip.length;
               }
               source.connect(source.gain);
@@ -24546,8 +24561,8 @@ exports.AudioEditor = (function(superClass) {
             chunk_ids: [[], []],
             length: 0
           };
-          AudioClip.recordings[clip.recording_id] = recording;
-          AudioClip.loading[clip.audio_id] = true;
+          audio_clips.recordings[clip.recording_id] = recording;
+          audio_clips.loading[clip.audio_id] = true;
           current_chunk = 0;
           chunk_size = Math.pow(2, 14);
           ended = false;
@@ -24923,7 +24938,7 @@ exports.AudioEditor = (function(superClass) {
           position: 0,
           offset: 0
         };
-        AudioClip.loading[clip.audio_id] = true;
+        audio_clips.loading[clip.audio_id] = true;
         return localforage.setItem("audio:" + clip.audio_id, array_buffer, function(err) {
           if (err) {
             InfoBar.warn("Failed to store audio data.\n" + err.message);
@@ -24931,7 +24946,7 @@ exports.AudioEditor = (function(superClass) {
           } else {
             return actx.decodeAudioData(array_buffer, function(buffer) {
               var stuff;
-              AudioClip.audio_buffers[clip.audio_id] = buffer;
+              audio_clips.audio_buffers[clip.audio_id] = buffer;
               clip.length = buffer.length / buffer.sampleRate;
               stuff = {
                 version: stuff_version,
@@ -25032,7 +25047,7 @@ exports.AudioEditor = (function(superClass) {
     }
     if (tracks !== last_state.tracks) {
       this.update_playback();
-      return AudioClip.load_clips(tracks);
+      return audio_clips.load_clips(tracks, InfoBar);
     }
   };
 
@@ -25261,8 +25276,8 @@ exports.AudioEditor = (function(superClass) {
 })(Component);
 
 
-},{"../Range.coffee":176,"../export.coffee":191,"../helpers.coffee":192,"../versions.coffee":193,"./AudioClip.coffee":178,"./Controls.coffee":183,"./InfoBar.coffee":186,"./TracksArea.coffee":189,"localforage":29,"react-dom":30}],180:[function(require,module,exports){
-var AudioClip, AudioTrack, Component, E, Range, Track, ref,
+},{"../Range.coffee":176,"../audio-clips.coffee":178,"../export.coffee":192,"../helpers.coffee":193,"../versions.coffee":194,"./Controls.coffee":184,"./InfoBar.coffee":187,"./TracksArea.coffee":190,"localforage":29,"react-dom":30}],181:[function(require,module,exports){
+var AudioClip, AudioTrack, Component, E, Range, Track, audio_clips, ref,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
@@ -25271,6 +25286,8 @@ ref = require("../helpers.coffee"), E = ref.E, Component = ref.Component;
 Track = require("./Track.coffee");
 
 AudioClip = require("./AudioClip.coffee");
+
+audio_clips = require("../audio-clips.coffee");
 
 Range = require("../Range.coffee");
 
@@ -25299,7 +25316,7 @@ module.exports = AudioTrack = (function(superClass) {
       results = [];
       for (i = j = 0, len = clips.length; j < len; i = ++j) {
         clip = clips[i];
-        recording = AudioClip.recordings[clip.recording_id];
+        recording = audio_clips.recordings[clip.recording_id];
         recording_length = recording != null ? recording.length != null ? recording.length : (one_channel = recording.chunks[0], num_chunks = one_channel.length, num_chunks > 0 ? (chunk_size = one_channel[0].length, chunk_size * num_chunks / recording.sample_rate) : 0) : void 0;
         results.push(E(AudioClip, {
           key: clip.id,
@@ -25307,8 +25324,8 @@ module.exports = AudioTrack = (function(superClass) {
           length: (ref2 = clip.length) != null ? ref2 : recording_length,
           offset: (ref3 = clip.offset) != null ? ref3 : 0,
           scale: scale,
-          sample_rate: clip.recording_id != null ? recording != null ? recording.sample_rate : void 0 : (ref4 = AudioClip.audio_buffers[clip.audio_id]) != null ? ref4.sampleRate : void 0,
-          data: clip.recording_id != null ? recording != null ? recording.chunks : null : AudioClip.audio_buffers[clip.audio_id],
+          sample_rate: clip.recording_id != null ? recording != null ? recording.sample_rate : void 0 : (ref4 = audio_clips.audio_buffers[clip.audio_id]) != null ? ref4.sampleRate : void 0,
+          data: clip.recording_id != null ? recording != null ? recording.chunks : null : audio_clips.audio_buffers[clip.audio_id],
           editor: editor
         }));
       }
@@ -25328,7 +25345,7 @@ module.exports = AudioTrack = (function(superClass) {
 })(Component);
 
 
-},{"../Range.coffee":176,"../helpers.coffee":192,"./AudioClip.coffee":178,"./Track.coffee":187}],181:[function(require,module,exports){
+},{"../Range.coffee":176,"../audio-clips.coffee":178,"../helpers.coffee":193,"./AudioClip.coffee":179,"./Track.coffee":188}],182:[function(require,module,exports){
 var BeatMarkings, Component, E, ref,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -25389,7 +25406,7 @@ module.exports = BeatMarkings = (function(superClass) {
 })(Component);
 
 
-},{"../helpers.coffee":192}],182:[function(require,module,exports){
+},{"../helpers.coffee":193}],183:[function(require,module,exports){
 var BeatMarkings, BeatTrack, Component, E, Track, ref,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -25423,7 +25440,7 @@ module.exports = BeatTrack = (function(superClass) {
 })(Component);
 
 
-},{"../helpers.coffee":192,"./BeatMarkings.coffee":181,"./Track.coffee":187}],183:[function(require,module,exports){
+},{"../helpers.coffee":193,"./BeatMarkings.coffee":182,"./Track.coffee":188}],184:[function(require,module,exports){
 var Component, Controls, DropdownButton, E, ref,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -25541,7 +25558,7 @@ module.exports = Controls = (function(superClass) {
 })(Component);
 
 
-},{"../helpers.coffee":192,"./DropdownButton.coffee":184}],184:[function(require,module,exports){
+},{"../helpers.coffee":193,"./DropdownButton.coffee":185}],185:[function(require,module,exports){
 var Component, DropdownButton, DropdownMenu, E, React, ReactDOM, ref,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -25714,7 +25731,7 @@ module.exports = DropdownButton = (function(superClass) {
 })(Component);
 
 
-},{"../helpers.coffee":192,"./DropdownMenu.coffee":185,"react":175,"react-dom":30}],185:[function(require,module,exports){
+},{"../helpers.coffee":193,"./DropdownMenu.coffee":186,"react":175,"react-dom":30}],186:[function(require,module,exports){
 var Component, DropdownMenu, E, ReactDOM, keys, ref,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty,
@@ -25828,7 +25845,7 @@ module.exports = DropdownMenu = (function(superClass) {
 })(Component);
 
 
-},{"../helpers.coffee":192,"react-dom":30}],186:[function(require,module,exports){
+},{"../helpers.coffee":193,"react-dom":30}],187:[function(require,module,exports){
 var Component, E, InfoBar, ref,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -25990,7 +26007,7 @@ class InfoBar extends Component
  */
 
 
-},{"../helpers.coffee":192}],187:[function(require,module,exports){
+},{"../helpers.coffee":193}],188:[function(require,module,exports){
 var Component, E, Track, ref,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -26025,7 +26042,7 @@ module.exports = Track = (function(superClass) {
 })(Component);
 
 
-},{"../helpers.coffee":192}],188:[function(require,module,exports){
+},{"../helpers.coffee":193}],189:[function(require,module,exports){
 var Component, E, TrackControls, ref,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -26091,7 +26108,7 @@ module.exports = TrackControls = (function(superClass) {
 })(Component);
 
 
-},{"../helpers.coffee":192}],189:[function(require,module,exports){
+},{"../helpers.coffee":193}],190:[function(require,module,exports){
 var AudioTrack, BeatTrack, Component, E, InfoBar, Range, ReactDOM, TrackControls, TracksArea, UnknownTrack, easing, ref,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -26536,7 +26553,7 @@ module.exports = TracksArea = (function(superClass) {
 })(Component);
 
 
-},{"../Range.coffee":176,"../helpers.coffee":192,"./AudioTrack.coffee":180,"./BeatTrack.coffee":182,"./InfoBar.coffee":186,"./TrackControls.coffee":188,"./UnknownTrack.coffee":190,"easingjs":3,"react-dom":30}],190:[function(require,module,exports){
+},{"../Range.coffee":176,"../helpers.coffee":193,"./AudioTrack.coffee":181,"./BeatTrack.coffee":183,"./InfoBar.coffee":187,"./TrackControls.coffee":189,"./UnknownTrack.coffee":191,"easingjs":3,"react-dom":30}],191:[function(require,module,exports){
 var Component, E, Track, UnknownTrack, ref,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -26567,7 +26584,7 @@ module.exports = UnknownTrack = (function(superClass) {
 })(Component);
 
 
-},{"../helpers.coffee":192,"./Track.coffee":187}],191:[function(require,module,exports){
+},{"../helpers.coffee":193,"./Track.coffee":188}],192:[function(require,module,exports){
 var export_audio_buffer_as;
 
 module.exports = export_audio_buffer_as = function(audio_buffer, file_type, number_of_channels, sample_rate) {
@@ -26643,12 +26660,14 @@ module.exports = export_audio_buffer_as = function(audio_buffer, file_type, numb
 };
 
 
-},{}],192:[function(require,module,exports){
-var AudioClip, React, ReactScript;
+},{}],193:[function(require,module,exports){
+var React, ReactScript, audio_clips;
 
 React = require("react");
 
 ReactScript = require("react-script");
+
+audio_clips = require("./audio-clips.coffee");
 
 exports.E = ReactScript;
 
@@ -26669,12 +26688,10 @@ exports.GUID = function() {
   })()).join("");
 };
 
-AudioClip = require("./components/AudioClip.coffee");
-
 exports.get_clip_start_end = function(clip) {
   var clip_end, clip_start, ref, ref1;
   clip_start = clip.position;
-  clip_end = clip.position + ((ref = clip.length) != null ? ref : (ref1 = AudioClip.recordings[clip.recording_id]) != null ? ref1.length : void 0);
+  clip_end = clip.position + ((ref = clip.length) != null ? ref : (ref1 = audio_clips.recordings[clip.recording_id]) != null ? ref1.length : void 0);
   return {
     clip_start: clip_start,
     clip_end: clip_end
@@ -26694,7 +26711,7 @@ exports.normal_tracks_in = function(tracks) {
 };
 
 
-},{"./components/AudioClip.coffee":178,"react":175,"react-script":31}],193:[function(require,module,exports){
+},{"./audio-clips.coffee":178,"react":175,"react-script":31}],194:[function(require,module,exports){
 exports.document_version = 4;
 
 exports.stuff_version = 3;

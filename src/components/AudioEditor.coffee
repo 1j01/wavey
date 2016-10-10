@@ -6,7 +6,7 @@ ReactDOM = require "react-dom"
 Controls = require "./Controls.coffee"
 InfoBar = require "./InfoBar.coffee"
 TracksArea = require "./TracksArea.coffee"
-AudioClip = require "./AudioClip.coffee" # for class-level interface (@XXX)
+audio_clips = require "../audio-clips.coffee"
 Range = require "../Range.coffee" # should I rename this AudioRange? (there's a DOM thing called Range)
 localforage = require "localforage"
 
@@ -152,14 +152,14 @@ class exports.AudioEditor extends Component
 		for track in tracks when track.type is "audio"
 			for clip in track.clips
 				if clip.recording_id
-					recording = AudioClip.recordings[clip.recording_id]
+					recording = audio_clips.recordings[clip.recording_id]
 					if recording
 						max_length = Math.max max_length, clip.position + (clip.length ? recording.length ? 0)
 					else
 						InfoBar.warn "Not all tracks have finished loading."
 						return
 				else
-					audio_buffer = AudioClip.audio_buffers[clip.audio_id]
+					audio_buffer = audio_clips.audio_buffers[clip.audio_id]
 					if audio_buffer
 						max_length = Math.max max_length, clip.position + clip.length
 					else
@@ -247,9 +247,9 @@ class exports.AudioEditor extends Component
 			for clip in track.clips
 				loaded =
 					if clip.recording_id
-						AudioClip.recordings[clip.recording_id]?.chunks?
+						audio_clips.recordings[clip.recording_id]?.chunks?
 					else
-						AudioClip.audio_buffers[clip.audio_id]?
+						audio_clips.audio_buffers[clip.audio_id]?
 				unless loaded
 					InfoBar.warn "Not all tracks have finished loading."
 					throw new Error "Not all tracks have finished loading."
@@ -266,7 +266,7 @@ class exports.AudioEditor extends Component
 						source.gain = actx.createGain()
 						
 						if clip.recording_id
-							recording = AudioClip.recordings[clip.recording_id]
+							recording = audio_clips.recordings[clip.recording_id]
 							unless recording.audio_buffer?
 								if recording.chunks[0]?.length
 									recording.audio_buffer = actx.createBuffer recording.chunks.length, recording.chunks[0].length * recording.chunks[0][0].length, recording.sample_rate
@@ -277,7 +277,7 @@ class exports.AudioEditor extends Component
 								source.buffer = recording.audio_buffer
 							clip_length = clip.length ? recording.length
 						else
-							source.buffer = AudioClip.audio_buffers[clip.audio_id]
+							source.buffer = audio_clips.audio_buffers[clip.audio_id]
 							clip_length = clip.length
 						
 						source.connect source.gain
@@ -372,8 +372,8 @@ class exports.AudioEditor extends Component
 					chunk_ids: [[], []]
 					length: 0
 				
-				AudioClip.recordings[clip.recording_id] = recording
-				AudioClip.loading[clip.audio_id] = yes
+				audio_clips.recordings[clip.recording_id] = recording
+				audio_clips.loading[clip.audio_id] = yes
 				
 				current_chunk = 0
 				chunk_size = 2 ** 14 # samples (2 to an integer power between 8 and 14 inclusive)
@@ -614,7 +614,7 @@ class exports.AudioEditor extends Component
 			array_buffer = e.target.result
 			clip = {id: GUID(), audio_id: GUID(), position: 0, offset: 0}
 			
-			AudioClip.loading[clip.audio_id] = yes
+			audio_clips.loading[clip.audio_id] = yes
 			
 			localforage.setItem "audio:#{clip.audio_id}", array_buffer, (err)=>
 				if err
@@ -623,7 +623,7 @@ class exports.AudioEditor extends Component
 				else
 					# @TODO: optimize by decoding and storing in parallel, but keep good error handling
 					actx.decodeAudioData array_buffer, (buffer)=>
-						AudioClip.audio_buffers[clip.audio_id] = buffer
+						audio_clips.audio_buffers[clip.audio_id] = buffer
 						
 						clip.length = buffer.length / buffer.sampleRate
 						
@@ -693,7 +693,7 @@ class exports.AudioEditor extends Component
 		
 		if tracks isnt last_state.tracks
 			@update_playback()
-			AudioClip.load_clips tracks
+			audio_clips.load_clips tracks, InfoBar
 	
 	componentDidMount: =>
 		

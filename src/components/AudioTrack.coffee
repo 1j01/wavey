@@ -2,6 +2,7 @@
 {E, Component} = require "../helpers.coffee"
 Track = require "./Track.coffee"
 AudioClip = require "./AudioClip.coffee"
+audio_clips = require "../audio-clips.coffee"
 Range = require "../Range.coffee"
 
 module.exports =
@@ -18,7 +19,7 @@ class AudioTrack extends Component
 					boxSizing: "content-box"
 				
 				for clip, i in clips
-					recording = AudioClip.recordings[clip.recording_id]
+					recording = audio_clips.recordings[clip.recording_id]
 					recording_length =
 						if recording?
 							if recording.length?
@@ -42,7 +43,7 @@ class AudioTrack extends Component
 							if clip.recording_id?
 								recording?.sample_rate
 							else
-								AudioClip.audio_buffers[clip.audio_id]?.sampleRate
+								audio_clips.audio_buffers[clip.audio_id]?.sampleRate
 						data:
 							if clip.recording_id?
 								if recording?
@@ -50,7 +51,7 @@ class AudioTrack extends Component
 								else
 									null
 							else
-								AudioClip.audio_buffers[clip.audio_id]
+								audio_clips.audio_buffers[clip.audio_id]
 						editor: editor
 				if selection?
 					E ".selection",
