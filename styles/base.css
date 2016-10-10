@@ -2,9 +2,8 @@
 .controls {
 	padding: 0 3px;
 }
-.controls > * {
+.controls > * > * {
 	margin: 5px 2px;
-	display: inline-block;
 }
 .controls i {
 	display: inline-block;

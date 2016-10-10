@@ -2,7 +2,7 @@
 $background-color: black !default;
 
 .audio-editor {
-	background: $background-color;
+	background-color: $background-color;
 	color: $color;
 }
 
@@ -41,17 +41,8 @@ $background-color: black !default;
 	padding-left: 0;
 	vertical-align: middle;
 }
-.controls,
-.controls > span,
-.dropdown-button-container,
-.menu-positioner,
 .menu-positioner .menu {
-	background: inherit;
-}
-.controls .menu-positioner .menu {
-	top: 5px; /* = .controls > * { margin-bottom } */
-}
-.menu-positioner .menu {
+	background-color: $background-color;
 	border: 1px solid $color;
 	border-top: 0;
 }

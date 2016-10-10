@@ -1,6 +1,6 @@
 
 .audio-editor {
-	background: black;
+	background-color: black;
 	color: #0F0;
 }
 
@@ -39,13 +39,8 @@
 	padding-left: 0;
 	vertical-align: middle;
 }
-.controls, .controls > span, .dropdown-button-container, .menu-positioner, .menu-positioner .menu {
-	background: inherit;
-}
-.controls .menu-positioner .menu {
-	top: 5px; /* = .controls > * { margin-bottom } */
-}
 .menu-positioner .menu {
+	background-color: black;
 	border: 1px solid #0F0;
 	border-top: 0;
 }

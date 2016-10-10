@@ -12,45 +12,46 @@ class Controls extends Component
 			# role: "menubar"
 			# @TODO: left/right arrow keys?
 			# maybe a key (Esc, probably) to unfocus the controls and allow the normal keyboard shortcuts
-			E "button.button.play-pause",
-				class: if playing then "pause" else "play"
-				title: if playing then "Pause" else "Play"
-				onClick: if playing then pause else play
-				E "i.icon-#{if playing then "pause" else "play"}"
-			E "span.linked",
-				E "button.button.go-to-start",
-					onClick: seek_to_start
-					title: "Go to start"
-					E "i.icon-go-to-start"
-				E "button.button.go-to-end",
-					onClick: seek_to_end
-					title: "Go to end"
-					E "i.icon-go-to-end"
-			E DropdownButton,
-				mainButton:
-					if recording
-						E "button.button.record",
-							onClick: stop_recording
-							title: "Stop recording"
-							E "i.icon-stop"
-					else
-						E "button.button.record",
-							onClick: record
-							title: "Start recording"
-							E "i.icon-record"
-				title: "Precording options"
-				menu:
-					if precording_enabled
-						[
-							{label: "Record last minute", action: -> precord 60}
-							{label: "Record last 2 minutes", action: -> precord 60 * 2}
-							{label: "Record last 5 minutes", action: -> precord 60 * 5}
-						]
-					else
-						[
-							{label: "Enable precording", action: -> enable_precording 60 * 5}
-						]
-			E "span.floated", style: float: "right",
+			E ".playback-controls",
+				E "button.button.play-pause",
+					class: if playing then "pause" else "play"
+					title: if playing then "Pause" else "Play"
+					onClick: if playing then pause else play
+					E "i.icon-#{if playing then "pause" else "play"}"
+				E "span.linked",
+					E "button.button.go-to-start",
+						onClick: seek_to_start
+						title: "Go to start"
+						E "i.icon-go-to-start"
+					E "button.button.go-to-end",
+						onClick: seek_to_end
+						title: "Go to end"
+						E "i.icon-go-to-end"
+				E DropdownButton,
+					mainButton:
+						if recording
+							E "button.button.record",
+								onClick: stop_recording
+								title: "Stop recording"
+								E "i.icon-stop"
+						else
+							E "button.button.record",
+								onClick: record
+								title: "Start recording"
+								E "i.icon-record"
+					title: "Precording options"
+					menu:
+						if precording_enabled
+							[
+								{label: "Record last minute", action: -> precord 60}
+								{label: "Record last 2 minutes", action: -> precord 60 * 2}
+								{label: "Record last 5 minutes", action: -> precord 60 * 5}
+							]
+						else
+							[
+								{label: "Enable precording", action: -> enable_precording 60 * 5}
+							]
+			E ".document-controls",
 				E "button.button",
 					title: "Import tracks"
 					onClick: import_files

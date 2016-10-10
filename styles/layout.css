@@ -8,6 +8,12 @@
 	flex-direction: column;
 }
 
+.controls {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
 .menu-positioner {
 	position: relative;
 	display: inline-block;

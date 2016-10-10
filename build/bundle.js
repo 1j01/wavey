@@ -25441,7 +25441,7 @@ module.exports = Controls = (function(superClass) {
     var editor, enable_precording, export_as, id, import_files, name, pause, play, playing, precord, precording_enabled, record, recording, ref1, seek_to_end, seek_to_start, selection, set_theme, stop_recording, themes;
     ref1 = this.props, playing = ref1.playing, recording = ref1.recording, selection = ref1.selection, precording_enabled = ref1.precording_enabled, themes = ref1.themes, set_theme = ref1.set_theme, editor = ref1.editor;
     play = editor.play, pause = editor.pause, seek_to_start = editor.seek_to_start, seek_to_end = editor.seek_to_end, record = editor.record, stop_recording = editor.stop_recording, precord = editor.precord, enable_precording = editor.enable_precording, export_as = editor.export_as, import_files = editor.import_files;
-    return E(".controls", E("button.button.play-pause", {
+    return E(".controls", E(".playback-controls", E("button.button.play-pause", {
       "class": playing ? "pause" : "play",
       title: playing ? "Pause" : "Play",
       onClick: playing ? pause : play
@@ -25485,11 +25485,7 @@ module.exports = Controls = (function(superClass) {
           }
         }
       ]
-    }), E("span.floated", {
-      style: {
-        float: "right"
-      }
-    }, E("button.button", {
+    })), E(".document-controls", E("button.button", {
       title: "Import tracks",
       onClick: import_files
     }, E("i.icon-add-track")), E(DropdownButton, {
