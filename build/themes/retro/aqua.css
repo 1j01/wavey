@@ -12,6 +12,10 @@
 	stroke: aqua;
 }
 
+.midi-notes rect {
+	fill: aqua;
+}
+
 .audio-editor .info-bar .button {
 	font: inherit;
 	border: 1px solid aqua;

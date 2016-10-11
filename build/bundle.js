@@ -23681,7 +23681,7 @@ module.exports = Range = (function() {
 })();
 
 
-},{"./helpers.coffee":193,"./versions.coffee":194}],177:[function(require,module,exports){
+},{"./helpers.coffee":195,"./versions.coffee":196}],177:[function(require,module,exports){
 var AudioEditor, E, ReactDOM, container, localforage, ref, ref1, ref2, ref3, set_theme, theme_link, themes;
 
 localforage = require("localforage");
@@ -23739,7 +23739,7 @@ window.addEventListener("hashchange", render);
 render();
 
 
-},{"../build/themes.json":1,"./components/AudioEditor.coffee":180,"./helpers.coffee":193,"localforage":29,"react-dom":30}],178:[function(require,module,exports){
+},{"../build/themes.json":1,"./components/AudioEditor.coffee":180,"./helpers.coffee":195,"localforage":29,"react-dom":30}],178:[function(require,module,exports){
 var AudioClipStorage, localforage;
 
 localforage = require("localforage");
@@ -23958,7 +23958,7 @@ module.exports = AudioClip = (function(superClass) {
 })(Component);
 
 
-},{"../audio-clips.coffee":178,"../helpers.coffee":193,"./InfoBar.coffee":187,"localforage":29}],180:[function(require,module,exports){
+},{"../audio-clips.coffee":178,"../helpers.coffee":195,"./InfoBar.coffee":187,"localforage":29}],180:[function(require,module,exports){
 var Component, Controls, E, GUID, InfoBar, Range, ReactDOM, TracksArea, audio_clips, document_version, export_audio_buffer_as, get_clip_start_end, localforage, normal_tracks_in, ref, ref1, stuff_version,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -25276,7 +25276,7 @@ exports.AudioEditor = (function(superClass) {
 })(Component);
 
 
-},{"../Range.coffee":176,"../audio-clips.coffee":178,"../export.coffee":192,"../helpers.coffee":193,"../versions.coffee":194,"./Controls.coffee":184,"./InfoBar.coffee":187,"./TracksArea.coffee":190,"localforage":29,"react-dom":30}],181:[function(require,module,exports){
+},{"../Range.coffee":176,"../audio-clips.coffee":178,"../export.coffee":194,"../helpers.coffee":195,"../versions.coffee":196,"./Controls.coffee":184,"./InfoBar.coffee":187,"./TracksArea.coffee":192,"localforage":29,"react-dom":30}],181:[function(require,module,exports){
 var AudioClip, AudioTrack, Component, E, Range, Track, audio_clips, ref,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -25345,7 +25345,7 @@ module.exports = AudioTrack = (function(superClass) {
 })(Component);
 
 
-},{"../Range.coffee":176,"../audio-clips.coffee":178,"../helpers.coffee":193,"./AudioClip.coffee":179,"./Track.coffee":188}],182:[function(require,module,exports){
+},{"../Range.coffee":176,"../audio-clips.coffee":178,"../helpers.coffee":195,"./AudioClip.coffee":179,"./Track.coffee":190}],182:[function(require,module,exports){
 var BeatMarkings, Component, E, ref,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -25406,7 +25406,7 @@ module.exports = BeatMarkings = (function(superClass) {
 })(Component);
 
 
-},{"../helpers.coffee":193}],183:[function(require,module,exports){
+},{"../helpers.coffee":195}],183:[function(require,module,exports){
 var BeatMarkings, BeatTrack, Component, E, Track, ref,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -25440,7 +25440,7 @@ module.exports = BeatTrack = (function(superClass) {
 })(Component);
 
 
-},{"../helpers.coffee":193,"./BeatMarkings.coffee":182,"./Track.coffee":188}],184:[function(require,module,exports){
+},{"../helpers.coffee":195,"./BeatMarkings.coffee":182,"./Track.coffee":190}],184:[function(require,module,exports){
 var Component, Controls, DropdownButton, E, ref,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -25558,7 +25558,7 @@ module.exports = Controls = (function(superClass) {
 })(Component);
 
 
-},{"../helpers.coffee":193,"./DropdownButton.coffee":185}],185:[function(require,module,exports){
+},{"../helpers.coffee":195,"./DropdownButton.coffee":185}],185:[function(require,module,exports){
 var Component, DropdownButton, DropdownMenu, E, React, ReactDOM, ref,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -25726,7 +25726,7 @@ module.exports = DropdownButton = (function(superClass) {
 })(Component);
 
 
-},{"../helpers.coffee":193,"./DropdownMenu.coffee":186,"react":175,"react-dom":30}],186:[function(require,module,exports){
+},{"../helpers.coffee":195,"./DropdownMenu.coffee":186,"react":175,"react-dom":30}],186:[function(require,module,exports){
 var Component, DropdownMenu, E, ReactDOM, keys, ref,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty,
@@ -25843,7 +25843,7 @@ module.exports = DropdownMenu = (function(superClass) {
 })(Component);
 
 
-},{"../helpers.coffee":193,"react-dom":30}],187:[function(require,module,exports){
+},{"../helpers.coffee":195,"react-dom":30}],187:[function(require,module,exports){
 var Component, E, InfoBar, ref,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -26005,7 +26005,122 @@ class InfoBar extends Component
  */
 
 
-},{"../helpers.coffee":193}],188:[function(require,module,exports){
+},{"../helpers.coffee":195}],188:[function(require,module,exports){
+var Component, E, MIDINotes, ref,
+  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+ref = require("../helpers.coffee"), E = ref.E, Component = ref.Component;
+
+module.exports = MIDINotes = (function(superClass) {
+  extend(MIDINotes, superClass);
+
+  function MIDINotes() {
+    return MIDINotes.__super__.constructor.apply(this, arguments);
+  }
+
+  MIDINotes.prototype.render = function() {
+    var height, key, length, middle_midi_note, n_notes_vertically, note, notes, ref1, scale, style, width;
+    ref1 = this.props, notes = ref1.notes, scale = ref1.scale, style = ref1.style;
+    length = 1000;
+    width = (length != null ? length : 0) * scale;
+    height = 80;
+    n_notes_vertically = 40;
+    middle_midi_note = 60;
+    return E("svg.midi-notes", {
+      style: style,
+      width: width,
+      height: height,
+      data: {
+        length: length
+      },
+      xmlns: "http://www.w3.org/svg/2000",
+      viewBox: "0 0 " + width + " " + height
+    }, (function() {
+      var i, len, results;
+      if (width) {
+        key = 0;
+        results = [];
+        for (i = 0, len = notes.length; i < len; i++) {
+          note = notes[i];
+          key += 1;
+          results.push(E("rect.note", {
+            key: key,
+            x: note.t * scale,
+            y: (1 / 2 + (middle_midi_note - note.note) / n_notes_vertically) * height,
+            width: note.length * scale - 1,
+            height: height / n_notes_vertically
+          }));
+        }
+        return results;
+      }
+    })());
+  };
+
+  MIDINotes.prototype.shouldComponentUpdate = function(last_props) {
+    return this.props.data !== last_props.data || this.props.length !== last_props.length || this.props.scale !== last_props.scale;
+  };
+
+  return MIDINotes;
+
+})(Component);
+
+
+},{"../helpers.coffee":195}],189:[function(require,module,exports){
+var Component, E, MIDINotes, MIDITrack, Range, Track, audio_clips, ref,
+  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+ref = require("../helpers.coffee"), E = ref.E, Component = ref.Component;
+
+Track = require("./Track.coffee");
+
+MIDINotes = require("./MIDINotes.coffee");
+
+audio_clips = require("../audio-clips.coffee");
+
+Range = require("../Range.coffee");
+
+module.exports = MIDITrack = (function(superClass) {
+  extend(MIDITrack, superClass);
+
+  function MIDITrack() {
+    return MIDITrack.__super__.constructor.apply(this, arguments);
+  }
+
+  MIDITrack.prototype.render = function() {
+    var editor, muted, notes, pinned, ref1, scale, selection, track;
+    ref1 = this.props, track = ref1.track, selection = ref1.selection, scale = ref1.scale, editor = ref1.editor;
+    notes = track.notes, muted = track.muted, pinned = track.pinned;
+    return E(Track, {
+      track: track,
+      editor: editor
+    }, E(".midi-trackstuff", {
+      style: {
+        position: "relative",
+        height: 80,
+        boxSizing: "content-box"
+      }
+    }, E(MIDINotes, {
+      scale: scale,
+      notes: notes,
+      editor: editor
+    }), selection != null ? E(".selection", {
+      key: "selection",
+      className: (selection.end() === selection.start() ? "cursor" : void 0),
+      style: {
+        left: scale * selection.start(),
+        width: scale * (selection.end() - selection.start())
+      }
+    }) : void 0));
+  };
+
+  return MIDITrack;
+
+})(Component);
+
+
+},{"../Range.coffee":176,"../audio-clips.coffee":178,"../helpers.coffee":195,"./MIDINotes.coffee":188,"./Track.coffee":190}],190:[function(require,module,exports){
 var Component, E, Track, ref,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -26040,7 +26155,7 @@ module.exports = Track = (function(superClass) {
 })(Component);
 
 
-},{"../helpers.coffee":193}],189:[function(require,module,exports){
+},{"../helpers.coffee":195}],191:[function(require,module,exports){
 var Component, E, TrackControls, ref,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -26106,8 +26221,8 @@ module.exports = TrackControls = (function(superClass) {
 })(Component);
 
 
-},{"../helpers.coffee":193}],190:[function(require,module,exports){
-var AudioTrack, BeatTrack, Component, E, InfoBar, Range, ReactDOM, TrackControls, TracksArea, UnknownTrack, easing, ref,
+},{"../helpers.coffee":195}],192:[function(require,module,exports){
+var AudioTrack, BeatTrack, Component, E, InfoBar, MIDITrack, Range, ReactDOM, TrackControls, TracksArea, UnknownTrack, easing, ref,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -26123,6 +26238,8 @@ TrackControls = require("./TrackControls.coffee");
 BeatTrack = require("./BeatTrack.coffee");
 
 AudioTrack = require("./AudioTrack.coffee");
+
+MIDITrack = require("./MIDITrack.coffee");
 
 UnknownTrack = require("./UnknownTrack.coffee");
 
@@ -26551,7 +26668,7 @@ module.exports = TracksArea = (function(superClass) {
 })(Component);
 
 
-},{"../Range.coffee":176,"../helpers.coffee":193,"./AudioTrack.coffee":181,"./BeatTrack.coffee":183,"./InfoBar.coffee":187,"./TrackControls.coffee":189,"./UnknownTrack.coffee":191,"easingjs":3,"react-dom":30}],191:[function(require,module,exports){
+},{"../Range.coffee":176,"../helpers.coffee":195,"./AudioTrack.coffee":181,"./BeatTrack.coffee":183,"./InfoBar.coffee":187,"./MIDITrack.coffee":189,"./TrackControls.coffee":191,"./UnknownTrack.coffee":193,"easingjs":3,"react-dom":30}],193:[function(require,module,exports){
 var Component, E, Track, UnknownTrack, ref,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -26582,7 +26699,7 @@ module.exports = UnknownTrack = (function(superClass) {
 })(Component);
 
 
-},{"../helpers.coffee":193,"./Track.coffee":188}],192:[function(require,module,exports){
+},{"../helpers.coffee":195,"./Track.coffee":190}],194:[function(require,module,exports){
 var export_audio_buffer_as;
 
 module.exports = export_audio_buffer_as = function(audio_buffer, file_type, number_of_channels, sample_rate) {
@@ -26658,7 +26775,7 @@ module.exports = export_audio_buffer_as = function(audio_buffer, file_type, numb
 };
 
 
-},{}],193:[function(require,module,exports){
+},{}],195:[function(require,module,exports){
 var React, ReactScript, audio_clips;
 
 React = require("react");
@@ -26709,7 +26826,7 @@ exports.normal_tracks_in = function(tracks) {
 };
 
 
-},{"./audio-clips.coffee":178,"react":175,"react-script":31}],194:[function(require,module,exports){
+},{"./audio-clips.coffee":178,"react":175,"react-script":31}],196:[function(require,module,exports){
 exports.document_version = 4;
 
 exports.stuff_version = 3;

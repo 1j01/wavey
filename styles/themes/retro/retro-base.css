@@ -14,6 +14,10 @@ $background-color: black !default;
 	stroke: $color;
 }
 
+.midi-notes rect {
+	fill: $color;
+}
+
 .audio-editor .info-bar .button {
 	font: inherit;
 	border: 1px solid $color;

@@ -12,6 +12,10 @@
 	stroke: #FFA600;
 }
 
+.midi-notes rect {
+	fill: #FFA600;
+}
+
 .audio-editor .info-bar .button {
 	font: inherit;
 	border: 1px solid #FFA600;

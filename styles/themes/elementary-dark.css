@@ -14,6 +14,10 @@ but on the top/bottom it's cut off by the border of the track */
 	stroke: white;
 	-webkit-filter: drop-shadow(0 1px rgba(0,0,0,.4));
 }
+.midi-notes rect {
+	fill: white;
+	-webkit-filter: drop-shadow(0 1px rgba(0,0,0,.4));
+}
 
 .dropdown-menu {
 	/* XXX: FIXME: should be done from elementary-shared.css */

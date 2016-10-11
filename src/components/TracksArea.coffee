@@ -5,6 +5,7 @@ InfoBar = require "./InfoBar.coffee"
 TrackControls = require "./TrackControls.coffee"
 BeatTrack = require "./BeatTrack.coffee"
 AudioTrack = require "./AudioTrack.coffee"
+MIDITrack = require "./MIDITrack.coffee"
 UnknownTrack = require "./UnknownTrack.coffee"
 Range = require "../Range.coffee"
 easing = require "easingjs"
@@ -214,6 +215,19 @@ class TracksArea extends Component
 							}
 						else
 							E UnknownTrack, {key: track.id, track, scale, editor}
+				
+				# E MIDITrack, {
+				# 	key: "midi-test-track"
+				# 	track: {
+				# 		notes: [
+				# 			{t: 0, length: 1/4, note: 65}
+				# 			{t: 1/4, length: 1/4, note: 66}
+				# 			{t: 2/4, length: 2/4, note: 68}
+				# 		]
+				# 	}
+				# 	scale, editor
+				# 	selection: (@props.selection if @props.selection?.containsTrack track)
+				# }
 				
 				if document_is_basically_empty
 					E ".track.getting-started.timeline-independent", {key: "getting-on-track"},
