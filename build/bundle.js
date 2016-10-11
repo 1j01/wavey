@@ -25828,7 +25828,7 @@ module.exports = DropdownMenu = (function(superClass) {
     linked = dropdown_button_container.querySelector(".linked, button");
     if (linked != null) {
       linked_rect = linked.getBoundingClientRect();
-      if ((linked_rect != null ? linked_rect : rect).left + rect.width >= document.body.clientWidth) {
+      if (linked_rect.left + rect.width >= document.body.clientWidth) {
         return el.style.left = (-rect.width) + "px";
       } else {
         return el.style.left = (-linked_rect.width) + "px";

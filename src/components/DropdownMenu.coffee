@@ -58,7 +58,7 @@ class DropdownMenu extends Component
 		linked = dropdown_button_container.querySelector(".linked, button")
 		if linked?
 			linked_rect = linked.getBoundingClientRect()
-			if (linked_rect ? rect).left + rect.width >= document.body.clientWidth
+			if linked_rect.left + rect.width >= document.body.clientWidth
 				el.style.left = "#{-rect.width}px"
 			else
 				el.style.left = "#{-linked_rect.width}px"
