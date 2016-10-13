@@ -4,11 +4,6 @@
 
 .audio-editor {
 	background: #dedede;
-	color: black;
-}
-
-.audio-clip {
-	stroke: #2F2F2F;
 }
 
 /* @FIXME: first beat marking looks bad against the edge */

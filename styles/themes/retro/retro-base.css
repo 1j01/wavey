@@ -24,8 +24,9 @@ $background-color: black !default;
 	padding: 0.2em 0.4em;
 	border-radius: 2px;
 }
+/* TODO: :hover/:active/:focus styles */
 
-/* @FIXME: accessibility */
+/* FIXME: accessibility */
 .audio-editor button {
 	background: transparent;
 	border: 0;

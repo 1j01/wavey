@@ -1,4 +1,8 @@
 
+.audio-editor {
+	@extend .background;
+}
+
 .track-content {
 	@extend .notebook;
 }
@@ -58,7 +62,7 @@
 }
 */
 
-.button[aria-pressed="true"] {
+.audio-editor .button[aria-pressed="true"] {
 	@extend .button:active;
 }
 
@@ -121,6 +125,15 @@ XXX: FIXME: Y U NO WORK?
 	display: flex;
 	align-items: center;
 	padding: 0 3px;
+}
+
+.audio-clip {
+	stroke: white;
+	stroke: currentColor;
+}
+.midi-notes rect {
+	fill: white;
+	fill: currentColor;
 }
 
 .getting-started p {
