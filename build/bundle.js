@@ -26444,7 +26444,7 @@ module.exports = TracksArea = (function(superClass) {
   function TracksArea() {
     this.componentDidUpdate = bind(this.componentDidUpdate, this);
     this.componentWillUpdate = bind(this.componentWillUpdate, this);
-    return TracksArea.__super__.constructor.apply(this, arguments);
+    this.offset_y_fns_by_track_id = {};
   }
 
   TracksArea.prototype.render = function() {
@@ -26752,7 +26752,7 @@ module.exports = TracksArea = (function(superClass) {
   };
 
   TracksArea.prototype.animate = function() {
-    var any_old_track_content_el, fn, i, j, k, l, len, len1, len2, position, position_indicator_el, rect, ref1, scale, scroll_x, track_content_el, track_controls_el, track_controls_els, track_el, track_els, track_rect, tracks_area_el, tracks_area_rect, tracks_content_area_el, tracks_content_area_rect, y_offset;
+    var any_old_track_content_el, fn, i, j, k, l, len, len1, len2, position, position_indicator_el, rect, ref1, scale, scroll_x, track_content_el, track_controls_el, track_controls_els, track_el, track_els, track_rect, tracks_area_el, tracks_area_rect, tracks_content_area_el, tracks_content_area_rect, y_offset, y_offset_fns;
     scale = this.props.scale;
     this.animation_frame = requestAnimationFrame((function(_this) {
       return function() {
@@ -26775,13 +26775,10 @@ module.exports = TracksArea = (function(superClass) {
     for (k = 0, len1 = track_els.length; k < len1; k++) {
       track_el = track_els[k];
       track_content_el = track_el.querySelector(".track-content > *");
-      if (track_el.y_offset_fns == null) {
-        track_el.y_offset_fns = [];
-      }
+      y_offset_fns = (ref1 = this.offset_y_fns_by_track_id[track_el.dataset.trackId]) != null ? ref1 : [];
       y_offset = 0;
-      ref1 = track_el.y_offset_fns;
-      for (l = 0, len2 = ref1.length; l < len2; l++) {
-        fn = ref1[l];
+      for (l = 0, len2 = y_offset_fns.length; l < len2; l++) {
+        fn = y_offset_fns[l];
         y_offset += fn();
       }
       track_el.style.transform = "translate(" + scroll_x + "px, " + y_offset + "px)";
@@ -26821,28 +26818,30 @@ module.exports = TracksArea = (function(superClass) {
       current_rect = track_el.getBoundingClientRect();
       last_rect = this.last_track_rects[track_el.dataset.trackId];
       if (last_rect != null) {
-        (function(last_rect, current_rect) {
-          var delta_y, fn, start_time, transition_seconds;
-          delta_y = last_rect.top - current_rect.top;
-          if (delta_y) {
-            transition_seconds = 0.3;
-            start_time = Date.now();
-            if (track_el.y_offset_fns == null) {
-              track_el.y_offset_fns = [];
+        (function(_this) {
+          return (function(last_rect, current_rect) {
+            var base, delta_y, fn, name, start_time, transition_seconds, y_offset_fns;
+            delta_y = last_rect.top - current_rect.top;
+            if (delta_y) {
+              transition_seconds = 0.3;
+              start_time = Date.now();
+              y_offset_fns = (base = _this.offset_y_fns_by_track_id)[name = track_el.dataset.trackId] != null ? base[name] : base[name] = [];
+              fn = function() {
+                var index, pos;
+                pos = (Date.now() - start_time) / 1000 / transition_seconds;
+                if (pos > 1) {
+                  index = y_offset_fns.indexOf(fn);
+                  if (index > -1) {
+                    y_offset_fns.splice(index, 1);
+                  }
+                  return 0;
+                }
+                return delta_y * easing.easeInOutQuart(1 - pos);
+              };
+              return y_offset_fns.push(fn);
             }
-            fn = function() {
-              var index, pos;
-              pos = (Date.now() - start_time) / 1000 / transition_seconds;
-              if (pos > 1) {
-                index = track_el.y_offset_fns.indexOf(fn);
-                track_el.y_offset_fns.splice(index, 1);
-                return 0;
-              }
-              return delta_y * easing.easeInOutQuart(1 - pos);
-            };
-            return track_el.y_offset_fns.push(fn);
-          }
-        })(last_rect, current_rect);
+          });
+        })(this)(last_rect, current_rect);
       }
     }
     cancelAnimationFrame(this.animation_frame);

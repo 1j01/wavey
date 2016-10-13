@@ -12,6 +12,9 @@ easing = require "easingjs"
 
 module.exports =
 class TracksArea extends Component
+	constructor: ->
+		@offset_y_fns_by_track_id = {}
+	
 	render: ->
 		{tracks, position, position_time, scale, playing, editor} = @props
 		
@@ -257,9 +260,9 @@ class TracksArea extends Component
 		scroll_x = tracks_content_area_el.scrollLeft
 		for track_el in track_els
 			track_content_el = track_el.querySelector(".track-content > *")
-			track_el.y_offset_fns ?= []
+			y_offset_fns = @offset_y_fns_by_track_id[track_el.dataset.trackId] ? []
 			y_offset = 0
-			y_offset += fn() for fn in track_el.y_offset_fns
+			y_offset += fn() for fn in y_offset_fns
 			track_el.style.transform = "translate(#{scroll_x}px, #{y_offset}px)"
 			unless track_el.classList.contains("timeline-independent")
 				track_content_el.style.transform = "translateX(#{-scroll_x}px)"
@@ -283,27 +286,27 @@ class TracksArea extends Component
 	
 	componentDidUpdate: (last_props, last_state)=>
 		# measure differences in track y positions
-		# and add track transitions
+		# and queue track transitions
 		track_els = ReactDOM.findDOMNode(@).querySelectorAll(".track")
 		for track_el, track_index in track_els
 			current_rect = track_el.getBoundingClientRect()
 			last_rect = @last_track_rects[track_el.dataset.trackId]
 			if last_rect?
-				do (last_rect, current_rect)->
+				do (last_rect, current_rect)=>
 					delta_y = last_rect.top - current_rect.top
 					if delta_y
 						# add a transition
 						transition_seconds = 0.3
 						start_time = Date.now()
-						track_el.y_offset_fns ?= []
-						fn = ->
+						y_offset_fns = @offset_y_fns_by_track_id[track_el.dataset.trackId] ?= []
+						fn = =>
 							pos = (Date.now() - start_time) / 1000 / transition_seconds
 							if pos > 1
-								index = track_el.y_offset_fns.indexOf(fn)
-								track_el.y_offset_fns.splice(index, 1)
+								index = y_offset_fns.indexOf(fn)
+								y_offset_fns.splice(index, 1) if index > -1
 								return 0
 							delta_y * easing.easeInOutQuart(1 - pos)
-						track_el.y_offset_fns.push(fn)
+						y_offset_fns.push(fn)
 		
 		# update immediately to avoid one-frame artifacts
 		cancelAnimationFrame @animation_frame
