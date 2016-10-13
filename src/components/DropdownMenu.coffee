@@ -41,13 +41,17 @@ class DropdownMenu extends Component
 				
 				e.preventDefault()
 			
-			for item in items when item?
-				E ".menu-item",
-					key: item.label
-					role: "menuitem"
-					tabIndex: 0
-					onClick: item.action
-					item.label
+			for item, i in items when item?
+				# XXX: shouldn't really need keys here
+				if item.type is "separator"
+					E "hr", key: "i"
+				else
+					E ".menu-item",
+						key: item.label
+						role: "menuitem"
+						tabIndex: 0
+						onClick: item.action
+						item.label
 	componentDidMount: -> @updateOffset()
 	componentDidUpdate: -> @updateOffset()
 	updateOffset: ->

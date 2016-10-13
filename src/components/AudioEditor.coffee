@@ -9,6 +9,8 @@ TracksArea = require "./TracksArea.coffee"
 audio_clips = require "../audio-clips.coffee"
 Range = require "../Range.coffee" # should I rename this AudioRange? (there's a DOM thing called Range)
 localforage = require "localforage"
+webmidi = require "webmidi"
+# async = require "async"
 
 class exports.AudioEditor extends Component
 	
@@ -34,8 +36,15 @@ class exports.AudioEditor extends Component
 			selection: null
 			recording: no
 			audio_stream: null
+			midi_inputs: []
 			precording_enabled: no
 			moving_selection: no
+		
+		@_setup_midi =>
+			do update_inputs = =>
+				@setState midi_inputs: webmidi.inputs
+			webmidi.addListener "connected", update_inputs
+			webmidi.addListener "disconnected", update_inputs
 	
 	save: ->
 		{document_id} = @props
@@ -312,7 +321,7 @@ class exports.AudioEditor extends Component
 	end_recording: =>
 		# method overridden by @record
 	
-	get_audio_stream: (success_callback)=>
+	_get_audio_stream: (success_callback)=>
 		if @state.audio_stream
 			return success_callback(@state.audio_stream)
 		
@@ -331,29 +340,105 @@ class exports.AudioEditor extends Component
 						InfoBar.warn "Failed to start recording: #{error.name}" + if error.message then ": #{error.message}" else ""
 				console.error "navigator.mediaDevices.getUserMedia", error
 	
-	record: =>
+	_setup_midi: (success_callback)=>
+		webmidi.enable (error)=>
+			if error
+				unless error.message?.match(/The Web MIDI API is not supported/)
+					InfoBar.warn "Failed gain MIDI access: #{error.name}" + if error.message then ": #{error.message}" else ""
+				console.warn "webmidi could not be enabled.", error
+			else
+				console?.log "webmidi enabled!"
+				success_callback()
+	
+	_find_places_to_record: (wanted_track_types, mutable_tracks)=>
+		{selection} = @state
+		# for now at least we'll try to do behavior where
+		# if we can't place each recording where the selection is
+		# we'll just add new tracks for each recording
+		# we might keep this behavior, especially because you would want it to scroll to the tracks where you're recording,
+		# so you wouldn't want it to start recording one track at your selection and another at the bottom
+		
+		tracks_to_use_by_type = {}
+		tracks_to_use = []
+		
+		if selection?
+			start_position = selection.start()
+			
+			# available_tracks = (track for track in @get_sorted_tracks(mutable_tracks) when selection.containsTrack(track))
+			available_tracks_by_type = {}
+			for track in @get_sorted_tracks(mutable_tracks) when selection.containsTrack(track)
+				available_tracks_by_type[track.type] ?= []
+				available_tracks_by_type[track.type].push(track)
+			
+			for track_type in wanted_track_types
+				if available_tracks_by_type[track_type]?[0]?
+					track = available_tracks_by_type[track_type].shift()
+					switch track.type
+						when "audio"
+							for clip in track.clips
+								{clip_start, clip_end} = get_clip_start_end clip
+								if clip_end > start_position
+									track = null
+						when "midi"
+							for note in track.notes
+								if note.t + note.length > start_position
+									track = null
+						else
+							throw new Error "Unhandled recording track type #{track_type}"
+					if track?
+						tracks_to_use_by_type[track.type] ?= []
+						tracks_to_use_by_type[track_type].push(track)
+						tracks_to_use.push(track)
+		
+		if tracks_to_use.length < wanted_track_types.length
+			tracks_to_use_by_type = {}
+			tracks_to_use = []
+			start_position ?= 0
+			
+			for track_type in wanted_track_types
+				switch track_type
+					when "audio"
+						track = {id: GUID(), type: "audio", clips: []}
+					when "midi"
+						track = {id: GUID(), type: "midi", notes: []}
+					else
+						throw new Error "Unhandled recording track type #{track_type}"
+				mutable_tracks.push track
+				tracks_to_use_by_type[track.type] ?= []
+				tracks_to_use_by_type[track_type].push(track)
+				tracks_to_use.push(track)
+		
+		if start_position > 0
+			@select new Range start_position, start_position, (track.id for track in tracks_to_use)
+
+		{start_position, tracks_to_use_by_type}
+	
+	record_midi: (midi_input)=>
 		return if @state.recording
-		@get_audio_stream (stream)=>
+		
+		# recording_id = GUID()
+		# @undoable (tracks)=>
+			# {start_position, tracks_to_use_by_type} = @_find_places_to_record(["midi"], tracks)
+			# [track] = tracks_to_use_by_type.midi
+			
+			# console?.log track
+		InfoBar.warn "MIDI recording is not yet implemented"
+	
+	record: =>
+		# TODO: you should actually while recording be able to start recording with more (or less) devices
+		return if @state.recording
+		# wanted_track_types = ["audio", "midi"]
+		# tracks_to_use_by_type = _find_places_to_record(wanted_track_types)
+		# console.log {wanted_track_types, tracks_to_use_by_type}
+		
+		# audio_stream = null
+		# midi_inputs = []
+		
+		@_get_audio_stream (stream)=>
 			recording_id = GUID()
 			@undoable (tracks)=>
-				{selection} = @state
-				if selection?
-					start_position = selection.start()
-					sorted_audio_tracks = (track for track in @get_sorted_tracks tracks when track.type is "audio")
-					track = selection.firstTrack(sorted_audio_tracks)
-				if track?
-					for clip in track.clips
-						{clip_start, clip_end} = get_clip_start_end clip
-						if clip_end > start_position
-							track = null # we'll create a new track, but keep the start position
-				# @TODO: maybe make a helper that adds a track if there's no selection
-				# and inserts a given clip
-				if not track?
-					start_position ?= 0
-					track = {id: GUID(), type: "audio", clips: []}
-					tracks.push track
-					if start_position > 0
-						@select new Range start_position, start_position, [track.id]
+				{start_position, tracks_to_use_by_type} = @_find_places_to_record(["audio"], tracks)
+				[track] = tracks_to_use_by_type.audio
 				
 				clip =
 					id: GUID()

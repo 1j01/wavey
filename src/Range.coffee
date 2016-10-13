@@ -15,6 +15,8 @@ class Range
 	end: -> Math.max(@a, @b)
 	length: -> @end() - @start()
 	
+	# XXX?: these methods that take sorted tracks are kinda weird
+	
 	firstTrack: (sorted_tracks)->
 		for track in sorted_tracks
 			return track if track.id in @track_ids

@@ -87,6 +87,11 @@ $background-color: black !default;
 .menu-item:focus {
 	background: color($secondary-color alpha(20%));
 }
+.menu hr {
+	border: 0;
+	margin: 0;
+	border-bottom: 1px solid color($color alpha(50%));
+}
 
 .selection {
 	box-shadow: 0 0 0px 1px color($secondary-color alpha(50%));

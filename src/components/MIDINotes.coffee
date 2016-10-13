@@ -7,7 +7,9 @@ class MIDINotes extends Component
 	render: ->
 		{notes, scale, style} = @props
 		
-		length = 1000 # TODO: max of all notes
+		length = 0
+		for note in notes
+			length = Math.max(length, note.t + note.length)
 		width = (length ? 0) * scale
 		height = 80 # = .track-content {height} (TODO: DRY these magic numbers)
 		n_notes_vertically = 40

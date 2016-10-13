@@ -23405,6 +23405,38 @@ module.exports = shouldUseNative() ? Object.assign : function (target, source) {
 module.exports = require('./lib/React');
 
 },{"./lib/React":57}],176:[function(require,module,exports){
+/*
+
+WebMidi v2.0.0-beta.1
+
+Tame the Web MIDI API. Send and receive MIDI messages with ease. Control instruments with user-friendly functions (playNote, sendPitchBend, etc.). React to MIDI input with simple event listeners (noteon, pitchbend, controlchange, etc.).
+https://github.com/cotejp/webmidi
+
+
+The MIT License (MIT)
+
+Copyright (c) 2015-2016, Jean-Philippe Côté
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+associated documentation files (the "Software"), to deal in the Software without restriction,
+including without limitation the rights to use, copy, modify, merge, publish, distribute,
+sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial
+portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES
+OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+*/
+
+!function(scope){"use strict";function WebMidi(){if(WebMidi.prototype._singleton)throw new Error("WebMidi is a singleton, it cannot be instantiated directly.");WebMidi.prototype._singleton=this,this._inputs=[],this._outputs=[],this._userHandlers={},this._stateChangeQueue=[],this._processingStateChange=!1,this._midiInterfaceEvents=["connected","disconnected"],this._notes=["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"],this._semitones={C:0,D:2,E:4,F:5,G:7,A:9,B:11},Object.defineProperties(this,{MIDI_SYSTEM_MESSAGES:{value:{sysex:240,timecode:241,songposition:242,songselect:243,tuningrequest:246,sysexend:247,clock:248,start:250,"continue":251,stop:252,activesensing:254,reset:255,unknownsystemmessage:-1},writable:!1,enumerable:!0,configurable:!1},MIDI_CHANNEL_MESSAGES:{value:{noteoff:8,noteon:9,keyaftertouch:10,controlchange:11,channelmode:11,programchange:12,channelaftertouch:13,pitchbend:14},writable:!1,enumerable:!0,configurable:!1},MIDI_REGISTERED_PARAMETER:{value:{pitchbendrange:[0,0],channelfinetuning:[0,1],channelcoarsetuning:[0,2],tuningprogram:[0,3],tuningbank:[0,4],modulationrange:[0,5],azimuthangle:[61,0],elevationangle:[61,1],gain:[61,2],distanceratio:[61,3],maximumdistance:[61,4],maximumdistancegain:[61,5],referencedistanceratio:[61,6],panspreadangle:[61,7],rollangle:[61,8]},writable:!1,enumerable:!0,configurable:!1},MIDI_CONTROL_CHANGE_MESSAGES:{value:{bankselectcoarse:0,modulationwheelcoarse:1,breathcontrollercoarse:2,footcontrollercoarse:4,portamentotimecoarse:5,dataentrycoarse:6,volumecoarse:7,balancecoarse:8,pancoarse:10,expressioncoarse:11,effectcontrol1coarse:12,effectcontrol2coarse:13,generalpurposeslider1:16,generalpurposeslider2:17,generalpurposeslider3:18,generalpurposeslider4:19,bankselectfine:32,modulationwheelfine:33,breathcontrollerfine:34,footcontrollerfine:36,portamentotimefine:37,dataentryfine:38,volumefine:39,balancefine:40,panfine:42,expressionfine:43,effectcontrol1fine:44,effectcontrol2fine:45,holdpedal:64,portamento:65,sustenutopedal:66,softpedal:67,legatopedal:68,hold2pedal:69,soundvariation:70,resonance:71,soundreleasetime:72,soundattacktime:73,brightness:74,soundcontrol6:75,soundcontrol7:76,soundcontrol8:77,soundcontrol9:78,soundcontrol10:79,generalpurposebutton1:80,generalpurposebutton2:81,generalpurposebutton3:82,generalpurposebutton4:83,reverblevel:91,tremololevel:92,choruslevel:93,celestelevel:94,phaserlevel:95,databuttonincrement:96,databuttondecrement:97,nonregisteredparametercoarse:98,nonregisteredparameterfine:99,registeredparametercoarse:100,registeredparameterfine:101},writable:!1,enumerable:!0,configurable:!1},MIDI_CHANNEL_MODE_MESSAGES:{value:{allsoundoff:120,resetallcontrollers:121,localcontrol:122,allnotesoff:123,omnimodeoff:124,omnimodeon:125,monomodeon:126,polymodeon:127},writable:!1,enumerable:!0,configurable:!1}}),Object.defineProperties(this,{supported:{enumerable:!0,get:function(){return"requestMIDIAccess"in navigator}},enabled:{enumerable:!0,get:function(){return void 0!==this["interface"]}.bind(this)},inputs:{enumerable:!0,get:function(){return this._inputs}.bind(this)},outputs:{enumerable:!0,get:function(){return this._outputs}.bind(this)},sysexEnabled:{enumerable:!0,get:function(){return!(!this["interface"]||!this["interface"].sysexEnabled)}.bind(this)},time:{enumerable:!0,get:function(){return window.performance.now()}}})}function Input(midiInput){var that=this;this._userHandlers={channel:{},system:{}},this._midiInput=midiInput,Object.defineProperties(this,{connection:{enumerable:!0,get:function(){return that._midiInput.connection}},id:{enumerable:!0,get:function(){return that._midiInput.id}},manufacturer:{enumerable:!0,get:function(){return that._midiInput.manufacturer}},name:{enumerable:!0,get:function(){return that._midiInput.name}},state:{enumerable:!0,get:function(){return that._midiInput.state}}}),this._initializeUserHandlers()}function Output(midiOutput){var that=this;this._midiOutput=midiOutput,Object.defineProperties(this,{connection:{enumerable:!0,get:function(){return that._midiOutput.connection}},id:{enumerable:!0,get:function(){return that._midiOutput.id}},manufacturer:{enumerable:!0,get:function(){return that._midiOutput.manufacturer}},name:{enumerable:!0,get:function(){return that._midiOutput.name}},state:{enumerable:!0,get:function(){return that._midiOutput.state}}})}var wm=new WebMidi;WebMidi.prototype.enable=function(callback,sysex){if(!this.enabled){if(!callback||"function"!=typeof callback)throw new TypeError("The callback parameter is mandatory and must be a function.");return this.supported?void navigator.requestMIDIAccess({sysex:sysex}).then(function(midiAccess){this["interface"]=midiAccess,this._resetInterfaceUserHandlers(),this["interface"].onstatechange=this._onInterfaceStateChange.bind(this),this._onInterfaceStateChange(null),callback.bind(this)()}.bind(this),function(err){callback.bind(this)(err)}.bind(this)):void callback(new Error("The Web MIDI API is not supported by your browser."))}},WebMidi.prototype.disable=function(){if(!this.supported)throw new Error("The Web MIDI API is not supported by your browser.");this["interface"]=void 0,this._inputs=[],this._outputs=[],this._resetInterfaceUserHandlers()},WebMidi.prototype.addListener=function(type,listener){if(!this.enabled)throw new Error("WebMidi must be enabled before adding event listeners.");if("function"!=typeof listener)throw new TypeError("The 'listener' parameter must be a function.");if(!(this._midiInterfaceEvents.indexOf(type)>=0))throw new TypeError("The specified event type is not supported.");return this._userHandlers[type].push(listener),this},WebMidi.prototype.hasListener=function(type,listener){if(!this.enabled)throw new Error("WebMidi must be enabled before checking event listeners.");if("function"!=typeof listener)throw new TypeError("The 'listener' parameter must be a function.");if(!(this._midiInterfaceEvents.indexOf(type)>=0))throw new TypeError("The specified event type is not supported.");for(var o=0;o<this._userHandlers[type].length;o++)if(this._userHandlers[type][o]===listener)return!0;return!1},WebMidi.prototype.removeListener=function(type,listener){if(!this.enabled)throw new Error("WebMidi must be enabled before removing event listeners.");if(void 0!==listener&&"function"!=typeof listener)throw new TypeError("The 'listener' parameter must be a function.");if(this._midiInterfaceEvents.indexOf(type)>=0)if(listener)for(var o=0;o<this._userHandlers[type].length;o++)this._userHandlers[type][o]===listener&&this._userHandlers[type].splice(o,1);else this._userHandlers[type]=[];else{if(void 0!==type)throw new TypeError("The specified event type is not supported.");this._resetInterfaceUserHandlers()}return this},WebMidi.prototype.getInputById=function(id){if(!this.enabled)throw new Error("WebMidi is not enabled.");for(var i=0;i<this.inputs.length;i++)if(this.inputs[i].id===id)return this.inputs[i];return!1},WebMidi.prototype.getOutputById=function(id){if(!this.enabled)throw new Error("WebMidi is not enabled.");for(var i=0;i<this.outputs.length;i++)if(this.outputs[i].id===id)return this.outputs[i];return!1},WebMidi.prototype.getInputByName=function(name){if(!this.enabled)throw new Error("WebMidi is not enabled.");for(var i=0;i<this.inputs.length;i++)if(~this.inputs[i].name.indexOf(name))return this.inputs[i];return!1},WebMidi.prototype.getOutputByName=function(name){if(!this.enabled)throw new Error("WebMidi is not enabled.");for(var i=0;i<this.outputs.length;i++)if(~this.outputs[i].name.indexOf(name))return this.outputs[i];return!1},WebMidi.prototype.guessNoteNumber=function(input){var output=!1;if(input&&input.toFixed&&input>=0&&127>=input?output=Math.round(input):parseInt(input)>=0&&parseInt(input)<=127?output=parseInt(input):("string"==typeof input||input instanceof String)&&(output=this.noteNameToNumber(input)),output===!1)throw new Error("Invalid note number ("+input+").");return output},WebMidi.prototype.noteNameToNumber=function(name){"string"!=typeof name&&(name="");var matches=name.match(/([CDEFGAB])(#{0,2}|b{0,2})(-?\d+)/i);if(!matches)throw new RangeError("Invalid note name.");var semitones=wm._semitones[matches[1].toUpperCase()],octave=parseInt(matches[3]),result=12*(octave+2)+semitones;if(matches[2].toLowerCase().indexOf("b")>-1?result-=matches[2].length:matches[2].toLowerCase().indexOf("#")>-1&&(result+=matches[2].length),0>semitones||-2>octave||octave>8||0>result||result>127)throw new RangeError("Invalid note name or note outside valid range.");return result},WebMidi.prototype._updateInputsAndOutputs=function(){this._updateInputs(),this._updateOutputs()},WebMidi.prototype._updateInputs=function(){for(var i=0;i<this._inputs.length;i++){for(var remove=!0,updated=this["interface"].inputs.values(),input=updated.next();input&&!input.done;input=updated.next())if(this._inputs[i]._midiInput===input.value){remove=!1;break}remove&&this._inputs.splice(i,1)}this["interface"].inputs.forEach(function(nInput){for(var add=!0,j=0;j<this._inputs.length;j++)this._inputs[j]._midiInput===nInput&&(add=!1);add&&this._inputs.push(this._createInput(nInput))}.bind(this))},WebMidi.prototype._updateOutputs=function(){for(var i=0;i<this._outputs.length;i++){for(var remove=!0,updated=this["interface"].outputs.values(),output=updated.next();output&&!output.done;output=updated.next())if(this._outputs[i]._midiOutput===output.value){remove=!1;break}remove&&this._outputs.splice(i,1)}this["interface"].outputs.forEach(function(nOutput){for(var add=!0,j=0;j<this._outputs.length;j++)this._outputs[j]._midiOutput===nOutput&&(add=!1);add&&this._outputs.push(this._createOutput(nOutput))}.bind(this))},WebMidi.prototype._createInput=function(midiInput){var input=new Input(midiInput);return input._midiInput.onmidimessage=input._onMidiMessage.bind(input),input},WebMidi.prototype._createOutput=function(midiOutput){var output=new Output(midiOutput);return output._midiOutput.onmidimessage=output._onMidiMessage.bind(output),output},WebMidi.prototype._onInterfaceStateChange=function(e){if(this._stateChangeQueue.push(e),!this._processingStateChange){for(this._processingStateChange=!0;this._stateChangeQueue.length>0;)this._processStateChange(this._stateChangeQueue.shift());this._processingStateChange=!1}},WebMidi.prototype._processStateChange=function(e){if(this._updateInputsAndOutputs(),null!==e){var event={timestamp:e.timeStamp,type:e.port.state,id:e.port.id,manufacturer:e.port.manufacturer,name:e.port.name};"connected"===e.port.state&&("output"===e.port.type?event.output=this.getOutputById(e.port.id):"input"===e.port.type&&(event.input=this.getInputById(e.port.id))),this._userHandlers[e.port.state].forEach(function(handler){handler(event)})}},WebMidi.prototype._resetInterfaceUserHandlers=function(){for(var i=0;i<this._midiInterfaceEvents.length;i++)this._userHandlers[this._midiInterfaceEvents[i]]=[]},Input.prototype.addListener=function(type,channel,listener){var that=this;if(void 0===channel&&(channel="all"),Array.isArray(channel)||(channel=[channel]),channel.forEach(function(item){if("all"!==item&&!(item>=1&&16>=item))throw new RangeError("The 'channel' parameter is invalid.")}),"function"!=typeof listener)throw new TypeError("The 'listener' parameter must be a function.");if(wm.MIDI_SYSTEM_MESSAGES[type])this._userHandlers.system[type]||(this._userHandlers.system[type]=[]),this._userHandlers.system[type].push(listener);else{if(!wm.MIDI_CHANNEL_MESSAGES[type])throw new TypeError("The specified event type is not supported.");if(channel.indexOf("all")>-1){channel=[];for(var j=1;16>=j;j++)channel.push(j)}this._userHandlers.channel[type]||(this._userHandlers.channel[type]=[]),channel.forEach(function(ch){that._userHandlers.channel[type][ch]||(that._userHandlers.channel[type][ch]=[]),that._userHandlers.channel[type][ch].push(listener)})}return this},Input.prototype.on=Input.prototype.addListener,Input.prototype.hasListener=function(type,channel,listener){var that=this;if("function"!=typeof listener)throw new TypeError("The 'listener' parameter must be a function.");if(void 0===channel&&(channel="all"),channel.constructor!==Array&&(channel=[channel]),wm.MIDI_SYSTEM_MESSAGES[type]){for(var o=0;o<this._userHandlers.system[type].length;o++)if(this._userHandlers.system[type][o]===listener)return!0}else if(wm.MIDI_CHANNEL_MESSAGES[type]){if(channel.indexOf("all")>-1){channel=[];for(var j=1;16>=j;j++)channel.push(j)}return this._userHandlers.channel[type]?channel.every(function(chNum){var listeners=that._userHandlers.channel[type][chNum];return listeners&&listeners.indexOf(listener)>-1}):!1}return!1},Input.prototype.removeListener=function(type,channel,listener){var that=this;if(void 0!==listener&&"function"!=typeof listener)throw new TypeError("The 'listener' parameter must be a function.");if(void 0===channel&&(channel="all"),channel.constructor!==Array&&(channel=[channel]),wm.MIDI_SYSTEM_MESSAGES[type])if(void 0===listener)this._userHandlers.system[type]=[];else for(var o=0;o<this._userHandlers.system[type].length;o++)this._userHandlers.system[type][o]===listener&&this._userHandlers.system[type].splice(o,1);else if(wm.MIDI_CHANNEL_MESSAGES[type]){if(channel.indexOf("all")>-1){channel=[];for(var j=1;16>=j;j++)channel.push(j)}if(!this._userHandlers.channel[type])return this;channel.forEach(function(chNum){var listeners=that._userHandlers.channel[type][chNum];if(listeners)if(void 0===listener)that._userHandlers.channel[type][chNum]=[];else for(var l=0;l<listeners.length;l++)listeners[l]===listener&&listeners.splice(l,1)})}else{if(void 0!==type)throw new TypeError("The specified event type is not supported.");this._initializeUserHandlers()}return this},Input.prototype._initializeUserHandlers=function(){for(var prop1 in wm.MIDI_CHANNEL_MESSAGES)wm.MIDI_CHANNEL_MESSAGES.hasOwnProperty(prop1)&&(this._userHandlers.channel[prop1]={});for(var prop2 in wm.MIDI_SYSTEM_MESSAGES)wm.MIDI_SYSTEM_MESSAGES.hasOwnProperty(prop2)&&(this._userHandlers.system[prop2]=[])},Input.prototype._onMidiMessage=function(e){e.data[0]<240?this._parseChannelEvent(e):e.data[0]<=255&&this._parseSystemEvent(e)},Input.prototype._parseChannelEvent=function(e){var data1,data2,command=e.data[0]>>4,channel=(15&e.data[0])+1;e.data.length>1&&(data1=e.data[1],data2=e.data.length>2?e.data[2]:void 0);var event={target:this,data:e.data,receivedTime:e.receivedTime,timestamp:e.timeStamp,channel:channel};command===wm.MIDI_CHANNEL_MESSAGES.noteoff||command===wm.MIDI_CHANNEL_MESSAGES.noteon&&0===data2?(event.type="noteoff",event.note={number:data1,name:wm._notes[data1%12],octave:Math.floor(data1/12-1)-3},event.velocity=data2/127):command===wm.MIDI_CHANNEL_MESSAGES.noteon?(event.type="noteon",event.note={number:data1,name:wm._notes[data1%12],octave:Math.floor(data1/12-1)-3},event.velocity=data2/127):command===wm.MIDI_CHANNEL_MESSAGES.keyaftertouch?(event.type="keyaftertouch",event.note={number:data1,name:wm._notes[data1%12],octave:Math.floor(data1/12-1)-3},event.value=data2/127):command===wm.MIDI_CHANNEL_MESSAGES.controlchange&&data1>=0&&119>=data1?(event.type="controlchange",event.controller={number:data1,name:this.getCcNameByNumber(data1)},event.value=data2):command===wm.MIDI_CHANNEL_MESSAGES.channelmode&&data1>=120&&127>=data1?(event.type="channelmode",event.controller={number:data1,name:this.getChannelModeByNumber(data1)},event.value=data2):command===wm.MIDI_CHANNEL_MESSAGES.programchange?(event.type="programchange",event.value=data1):command===wm.MIDI_CHANNEL_MESSAGES.channelaftertouch?(event.type="channelaftertouch",event.value=data1/127):command===wm.MIDI_CHANNEL_MESSAGES.pitchbend?(event.type="pitchbend",event.value=((data2<<7)+data1-8192)/8192):event.type="unknownchannelmessage",this._userHandlers.channel[event.type]&&this._userHandlers.channel[event.type][channel]&&this._userHandlers.channel[event.type][channel].forEach(function(callback){callback(event)})},Input.prototype.getCcNameByNumber=function(number){if(number=parseInt(number),!(number>=0&&119>=number))throw new RangeError("The control change number must be between 0 and 119.");for(var cc in wm.MIDI_CONTROL_CHANGE_MESSAGES)if(number===wm.MIDI_CONTROL_CHANGE_MESSAGES[cc])return cc;return void 0},Input.prototype.getChannelModeByNumber=function(number){if(number=parseInt(number),!(number>=120&&status<=127))throw new RangeError("The control change number must be between 120 and 127.");for(var cm in wm.MIDI_CHANNEL_MODE_MESSAGES)if(number===wm.MIDI_CHANNEL_MODE_MESSAGES[cm])return cm},Input.prototype._parseSystemEvent=function(e){var command=e.data[0],event={target:this,data:e.data,receivedTime:e.receivedTime,timestamp:e.timeStamp};command===wm.MIDI_SYSTEM_MESSAGES.sysex?event.type="sysex":command===wm.MIDI_SYSTEM_MESSAGES.timecode?event.type="timecode":command===wm.MIDI_SYSTEM_MESSAGES.songposition?event.type="songposition":command===wm.MIDI_SYSTEM_MESSAGES.songselect?(event.type="songselect",event.song=e.data[1]):command===wm.MIDI_SYSTEM_MESSAGES.tuningrequest?event.type="tuningrequest":command===wm.MIDI_SYSTEM_MESSAGES.clock?event.type="clock":command===wm.MIDI_SYSTEM_MESSAGES.start?event.type="start":command===wm.MIDI_SYSTEM_MESSAGES["continue"]?event.type="continue":command===wm.MIDI_SYSTEM_MESSAGES.stop?event.type="stop":command===wm.MIDI_SYSTEM_MESSAGES.activesensing?event.type="activesensing":command===wm.MIDI_SYSTEM_MESSAGES.reset?event.type="reset":event.type="unknownsystemmessage",this._userHandlers.system[event.type]&&this._userHandlers.system[event.type].forEach(function(callback){callback(event)})},Output.prototype.send=function(status,data,timestamp){if(!(status>=128&&255>=status))throw new RangeError("The status byte must be an integer between 128 (0x80) and 255 (0xFF).");Array.isArray(data)||(data=parseInt(data)>=0&&parseInt(data)<=127?[parseInt(data)]:[]);var message=[status];return data.forEach(function(item){if(!(item>=0&&255>=item))throw new RangeError("The data bytes must be integers between 0 (0x00) and 255 (0xFF).");message.push(item)}),this._midiOutput.send(message,parseFloat(timestamp)||0),this},Output.prototype.sendSysex=function(manufacturer,data,options){if(!wm.sysexEnabled)throw new Error("SysEx message support must first be activated.");return options=options||{},manufacturer=[].concat(manufacturer),data.forEach(function(item){if(0>item||item>127)throw new RangeError("The data bytes of a SysEx message must be integers between 0 (0x00) and 127 (0x7F).")}),data=manufacturer.concat(data,wm.MIDI_SYSTEM_MESSAGES.sysexend),this.send(wm.MIDI_SYSTEM_MESSAGES.sysex,data,options.time),this},Output.prototype.sendTimecodeQuarterFrame=function(value,options){return options=options||{},this.send(wm.MIDI_SYSTEM_MESSAGES.timecode,value,options.time),this},Output.prototype.sendSongPosition=function(value,options){value=parseInt(value)||0,options=options||{};var msb=value>>7&127,lsb=127&value;return this.send(wm.MIDI_SYSTEM_MESSAGES.songposition,[msb,lsb],options.time),this},Output.prototype.sendSongSelect=function(value,options){if(value=parseInt(value),options=options||{},!(value>=0&&127>=value))throw new RangeError("The song number must be between 0 and 127.");return this.send(wm.MIDI_SYSTEM_MESSAGES.songselect,[value],options.time),this},Output.prototype.sendTuningRequest=function(options){return options=options||{},this.send(wm.MIDI_SYSTEM_MESSAGES.tuningrequest,void 0,options.time),this},Output.prototype.sendClock=function(options){return options=options||{},this.send(wm.MIDI_SYSTEM_MESSAGES.clock,void 0,options.time),this},Output.prototype.sendStart=function(options){return options=options||{},this.send(wm.MIDI_SYSTEM_MESSAGES.start,void 0,options.time),this},Output.prototype.sendContinue=function(options){return options=options||{},this.send(wm.MIDI_SYSTEM_MESSAGES["continue"],void 0,options.time),this},Output.prototype.sendStop=function(options){return options=options||{},this.send(wm.MIDI_SYSTEM_MESSAGES.stop,void 0,options.time),this},Output.prototype.sendActiveSensing=function(options){return options=options||{},this.send(wm.MIDI_SYSTEM_MESSAGES.activesensing,void 0,options.time),this},Output.prototype.sendReset=function(options){return options=options||{},this.send(wm.MIDI_SYSTEM_MESSAGES.reset,void 0,options.time),this},Output.prototype.stopNote=function(note,channel,options){var that=this;options=options||{},options.velocity=parseFloat(options.velocity),(isNaN(options.velocity)||options.velocity<0||options.velocity>1)&&(options.velocity=.5);var nVelocity=Math.round(127*options.velocity);return this._convertNoteToArray(note).forEach(function(item){that._convertChannelToArray(channel).forEach(function(ch){that.send((wm.MIDI_CHANNEL_MESSAGES.noteoff<<4)+(ch-1),[item,nVelocity],that._parseTimeParameter(options.time))})}),this},Output.prototype.playNote=function(note,channel,options){var that=this;options=options||{},options.velocity=parseFloat(options.velocity),(isNaN(options.velocity)||options.velocity<0||options.velocity>1)&&(options.velocity=.5);var nVelocity=Math.round(127*options.velocity);if(options.time=that._parseTimeParameter(options.time)||0,this._convertNoteToArray(note).forEach(function(item){that._convertChannelToArray(channel).forEach(function(ch){that.send((wm.MIDI_CHANNEL_MESSAGES.noteon<<4)+(ch-1),[item,nVelocity],options.time)})}),void 0!==options.duration){options.release=parseFloat(options.release),(isNaN(options.release)||options.release<0||options.release>1)&&(options.release=.5);var nRelease=Math.round(127*options.release);this._convertNoteToArray(note).forEach(function(item){that._convertChannelToArray(channel).forEach(function(ch){that.send((wm.MIDI_CHANNEL_MESSAGES.noteoff<<4)+(ch-1),[item,nRelease],options.time+options.duration)})})}return this},Output.prototype.sendKeyAftertouch=function(note,channel,pressure,options){var that=this;if(options=options||{},1>channel||channel>16)throw new RangeError("The channel must be between 1 and 16.");pressure=parseFloat(pressure),(isNaN(pressure)||0>pressure||pressure>1)&&(pressure=.5);var nPressure=Math.round(127*pressure);return this._convertNoteToArray(note).forEach(function(item){that._convertChannelToArray(channel).forEach(function(ch){that.send((wm.MIDI_CHANNEL_MESSAGES.keyaftertouch<<4)+(ch-1),[item,nPressure],that._parseTimeParameter(options.time))})}),this},Output.prototype.sendControlChange=function(controller,value,channel,options){if(options=options||{},"string"==typeof controller){if(controller=wm.MIDI_CONTROL_CHANGE_MESSAGES[controller],!controller)throw new TypeError("Invalid controller name.")}else if(controller=parseInt(controller),!(controller>=0&&119>=controller))throw new RangeError("Controller numbers must be between 0 and 119.");if(value=parseInt(value)||0,!(value>=0&&127>=value))throw new RangeError("Controller value must be between 0 and 127.");return this._convertChannelToArray(channel).forEach(function(ch){this.send((wm.MIDI_CHANNEL_MESSAGES.controlchange<<4)+(ch-1),[controller,value],this._parseTimeParameter(options.time))}.bind(this)),this},Output.prototype._selectRegisteredParameter=function(parameter,channel,time){var that=this;if(parameter[0]=parseInt(parameter[0]),!(parameter[0]>=0&&parameter[0]<=127))throw new RangeError("The control65 value must be between 0 and 127");if(parameter[1]=parseInt(parameter[1]),!(parameter[1]>=0&&parameter[1]<=127))throw new RangeError("The control64 value must be between 0 and 127");return this._convertChannelToArray(channel).forEach(function(ch){that.sendControlChange(101,parameter[0],channel,{time:time}),that.sendControlChange(100,parameter[1],channel,{time:time})}),this},Output.prototype._selectNonRegisteredParameter=function(parameter,channel,time){var that=this;if(parameter[0]=parseInt(parameter[0]),!(parameter[0]>=0&&parameter[0]<=127))throw new RangeError("The control63 value must be between 0 and 127");if(parameter[1]=parseInt(parameter[1]),!(parameter[1]>=0&&parameter[1]<=127))throw new RangeError("The control62 value must be between 0 and 127");return this._convertChannelToArray(channel).forEach(function(ch){that.sendControlChange(99,parameter[0],channel,{time:time}),that.sendControlChange(98,parameter[1],channel,{time:time})}),this},Output.prototype._setCurrentRegisteredParameter=function(data,channel,time){var that=this;if(data=[].concat(data),data[0]=parseInt(data[0]),!(data[0]>=0&&data[0]<=127))throw new RangeError("The msb value must be between 0 and 127");return this._convertChannelToArray(channel).forEach(function(ch){that.sendControlChange(6,data[0],channel,{time:time})}),data[1]=parseInt(data[1]),data[1]>=0&&data[1]<=127&&this._convertChannelToArray(channel).forEach(function(ch){that.sendControlChange(38,data[1],channel,{time:time})}),this},Output.prototype._deselectRegisteredParameter=function(channel,time){var that=this;return this._convertChannelToArray(channel).forEach(function(ch){that.sendControlChange(101,127,channel,{time:time}),that.sendControlChange(100,127,channel,{time:time})}),this},Output.prototype.setRegisteredParameter=function(parameter,data,channel,options){var that=this;if(options=options||{},!Array.isArray(parameter)){if(!wm.MIDI_REGISTERED_PARAMETER[parameter])throw new Error("The specified parameter is not available.");parameter=wm.MIDI_REGISTERED_PARAMETER[parameter]}return this._convertChannelToArray(channel).forEach(function(ch){that._selectRegisteredParameter(parameter,channel,options.time),that._setCurrentRegisteredParameter(data,channel,options.time),that._deselectRegisteredParameter(channel,options.time)}),this},Output.prototype.setNonRegisteredParameter=function(parameter,data,channel,options){var that=this;if(options=options||{},!(parameter[0]>=0&&parameter[0]<=127&&parameter[1]>=0&&parameter[1]<=127))throw new Error("Position 0 and 1 of the 2-position parameter array must both be between 0 and 127.");return data=[].concat(data),this._convertChannelToArray(channel).forEach(function(ch){that._selectNonRegisteredParameter(parameter,channel,options.time),that._setCurrentRegisteredParameter(data,channel,options.time),that._deselectRegisteredParameter(channel,options.time)}),this},Output.prototype.incrementRegisteredParameter=function(parameter,channel,options){var that=this;if(options=options||{},!Array.isArray(parameter)){if(!wm.MIDI_REGISTERED_PARAMETER[parameter])throw new Error("The specified parameter is not available.");parameter=wm.MIDI_REGISTERED_PARAMETER[parameter]}return this._convertChannelToArray(channel).forEach(function(ch){that._selectRegisteredParameter(parameter,channel,options.time),that.sendControlChange(96,0,channel,{time:options.time}),that._deselectRegisteredParameter(channel,options.time)}),this},Output.prototype.decrementRegisteredParameter=function(parameter,channel,options){if(options=options||{},!Array.isArray(parameter)){if(!wm.MIDI_REGISTERED_PARAMETER[parameter])throw new TypeError("The specified parameter is not available.");parameter=wm.MIDI_REGISTERED_PARAMETER[parameter]}return this._convertChannelToArray(channel).forEach(function(ch){this._selectRegisteredParameter(parameter,channel,options.time),this.sendControlChange(97,0,channel,{time:options.time}),this._deselectRegisteredParameter(channel,options.time)}.bind(this)),this},Output.prototype.setPitchBendRange=function(semitones,cents,channel,options){var that=this;if(options=options||{},semitones=parseInt(semitones)||0,!(semitones>=0&&127>=semitones))throw new RangeError("The semitones value must be between 0 and 127");if(cents=parseInt(cents)||0,!(cents>=0&&127>=cents))throw new RangeError("The cents value must be between 0 and 127");return this._convertChannelToArray(channel).forEach(function(ch){that.setRegisteredParameter("pitchbendrange",[semitones,cents],channel,{time:options.time})}),this},Output.prototype.setModulationRange=function(semitones,cents,channel,options){var that=this;if(options=options||{},semitones=parseInt(semitones)||0,!(semitones>=0&&127>=semitones))throw new RangeError("The semitones value must be between 0 and 127");if(cents=parseInt(cents)||0,!(cents>=0&&127>=cents))throw new RangeError("The cents value must be between 0 and 127");return this._convertChannelToArray(channel).forEach(function(ch){that.setRegisteredParameter("modulationrange",[semitones,cents],channel,{time:options.time})}),this},Output.prototype.setMasterTuning=function(value,channel,options){var that=this;if(options=options||{},value=parseFloat(value)||0,-65>=value||value>=64)throw new RangeError("The value must be a decimal number larger than -65 and smaller than 64.");var coarse=parseInt(value)+64,fine=value-parseInt(value);fine=Math.round((fine+1)/2*16383);var msb=fine>>7&127,lsb=127&fine;return this._convertChannelToArray(channel).forEach(function(ch){that.setRegisteredParameter("channelcoarsetuning",coarse,channel,{time:options.time}),that.setRegisteredParameter("channelfinetuning",[msb,lsb],channel,{time:options.time})}),this},Output.prototype.setTuningProgram=function(value,channel,options){var that=this;if(options=options||{},value=parseInt(value)||0,!(value>=0&&127>=value))throw new RangeError("The program value must be between 0 and 127");return this._convertChannelToArray(channel).forEach(function(ch){that.setRegisteredParameter("tuningprogram",value,channel,{time:options.time})}),this},Output.prototype.setTuningBank=function(value,channel,options){var that=this;if(options=options||{},value=parseInt(value)||0,!(value>=0&&127>=value))throw new RangeError("The bank value must be between 0 and 127");return this._convertChannelToArray(channel).forEach(function(ch){that.setRegisteredParameter("tuningbank",value,channel,{time:options.time})}),this},Output.prototype.sendChannelMode=function(command,value,channel,options){var that=this;if(options=options||{},"string"==typeof command){if(command=wm.MIDI_CHANNEL_MODE_MESSAGES[command],!command)throw new TypeError("Invalid channel mode message name.")}else if(command=parseInt(command),!(command>=120&&127>=command))throw new RangeError("Channel mode numerical identifiers must be between 120 and 127.");if(value=parseInt(value),isNaN(value)||0>value||value>127)throw new RangeError("Value must be integers between 0 and 127.");return this._convertChannelToArray(channel).forEach(function(ch){that.send((wm.MIDI_CHANNEL_MESSAGES.channelmode<<4)+(ch-1),[command,value],that._parseTimeParameter(options.time))}),this},Output.prototype.sendProgramChange=function(program,channel,options){var that=this;if(options=options||{},program=parseInt(program),isNaN(program)||0>program||program>127)throw new RangeError("Program numbers must be between 0 and 127.");return this._convertChannelToArray(channel).forEach(function(ch){that.send((wm.MIDI_CHANNEL_MESSAGES.programchange<<4)+(ch-1),[program],that._parseTimeParameter(options.time))}),this},Output.prototype.sendChannelAftertouch=function(pressure,channel,options){var that=this;options=options||{},pressure=parseFloat(pressure),(isNaN(pressure)||0>pressure||pressure>1)&&(pressure=.5);var nPressure=Math.round(127*pressure);return this._convertChannelToArray(channel).forEach(function(ch){that.send((wm.MIDI_CHANNEL_MESSAGES.channelaftertouch<<4)+(ch-1),[nPressure],that._parseTimeParameter(options.time))}),this},Output.prototype.sendPitchBend=function(bend,channel,options){var that=this;if(options=options||{},bend=parseFloat(bend),isNaN(bend)||-1>bend||bend>1)throw new RangeError("Pitch bend value must be between -1 and 1.");var nLevel=Math.round((bend+1)/2*16383),msb=nLevel>>7&127,lsb=127&nLevel;return this._convertChannelToArray(channel).forEach(function(ch){that.send((wm.MIDI_CHANNEL_MESSAGES.pitchbend<<4)+(ch-1),[lsb,msb],that._parseTimeParameter(options.time))}),this},Output.prototype._parseTimeParameter=function(time){var parsed;if(void 0===time)return 0;if(time&&time.substring&&"+"===time.substring(0,1)){if(parsed=parseFloat(time),!parsed)throw new TypeError("Invalid relative time format.");return parsed+wm.time}if(parsed=parseFloat(time),!parsed)throw new TypeError("Invalid absolute time format.");return parsed},Output.prototype._convertNoteToArray=function(note){var notes=[];return Array.isArray(note)||(note=[note]),
+note.forEach(function(item){notes.push(wm.guessNoteNumber(item))}),notes},Output.prototype._convertChannelToArray=function(channel){if(("all"===channel||void 0===channel)&&(channel=["all"]),Array.isArray(channel)||(channel=[channel]),channel.indexOf("all")>-1){channel=[];for(var i=1;16>=i;i++)channel.push(i)}return channel.forEach(function(ch){if(!(ch>=1&&16>=ch))throw new RangeError("MIDI channels must be between 1 and 16.")}),channel},Output.prototype._onMidiMessage=function(e){},"function"==typeof define&&"object"==typeof define.amd?define([],function(){return wm}):"undefined"!=typeof module&&module.exports?module.exports=wm:scope.WebMidi||(scope.WebMidi=wm)}(this);
+},{}],177:[function(require,module,exports){
 var GUID, Range, get_clip_start_end, ref, stuff_version,
   indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
@@ -23681,7 +23713,7 @@ module.exports = Range = (function() {
 })();
 
 
-},{"./helpers.coffee":195,"./versions.coffee":196}],177:[function(require,module,exports){
+},{"./helpers.coffee":196,"./versions.coffee":197}],178:[function(require,module,exports){
 var AudioEditor, E, ReactDOM, container, localforage, ref, ref1, ref2, ref3, set_theme, theme_link, themes;
 
 localforage = require("localforage");
@@ -23739,7 +23771,7 @@ window.addEventListener("hashchange", render);
 render();
 
 
-},{"../build/themes.json":1,"./components/AudioEditor.coffee":180,"./helpers.coffee":195,"localforage":29,"react-dom":30}],178:[function(require,module,exports){
+},{"../build/themes.json":1,"./components/AudioEditor.coffee":181,"./helpers.coffee":196,"localforage":29,"react-dom":30}],179:[function(require,module,exports){
 var AudioClipStorage, localforage;
 
 localforage = require("localforage");
@@ -23864,7 +23896,7 @@ module.exports = AudioClipStorage = (function() {
 })();
 
 
-},{"localforage":29}],179:[function(require,module,exports){
+},{"localforage":29}],180:[function(require,module,exports){
 var AudioClip, Component, E, InfoBar, audio_clips, localforage, ref,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -23958,8 +23990,8 @@ module.exports = AudioClip = (function(superClass) {
 })(Component);
 
 
-},{"../audio-clips.coffee":178,"../helpers.coffee":195,"./InfoBar.coffee":187,"localforage":29}],180:[function(require,module,exports){
-var Component, Controls, E, GUID, InfoBar, Range, ReactDOM, TracksArea, audio_clips, document_version, export_audio_buffer_as, get_clip_start_end, localforage, normal_tracks_in, ref, ref1, stuff_version,
+},{"../audio-clips.coffee":179,"../helpers.coffee":196,"./InfoBar.coffee":188,"localforage":29}],181:[function(require,module,exports){
+var Component, Controls, E, GUID, InfoBar, Range, ReactDOM, TracksArea, audio_clips, document_version, export_audio_buffer_as, get_clip_start_end, localforage, normal_tracks_in, ref, ref1, stuff_version, webmidi,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -23983,6 +24015,8 @@ audio_clips = require("../audio-clips.coffee");
 Range = require("../Range.coffee");
 
 localforage = require("localforage");
+
+webmidi = require("webmidi");
 
 exports.AudioEditor = (function(superClass) {
   var copy_of;
@@ -24018,7 +24052,10 @@ exports.AudioEditor = (function(superClass) {
     this.precord = bind(this.precord, this);
     this.stop_recording = bind(this.stop_recording, this);
     this.record = bind(this.record, this);
-    this.get_audio_stream = bind(this.get_audio_stream, this);
+    this.record_midi = bind(this.record_midi, this);
+    this._find_places_to_record = bind(this._find_places_to_record, this);
+    this._setup_midi = bind(this._setup_midi, this);
+    this._get_audio_stream = bind(this._get_audio_stream, this);
     this.end_recording = bind(this.end_recording, this);
     this.update_playback = bind(this.update_playback, this);
     this.pause = bind(this.pause, this);
@@ -24046,9 +24083,22 @@ exports.AudioEditor = (function(superClass) {
       selection: null,
       recording: false,
       audio_stream: null,
+      midi_inputs: [],
       precording_enabled: false,
       moving_selection: false
     };
+    this._setup_midi((function(_this) {
+      return function() {
+        var update_inputs;
+        (update_inputs = function() {
+          return _this.setState({
+            midi_inputs: webmidi.inputs
+          });
+        })();
+        webmidi.addListener("connected", update_inputs);
+        return webmidi.addListener("disconnected", update_inputs);
+      };
+    })(this));
   }
 
   AudioEditor.prototype.save = function() {
@@ -24464,7 +24514,7 @@ exports.AudioEditor = (function(superClass) {
 
   AudioEditor.prototype.end_recording = function() {};
 
-  AudioEditor.prototype.get_audio_stream = function(success_callback) {
+  AudioEditor.prototype._get_audio_stream = function(success_callback) {
     if (this.state.audio_stream) {
       return success_callback(this.state.audio_stream);
     }
@@ -24495,57 +24545,151 @@ exports.AudioEditor = (function(superClass) {
     })(this));
   };
 
-  AudioEditor.prototype.record = function() {
-    if (this.state.recording) {
-      return;
-    }
-    return this.get_audio_stream((function(_this) {
-      return function(stream) {
-        var recording_id;
-        recording_id = GUID();
-        return _this.undoable(function(tracks) {
-          var chunk_size, clip, clip_end, clip_start, current_chunk, ended, final_recording_length, j, len, recorder, recording, ref2, ref3, selection, sorted_audio_tracks, source, start_position, track;
-          selection = _this.state.selection;
-          if (selection != null) {
-            start_position = selection.start();
-            sorted_audio_tracks = (function() {
-              var j, len, ref2, results;
-              ref2 = this.get_sorted_tracks(tracks);
-              results = [];
-              for (j = 0, len = ref2.length; j < len; j++) {
-                track = ref2[j];
-                if (track.type === "audio") {
-                  results.push(track);
+  AudioEditor.prototype._setup_midi = function(success_callback) {
+    return webmidi.enable((function(_this) {
+      return function(error) {
+        var ref2;
+        if (error) {
+          if (!((ref2 = error.message) != null ? ref2.match(/The Web MIDI API is not supported/) : void 0)) {
+            InfoBar.warn(("Failed gain MIDI access: " + error.name) + (error.message ? ": " + error.message : ""));
+          }
+          return console.warn("webmidi could not be enabled.", error);
+        } else {
+          if (typeof console !== "undefined" && console !== null) {
+            console.log("webmidi enabled!");
+          }
+          return success_callback();
+        }
+      };
+    })(this));
+  };
+
+  AudioEditor.prototype._find_places_to_record = function(wanted_track_types, mutable_tracks) {
+    var available_tracks_by_type, clip, clip_end, clip_start, j, k, l, len, len1, len2, len3, len4, m, n, name, name1, name2, note, ref2, ref3, ref4, ref5, ref6, selection, start_position, track, track_type, tracks_to_use, tracks_to_use_by_type;
+    selection = this.state.selection;
+    tracks_to_use_by_type = {};
+    tracks_to_use = [];
+    if (selection != null) {
+      start_position = selection.start();
+      available_tracks_by_type = {};
+      ref2 = this.get_sorted_tracks(mutable_tracks);
+      for (j = 0, len = ref2.length; j < len; j++) {
+        track = ref2[j];
+        if (!(selection.containsTrack(track))) {
+          continue;
+        }
+        if (available_tracks_by_type[name = track.type] == null) {
+          available_tracks_by_type[name] = [];
+        }
+        available_tracks_by_type[track.type].push(track);
+      }
+      for (k = 0, len1 = wanted_track_types.length; k < len1; k++) {
+        track_type = wanted_track_types[k];
+        if (((ref3 = available_tracks_by_type[track_type]) != null ? ref3[0] : void 0) != null) {
+          track = available_tracks_by_type[track_type].shift();
+          switch (track.type) {
+            case "audio":
+              ref4 = track.clips;
+              for (l = 0, len2 = ref4.length; l < len2; l++) {
+                clip = ref4[l];
+                ref5 = get_clip_start_end(clip), clip_start = ref5.clip_start, clip_end = ref5.clip_end;
+                if (clip_end > start_position) {
+                  track = null;
                 }
               }
-              return results;
-            }).call(_this);
-            track = selection.firstTrack(sorted_audio_tracks);
+              break;
+            case "midi":
+              ref6 = track.notes;
+              for (m = 0, len3 = ref6.length; m < len3; m++) {
+                note = ref6[m];
+                if (note.t + note.length > start_position) {
+                  track = null;
+                }
+              }
+              break;
+            default:
+              throw new Error("Unhandled recording track type " + track_type);
           }
           if (track != null) {
-            ref2 = track.clips;
-            for (j = 0, len = ref2.length; j < len; j++) {
-              clip = ref2[j];
-              ref3 = get_clip_start_end(clip), clip_start = ref3.clip_start, clip_end = ref3.clip_end;
-              if (clip_end > start_position) {
-                track = null;
-              }
+            if (tracks_to_use_by_type[name1 = track.type] == null) {
+              tracks_to_use_by_type[name1] = [];
             }
+            tracks_to_use_by_type[track_type].push(track);
+            tracks_to_use.push(track);
           }
-          if (track == null) {
-            if (start_position == null) {
-              start_position = 0;
-            }
+        }
+      }
+    }
+    if (tracks_to_use.length < wanted_track_types.length) {
+      tracks_to_use_by_type = {};
+      tracks_to_use = [];
+      if (start_position == null) {
+        start_position = 0;
+      }
+      for (n = 0, len4 = wanted_track_types.length; n < len4; n++) {
+        track_type = wanted_track_types[n];
+        switch (track_type) {
+          case "audio":
             track = {
               id: GUID(),
               type: "audio",
               clips: []
             };
-            tracks.push(track);
-            if (start_position > 0) {
-              _this.select(new Range(start_position, start_position, [track.id]));
-            }
-          }
+            break;
+          case "midi":
+            track = {
+              id: GUID(),
+              type: "midi",
+              notes: []
+            };
+            break;
+          default:
+            throw new Error("Unhandled recording track type " + track_type);
+        }
+        mutable_tracks.push(track);
+        if (tracks_to_use_by_type[name2 = track.type] == null) {
+          tracks_to_use_by_type[name2] = [];
+        }
+        tracks_to_use_by_type[track_type].push(track);
+        tracks_to_use.push(track);
+      }
+    }
+    if (start_position > 0) {
+      this.select(new Range(start_position, start_position, (function() {
+        var len5, p, results;
+        results = [];
+        for (p = 0, len5 = tracks_to_use.length; p < len5; p++) {
+          track = tracks_to_use[p];
+          results.push(track.id);
+        }
+        return results;
+      })()));
+    }
+    return {
+      start_position: start_position,
+      tracks_to_use_by_type: tracks_to_use_by_type
+    };
+  };
+
+  AudioEditor.prototype.record_midi = function(midi_input) {
+    if (this.state.recording) {
+      return;
+    }
+    return InfoBar.warn("MIDI recording is not yet implemented");
+  };
+
+  AudioEditor.prototype.record = function() {
+    if (this.state.recording) {
+      return;
+    }
+    return this._get_audio_stream((function(_this) {
+      return function(stream) {
+        var recording_id;
+        recording_id = GUID();
+        return _this.undoable(function(tracks) {
+          var chunk_size, clip, current_chunk, ended, final_recording_length, recorder, recording, ref2, source, start_position, track, tracks_to_use_by_type;
+          ref2 = _this._find_places_to_record(["audio"], tracks), start_position = ref2.start_position, tracks_to_use_by_type = ref2.tracks_to_use_by_type;
+          track = tracks_to_use_by_type.audio[0];
           clip = {
             id: GUID(),
             audio_id: recording_id,
@@ -24569,7 +24713,7 @@ exports.AudioEditor = (function(superClass) {
           final_recording_length = void 0;
           recorder = actx.createScriptProcessor(chunk_size, 2, typeof chrome !== "undefined" && chrome !== null ? 1 : 0);
           recorder.onaudioprocess = function(e) {
-            var chunk_id, chunk_ids, chunks, data, fn1, i, k, ref4, save;
+            var chunk_id, chunk_ids, chunks, data, fn1, i, j, ref3, save;
             if (typeof console !== "undefined" && console !== null) {
               console.log("onaudioprocess", ended ? "(final)" : "");
             }
@@ -24584,7 +24728,7 @@ exports.AudioEditor = (function(superClass) {
                 }
               });
             };
-            for (i = k = 0, ref4 = e.inputBuffer.numberOfChannels; 0 <= ref4 ? k < ref4 : k > ref4; i = 0 <= ref4 ? ++k : --k) {
+            for (i = j = 0, ref3 = e.inputBuffer.numberOfChannels; 0 <= ref3 ? j < ref3 : j > ref3; i = 0 <= ref3 ? ++j : --j) {
               data = new Float32Array(e.inputBuffer.getChannelData(i));
               chunks.push(recording.chunks[i].concat([data]));
               chunk_ids.push(recording.chunk_ids[i].concat([chunk_id = GUID()]));
@@ -25276,7 +25420,7 @@ exports.AudioEditor = (function(superClass) {
 })(Component);
 
 
-},{"../Range.coffee":176,"../audio-clips.coffee":178,"../export.coffee":194,"../helpers.coffee":195,"../versions.coffee":196,"./Controls.coffee":184,"./InfoBar.coffee":187,"./TracksArea.coffee":192,"localforage":29,"react-dom":30}],181:[function(require,module,exports){
+},{"../Range.coffee":177,"../audio-clips.coffee":179,"../export.coffee":195,"../helpers.coffee":196,"../versions.coffee":197,"./Controls.coffee":185,"./InfoBar.coffee":188,"./TracksArea.coffee":193,"localforage":29,"react-dom":30,"webmidi":176}],182:[function(require,module,exports){
 var AudioClip, AudioTrack, Component, E, Range, Track, audio_clips, ref,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -25345,7 +25489,7 @@ module.exports = AudioTrack = (function(superClass) {
 })(Component);
 
 
-},{"../Range.coffee":176,"../audio-clips.coffee":178,"../helpers.coffee":195,"./AudioClip.coffee":179,"./Track.coffee":190}],182:[function(require,module,exports){
+},{"../Range.coffee":177,"../audio-clips.coffee":179,"../helpers.coffee":196,"./AudioClip.coffee":180,"./Track.coffee":191}],183:[function(require,module,exports){
 var BeatMarkings, Component, E, ref,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -25406,7 +25550,7 @@ module.exports = BeatMarkings = (function(superClass) {
 })(Component);
 
 
-},{"../helpers.coffee":195}],183:[function(require,module,exports){
+},{"../helpers.coffee":196}],184:[function(require,module,exports){
 var BeatMarkings, BeatTrack, Component, E, Track, ref,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -25440,7 +25584,7 @@ module.exports = BeatTrack = (function(superClass) {
 })(Component);
 
 
-},{"../helpers.coffee":195,"./BeatMarkings.coffee":182,"./Track.coffee":190}],184:[function(require,module,exports){
+},{"../helpers.coffee":196,"./BeatMarkings.coffee":183,"./Track.coffee":191}],185:[function(require,module,exports){
 var Component, Controls, DropdownButton, E, ref,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -25457,9 +25601,60 @@ module.exports = Controls = (function(superClass) {
   }
 
   Controls.prototype.render = function() {
-    var editor, enable_precording, export_as, id, import_files, name, pause, play, playing, precord, precording_enabled, record, recording, ref1, seek_to_end, seek_to_start, selection, set_theme, stop_recording, themes;
+    var editor, enable_precording, export_as, fn, i, id, import_files, len, midi_input, name, pause, play, playing, precord, precording_enabled, record, record_midi, recording, recording_options_menu, ref1, ref2, seek_to_end, seek_to_start, selection, set_theme, stop_recording, themes;
     ref1 = this.props, playing = ref1.playing, recording = ref1.recording, selection = ref1.selection, precording_enabled = ref1.precording_enabled, themes = ref1.themes, set_theme = ref1.set_theme, editor = ref1.editor;
-    play = editor.play, pause = editor.pause, seek_to_start = editor.seek_to_start, seek_to_end = editor.seek_to_end, record = editor.record, stop_recording = editor.stop_recording, precord = editor.precord, enable_precording = editor.enable_precording, export_as = editor.export_as, import_files = editor.import_files;
+    play = editor.play, pause = editor.pause, seek_to_start = editor.seek_to_start, seek_to_end = editor.seek_to_end, record = editor.record, record_midi = editor.record_midi, stop_recording = editor.stop_recording, precord = editor.precord, enable_precording = editor.enable_precording, export_as = editor.export_as, import_files = editor.import_files;
+    recording_options_menu = [];
+    if (editor.state.midi_inputs.length) {
+      ref2 = editor.state.midi_inputs;
+      fn = function(midi_input) {
+        return recording_options_menu.push({
+          label: midi_input.name,
+          action: function() {
+            return record_midi(midi_input);
+          }
+        });
+      };
+      for (i = 0, len = ref2.length; i < len; i++) {
+        midi_input = ref2[i];
+        fn(midi_input);
+      }
+    }
+    if (recording_options_menu.length > 0) {
+      recording_options_menu.push({
+        type: "separator"
+      });
+    }
+    recording_options_menu = recording_options_menu.concat(precording_enabled ? [
+      {
+        label: "Record last minute",
+        action: function() {
+          return precord(60);
+        }
+      }, {
+        label: "Record last 2 minutes",
+        action: function() {
+          return precord(60 * 2);
+        }
+      }, {
+        label: "Record last 5 minutes",
+        action: function() {
+          return precord(60 * 5);
+        }
+      }, {
+        label: "Disable precording",
+        action: function() {
+          return enable_precording(0);
+        }
+      }
+    ] : [
+      {
+        label: "Enable precording",
+        action: function() {
+          return enable_precording(60 * 5);
+        }
+      }
+    ]);
     return E(".controls", E(".playback-controls", E("button.button.play-pause", {
       "class": playing ? "pause" : "play",
       title: playing ? "Pause" : "Play",
@@ -25478,32 +25673,8 @@ module.exports = Controls = (function(superClass) {
         onClick: record,
         title: "Start recording"
       }, E("i.icon-record")),
-      title: "Precording options",
-      menu: precording_enabled ? [
-        {
-          label: "Record last minute",
-          action: function() {
-            return precord(60);
-          }
-        }, {
-          label: "Record last 2 minutes",
-          action: function() {
-            return precord(60 * 2);
-          }
-        }, {
-          label: "Record last 5 minutes",
-          action: function() {
-            return precord(60 * 5);
-          }
-        }
-      ] : [
-        {
-          label: "Enable precording",
-          action: function() {
-            return enable_precording(60 * 5);
-          }
-        }
-      ]
+      title: "Recording options",
+      menu: recording_options_menu
     })), E(".document-controls", E("button.button", {
       title: "Import tracks",
       onClick: import_files
@@ -25558,7 +25729,7 @@ module.exports = Controls = (function(superClass) {
 })(Component);
 
 
-},{"../helpers.coffee":195,"./DropdownButton.coffee":185}],185:[function(require,module,exports){
+},{"../helpers.coffee":196,"./DropdownButton.coffee":186}],186:[function(require,module,exports){
 var Component, DropdownButton, DropdownMenu, E, React, ReactDOM, ref,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -25703,15 +25874,19 @@ module.exports = DropdownButton = (function(superClass) {
           if (item != null) {
             results.push((function(_this) {
               return function(item) {
-                return {
-                  label: item.label,
-                  action: function() {
-                    _this.setState({
-                      menu_open: false
-                    });
-                    return item.action();
-                  }
-                };
+                if (item.type === "separator") {
+                  return item;
+                } else {
+                  return {
+                    label: item.label,
+                    action: function() {
+                      _this.setState({
+                        menu_open: false
+                      });
+                      return item.action();
+                    }
+                  };
+                }
               };
             })(this)(item));
           }
@@ -25726,7 +25901,7 @@ module.exports = DropdownButton = (function(superClass) {
 })(Component);
 
 
-},{"../helpers.coffee":195,"./DropdownMenu.coffee":186,"react":175,"react-dom":30}],186:[function(require,module,exports){
+},{"../helpers.coffee":196,"./DropdownMenu.coffee":187,"react":175,"react-dom":30}],187:[function(require,module,exports){
 var Component, DropdownMenu, E, ReactDOM, keys, ref,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty,
@@ -25755,7 +25930,7 @@ module.exports = DropdownMenu = (function(superClass) {
   }
 
   DropdownMenu.prototype.render = function() {
-    var item, items, open, ref1;
+    var i, item, items, open, ref1;
     ref1 = this.props, items = ref1.items, open = ref1.open;
     return E(".menu.dropdown-menu", {
       role: "menu",
@@ -25792,17 +25967,23 @@ module.exports = DropdownMenu = (function(superClass) {
         };
       })(this)
     }, (function() {
-      var i, len, results;
+      var j, len, results;
       results = [];
-      for (i = 0, len = items.length; i < len; i++) {
+      for (i = j = 0, len = items.length; j < len; i = ++j) {
         item = items[i];
         if (item != null) {
-          results.push(E(".menu-item", {
-            key: item.label,
-            role: "menuitem",
-            tabIndex: 0,
-            onClick: item.action
-          }, item.label));
+          if (item.type === "separator") {
+            results.push(E("hr", {
+              key: "i"
+            }));
+          } else {
+            results.push(E(".menu-item", {
+              key: item.label,
+              role: "menuitem",
+              tabIndex: 0,
+              onClick: item.action
+            }, item.label));
+          }
         }
       }
       return results;
@@ -25843,7 +26024,7 @@ module.exports = DropdownMenu = (function(superClass) {
 })(Component);
 
 
-},{"../helpers.coffee":195,"react-dom":30}],187:[function(require,module,exports){
+},{"../helpers.coffee":196,"react-dom":30}],188:[function(require,module,exports){
 var Component, E, InfoBar, ref,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -26005,7 +26186,7 @@ class InfoBar extends Component
  */
 
 
-},{"../helpers.coffee":195}],188:[function(require,module,exports){
+},{"../helpers.coffee":196}],189:[function(require,module,exports){
 var Component, E, MIDINotes, ref,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -26020,9 +26201,13 @@ module.exports = MIDINotes = (function(superClass) {
   }
 
   MIDINotes.prototype.render = function() {
-    var height, key, length, middle_midi_note, n_notes_vertically, note, notes, ref1, scale, style, width;
+    var height, i, key, len, length, middle_midi_note, n_notes_vertically, note, notes, ref1, scale, style, width;
     ref1 = this.props, notes = ref1.notes, scale = ref1.scale, style = ref1.style;
-    length = 1000;
+    length = 0;
+    for (i = 0, len = notes.length; i < len; i++) {
+      note = notes[i];
+      length = Math.max(length, note.t + note.length);
+    }
     width = (length != null ? length : 0) * scale;
     height = 80;
     n_notes_vertically = 40;
@@ -26037,12 +26222,12 @@ module.exports = MIDINotes = (function(superClass) {
       xmlns: "http://www.w3.org/svg/2000",
       viewBox: "0 0 " + width + " " + height
     }, (function() {
-      var i, len, results;
+      var j, len1, results;
       if (width) {
         key = 0;
         results = [];
-        for (i = 0, len = notes.length; i < len; i++) {
-          note = notes[i];
+        for (j = 0, len1 = notes.length; j < len1; j++) {
+          note = notes[j];
           key += 1;
           results.push(E("rect.note", {
             key: key,
@@ -26066,7 +26251,7 @@ module.exports = MIDINotes = (function(superClass) {
 })(Component);
 
 
-},{"../helpers.coffee":195}],189:[function(require,module,exports){
+},{"../helpers.coffee":196}],190:[function(require,module,exports){
 var Component, E, MIDINotes, MIDITrack, Range, Track, audio_clips, ref,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -26120,7 +26305,7 @@ module.exports = MIDITrack = (function(superClass) {
 })(Component);
 
 
-},{"../Range.coffee":176,"../audio-clips.coffee":178,"../helpers.coffee":195,"./MIDINotes.coffee":188,"./Track.coffee":190}],190:[function(require,module,exports){
+},{"../Range.coffee":177,"../audio-clips.coffee":179,"../helpers.coffee":196,"./MIDINotes.coffee":189,"./Track.coffee":191}],191:[function(require,module,exports){
 var Component, E, Track, ref,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -26155,7 +26340,7 @@ module.exports = Track = (function(superClass) {
 })(Component);
 
 
-},{"../helpers.coffee":195}],191:[function(require,module,exports){
+},{"../helpers.coffee":196}],192:[function(require,module,exports){
 var Component, E, TrackControls, ref,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -26221,7 +26406,7 @@ module.exports = TrackControls = (function(superClass) {
 })(Component);
 
 
-},{"../helpers.coffee":195}],192:[function(require,module,exports){
+},{"../helpers.coffee":196}],193:[function(require,module,exports){
 var AudioTrack, BeatTrack, Component, E, InfoBar, MIDITrack, Range, ReactDOM, TrackControls, TracksArea, UnknownTrack, easing, ref,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -26351,15 +26536,9 @@ module.exports = TracksArea = (function(superClass) {
       for (k = 0, len1 = tracks.length; k < len1; k++) {
         track = tracks[k];
         switch (track.type) {
-          case "beat":
-            results.push(E(TrackControls, {
-              key: track.id,
-              track: track,
-              scale: scale,
-              editor: editor
-            }));
-            break;
           case "audio":
+          case "midi":
+          case "beat":
             results.push(E(TrackControls, {
               key: track.id,
               track: track,
@@ -26520,7 +26699,7 @@ module.exports = TracksArea = (function(superClass) {
       key: "position-indicator",
       ref: "position_indicator"
     }) : void 0, (function() {
-      var k, len1, ref3, results;
+      var k, len1, ref3, ref4, results;
       results = [];
       for (k = 0, len1 = tracks.length; k < len1; k++) {
         track = tracks[k];
@@ -26540,6 +26719,15 @@ module.exports = TracksArea = (function(superClass) {
               scale: scale,
               editor: editor,
               selection: (((ref3 = this.props.selection) != null ? ref3.containsTrack(track) : void 0) ? this.props.selection : void 0)
+            }));
+            break;
+          case "midi":
+            results.push(E(MIDITrack, {
+              key: track.id,
+              track: track,
+              scale: scale,
+              editor: editor,
+              selection: (((ref4 = this.props.selection) != null ? ref4.containsTrack(track) : void 0) ? this.props.selection : void 0)
             }));
             break;
           default:
@@ -26668,7 +26856,7 @@ module.exports = TracksArea = (function(superClass) {
 })(Component);
 
 
-},{"../Range.coffee":176,"../helpers.coffee":195,"./AudioTrack.coffee":181,"./BeatTrack.coffee":183,"./InfoBar.coffee":187,"./MIDITrack.coffee":189,"./TrackControls.coffee":191,"./UnknownTrack.coffee":193,"easingjs":3,"react-dom":30}],193:[function(require,module,exports){
+},{"../Range.coffee":177,"../helpers.coffee":196,"./AudioTrack.coffee":182,"./BeatTrack.coffee":184,"./InfoBar.coffee":188,"./MIDITrack.coffee":190,"./TrackControls.coffee":192,"./UnknownTrack.coffee":194,"easingjs":3,"react-dom":30}],194:[function(require,module,exports){
 var Component, E, Track, UnknownTrack, ref,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -26699,7 +26887,7 @@ module.exports = UnknownTrack = (function(superClass) {
 })(Component);
 
 
-},{"../helpers.coffee":195,"./Track.coffee":190}],194:[function(require,module,exports){
+},{"../helpers.coffee":196,"./Track.coffee":191}],195:[function(require,module,exports){
 var export_audio_buffer_as;
 
 module.exports = export_audio_buffer_as = function(audio_buffer, file_type, number_of_channels, sample_rate) {
@@ -26775,7 +26963,7 @@ module.exports = export_audio_buffer_as = function(audio_buffer, file_type, numb
 };
 
 
-},{}],195:[function(require,module,exports){
+},{}],196:[function(require,module,exports){
 var React, ReactScript, audio_clips;
 
 React = require("react");
@@ -26826,10 +27014,10 @@ exports.normal_tracks_in = function(tracks) {
 };
 
 
-},{"./audio-clips.coffee":178,"react":175,"react-script":31}],196:[function(require,module,exports){
+},{"./audio-clips.coffee":179,"react":175,"react-script":31}],197:[function(require,module,exports){
 exports.document_version = 4;
 
 exports.stuff_version = 3;
 
 
-},{}]},{},[177]);
+},{}]},{},[178]);

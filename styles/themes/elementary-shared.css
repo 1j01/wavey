@@ -26,6 +26,15 @@
 	box-shadow: 0 0 0 1px rgba(0,0,0,.2),0 3px 6px rgba(0,0,0,.16),0 3px 6px rgba(0,0,0,.23);
 	margin: 0;
 }
+.menu hr {
+	@extend .menuitem.separator;
+	/* in Gtk it uses padding for the margin */
+	padding: 0;
+	margin: 4px 0;
+	
+	border-left: 0;
+	border-right: 0;
+}
 
 .info-bar {
 	@extend GtkInfoBar;

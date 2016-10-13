@@ -38,7 +38,8 @@
     "react-dom": "^15.3.1",
     "react-script": "^2.0.5",
     "sugarss": "^0.1.6",
-    "watchify": "^3.7.0"
+    "watchify": "^3.7.0",
+    "webmidi": "^2.0.0-beta.1"
   },
   "scripts": {
     "start": "nw",

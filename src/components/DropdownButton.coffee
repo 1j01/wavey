@@ -76,7 +76,10 @@ class DropdownButton extends Component
 						items:
 							for item in menu when item?
 								do (item)=>
-									label: item.label
-									action: =>
-										@setState menu_open: no
-										item.action()
+									if item.type is "separator"
+										item
+									else
+										label: item.label
+										action: =>
+											@setState menu_open: no
+											item.action()

@@ -6,7 +6,31 @@ module.exports =
 class Controls extends Component
 	render: ->
 		{playing, recording, selection, precording_enabled, themes, set_theme, editor} = @props
-		{play, pause, seek_to_start, seek_to_end, record, stop_recording, precord, enable_precording, export_as, import_files} = editor
+		{play, pause, seek_to_start, seek_to_end, record, record_midi, stop_recording, precord, enable_precording, export_as, import_files} = editor
+		
+		recording_options_menu = []
+		if editor.state.midi_inputs.length
+			for midi_input in editor.state.midi_inputs
+				do (midi_input)->
+					recording_options_menu.push
+						label: midi_input.name
+						action: -> record_midi(midi_input)
+		if recording_options_menu.length > 0
+			recording_options_menu.push {type: "separator"}
+		
+		recording_options_menu = recording_options_menu.concat(
+			if precording_enabled
+				[
+					{label: "Record last minute", action: -> precord 60}
+					{label: "Record last 2 minutes", action: -> precord 60 * 2}
+					{label: "Record last 5 minutes", action: -> precord 60 * 5}
+					{label: "Disable precording", action: -> enable_precording 0}
+				]
+			else
+				[
+					{label: "Enable precording", action: -> enable_precording 60 * 5}
+				]
+		)
 		
 		E ".controls",
 			# role: "menubar"
@@ -39,18 +63,8 @@ class Controls extends Component
 								onClick: record
 								title: "Start recording"
 								E "i.icon-record"
-					title: "Precording options"
-					menu:
-						if precording_enabled
-							[
-								{label: "Record last minute", action: -> precord 60}
-								{label: "Record last 2 minutes", action: -> precord 60 * 2}
-								{label: "Record last 5 minutes", action: -> precord 60 * 5}
-							]
-						else
-							[
-								{label: "Enable precording", action: -> enable_precording 60 * 5}
-							]
+					title: "Recording options"
+					menu: recording_options_menu
 			E ".document-controls",
 				E "button.button",
 					title: "Import tracks"

@@ -77,9 +77,7 @@ class TracksArea extends Component
 				key: "track-controls-area"
 				for track in tracks
 					switch track.type
-						when "beat"
-							E TrackControls, {key: track.id, track, scale, editor}
-						when "audio"
+						when "audio", "midi", "beat"
 							E TrackControls, {key: track.id, track, scale, editor}
 						else
 							# XXX: This is needed for associating the track-controls with the track
@@ -210,6 +208,11 @@ class TracksArea extends Component
 							E BeatTrack, {key: track.id, track, scale, editor}
 						when "audio"
 							E AudioTrack, {
+								key: track.id, track, scale, editor
+								selection: (@props.selection if @props.selection?.containsTrack track)
+							}
+						when "midi"
+							E MIDITrack, {
 								key: track.id, track, scale, editor
 								selection: (@props.selection if @props.selection?.containsTrack track)
 							}

@@ -7,7 +7,7 @@
 ### Features
 
 * Drag and drop audio files or record from a microphone*
-* Always saved locally, including persistent undo/redo and selection; saves *while* you're recording
+* Always saved locally, including persistent undo/redo with the selection state; saves *while* you're recording
 * Several themes, including light and dark [elementary OS][] themes via [elementary.css][], and some retro themes
 * Fully scalable graphics, from the icons to the waveforms
 * Export the document or a selected range as WAV or MP3
@@ -26,13 +26,15 @@ variable BPM support (hopefully tying into a general automation system).
 * Tracks can be pinned to the top,
 which should easy the pain when you have many tracks with audio clips
 you want to line up with some main audio track(s).
+(This is only partially implemented. Currently pinned tracks don't actually stay at the top when scrolling down.)
 
 * You will be able to "precord" up to five minutes as long as precording has been enabled.
 
 * MIDI is a possibility. It might involve an expanded view to edit the notes, but it would be inline in the track.
 
-* Effects! I'm holding off on adding status quo gain and panning UI because
-I think if the effects UI is good enough, they should be able to simply be effects.
+* Effects! I'm holding off on adding gain and panning because
+I think if the effects UI is good enough, they should be able to simply be effects,
+and I don't want to just immitate the status quo UI and end up with something that's "good enough" but not as good as it could be.
 They (or just gain) may warrant some shortcutting, such as being added by default to the effects chain,
 but they probably shouldn't be separate from it.
 After all they *are* effects and you'll want to be able to automate them just the same.
@@ -45,17 +47,19 @@ After all they *are* effects and you'll want to be able to automate them just th
 
 * Internationalization
 
-* Improve accessibility
-
 
 ### TODO
 
 * Fix pasting across non-consecutive tracks
 * Fix pasting placing the cursor across all tracks after the top track
 * Mouse-relative zooming (preferably performant and smoothly animated)
-* Application Cache, because this app can work completely offline
-* Storage management (especially out-of-storage management)
+* Improve accessibility
+* Use [AppCache (or Service Workers? AppCache 2.0?)][AppCache vs SW] ([sw-precache]) because this app can work completely offline
+* Storage management (handle running out of storage, handle multiple editors loaded for the same document, and allow data purging)
 * Support web intents
+
+[AppCache vs SW]: https://medium.com/@firt/service-workers-replacing-appcache-a-sledgehammer-to-crack-a-nut-5db6f473cc9b#.v3izsi3r1
+[sw-precache]: https://github.com/GoogleChrome/sw-precache
 
 
 ### Contributing
@@ -94,7 +98,6 @@ SOFTWARE.
 [app]: https://audioeditor.ml/
 [elementary OS]: https://elementary.io/
 [elementary.css]: https://github.com/1j01/elementary.css/
-[RTLCSS]: https://github.com/MohammadYounes/rtlcss
 [CoffeeScript]: http://coffeescript.org/
 [React]: https://facebook.github.io/react/
 [ReactScript]: https://github.com/1j01/react-script

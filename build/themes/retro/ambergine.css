@@ -82,6 +82,11 @@
 .selection, .menu-item:hover, .menu-item:active, .menu-item:focus {
 	background: rgba(255, 175, 237, 0.2);
 }
+.menu hr {
+	border: 0;
+	margin: 0;
+	border-bottom: 1px solid rgba(255, 166, 0, 0.5);
+}
 
 .selection {
 	box-shadow: 0 0 0px 1px rgba(255, 175, 237, 0.5);

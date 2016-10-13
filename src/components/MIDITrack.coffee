@@ -15,7 +15,7 @@ class MIDITrack extends Component
 			E ".midi-trackstuff",
 				style:
 					position: "relative"
-					height: 80 # = canvas height
+					height: 80 # = svg height (TODO: DRY these magic numbers)
 					boxSizing: "content-box"
 				E MIDINotes, {scale, notes, editor}
 				if selection?
