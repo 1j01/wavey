@@ -22,7 +22,10 @@
 	padding: 0.2em 0.4em;
 	border-radius: 2px;
 }
-/* TODO: :hover/:active/:focus styles */
+
+.audio-editor .info-bar .button:hover, .audio-editor .info-bar .button:active {
+	background: rgba(0, 255, 0, 0.2);
+}
 
 /* FIXME: accessibility */
 .audio-editor button {
@@ -34,8 +37,10 @@
 	opacity: 0.2;
 }
 
-.controls {
+.controls, .info-bar {
 	border-bottom: 1px solid #0F0;
+}
+.controls {
 	position: relative;
 }
 .record {

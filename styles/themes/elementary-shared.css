@@ -29,6 +29,7 @@
 	border-radius: 3px;
 	box-shadow: 0 0 0 1px rgba(0,0,0,.2),0 3px 6px rgba(0,0,0,.16),0 3px 6px rgba(0,0,0,.23);
 	margin: 0;
+	/* XXX: box-shadow has to be overridden in elementary-dark.css because we couldn't use @extend here */
 }
 .menu hr {
 	@extend .menuitem.separator;

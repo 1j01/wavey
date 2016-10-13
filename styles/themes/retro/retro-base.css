@@ -24,7 +24,12 @@ $background-color: black !default;
 	padding: 0.2em 0.4em;
 	border-radius: 2px;
 }
-/* TODO: :hover/:active/:focus styles */
+
+.audio-editor .info-bar .button:hover,
+/*.audio-editor .info-bar .button:focus,*/
+.audio-editor .info-bar .button:active {
+	background: color($secondary-color alpha(20%));
+}
 
 /* FIXME: accessibility */
 .audio-editor button {
@@ -36,8 +41,11 @@ $background-color: black !default;
 	opacity: 0.2;
 }
 
-.controls {
+.controls,
+.info-bar {
 	border-bottom: 1px solid $color;
+}
+.controls {
 	position: relative;
 }
 .record {
