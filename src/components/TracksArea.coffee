@@ -66,7 +66,7 @@ class TracksArea extends Component
 			onMouseDown: (e)=>
 				# TODO: DRY onMouseDowns
 				return if e.isDefaultPrevented()
-				return if e.target.closest("p")
+				return if e.target.closest("p, button")
 				unless e.button > 0
 					e.preventDefault()
 				if e.target is ReactDOM.findDOMNode(@)

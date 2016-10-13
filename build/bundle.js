@@ -25341,6 +25341,12 @@ exports.AudioEditor = (function(superClass) {
           if (e.isDefaultPrevented()) {
             return;
           }
+          if (e.target.closest("button")) {
+            setTimeout(function() {
+              return ReactDOM.findDOMNode(_this).focus();
+            });
+            return;
+          }
           if (e.target.closest("p")) {
             return;
           }
@@ -26515,7 +26521,7 @@ module.exports = TracksArea = (function(superClass) {
           if (e.isDefaultPrevented()) {
             return;
           }
-          if (e.target.closest("p")) {
+          if (e.target.closest("p, button")) {
             return;
           }
           if (!(e.button > 0)) {
