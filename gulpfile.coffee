@@ -17,15 +17,12 @@ sourcemaps = require 'gulp-sourcemaps'
 browserify_options =
 	entries: ['./src/app.coffee']
 	extensions: ['.coffee']
-	debug: yes
+	debug: no
 
 opts = Object.assign {}, watchify.args, browserify_options
 b = watchify browserify opts 
 
 b.transform coffeeify
-	# bare: no
-	# header: yes
-	
 
 bundle = ->
 	b.bundle()
