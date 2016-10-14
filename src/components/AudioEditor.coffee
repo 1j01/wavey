@@ -865,6 +865,8 @@ class exports.AudioEditor extends Component
 			onMouseDown: (e)=>
 				return if e.isDefaultPrevented()
 				if e.target.closest("button")
+					# prevent focusing the button when clicking with the mouse
+					# but don't preventDefault because that breaks :active in Firefox
 					setTimeout => ReactDOM.findDOMNode(@).focus()
 					return
 				return if e.target.closest("p")

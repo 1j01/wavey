@@ -54,11 +54,10 @@ After all they *are* effects and you'll want to be able to automate them just th
 * Fix pasting placing the cursor across all tracks after the top track
 * Mouse-relative zooming (preferably performant and smoothly animated)
 * Improve accessibility
-* Use [AppCache (or Service Workers? AppCache 2.0?)][AppCache vs SW] ([sw-precache]) because this app can work completely offline
+* Use [sw-precache][] because this app can work completely offline
 * Storage management (handle running out of storage, handle multiple editors loaded for the same document, and allow data purging)
 * Support web intents
 
-[AppCache vs SW]: https://medium.com/@firt/service-workers-replacing-appcache-a-sledgehammer-to-crack-a-nut-5db6f473cc9b#.v3izsi3r1
 [sw-precache]: https://github.com/GoogleChrome/sw-precache
 
 

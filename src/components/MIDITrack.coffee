@@ -12,7 +12,7 @@ class MIDITrack extends Component
 		{notes, muted, pinned} = track
 		
 		E Track, {track, editor},
-			E ".midi-trackstuff",
+			E ".midi-trackstuff", # XXX: probably .track-content should just be position: relative instead
 				style:
 					position: "relative"
 					height: 80 # = svg height (TODO: DRY these magic numbers)
