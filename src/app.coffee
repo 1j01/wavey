@@ -15,7 +15,7 @@ window.actx = new (
 	window.msAudioContext
 )
 
-themes = require "../build/themes.json"
+themes = require "../themes.json"
 
 theme_link = document.createElement "link"
 theme_link.rel = "stylesheet"

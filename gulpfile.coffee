@@ -40,10 +40,9 @@ b.on 'update', bundle # on any dep update, runs the bundler
 b.on 'log', gutil.log # output build logs
 
 gulp.task 'watch-styles', ->
-	gulp.watch 'styles/**/*', ['styles']
+	gulp.watch ['styles/**/*', 'themes.json'], ['styles']
 
 gulp.task 'styles', (callback)->
-	
 	# TODO: preprocess non-theme-specific css
 	
 	debug = createDebugger([
@@ -72,16 +71,7 @@ gulp.task 'styles', (callback)->
 					callback(null)
 			.catch(callback)
 	
-	# TODO: probably move this into a JSON file as the canonical source
-	themes =
-		"elementary": "elementary.css"
-		"elementary Dark": "elementary-dark.css"
-		"Monochrome Aqua": "retro/aqua.css"
-		"Monochrome Green": "retro/green.css"
-		"Monochrome Amber": "retro/amber.css"
-		"Ambergine (aubergine + amber)": "retro/ambergine.css"
-	
-	fs.writeFileSync("build/themes.json", JSON.stringify(themes, null, "\t"), "utf8")
+	themes = require "./themes.json"
 	
 	async.eachOf themes,
 		(theme_path, theme_name, callback)->
