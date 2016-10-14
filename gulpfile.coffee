@@ -1,10 +1,4 @@
 
-fs = require "fs"
-async = require "async"
-postcss = require "postcss"
-# sugarss = require "sugarss"
-{createDebugger, matcher} = require "postcss-debug"
-
 watchify = require 'watchify'
 browserify = require 'browserify'
 coffeeify = require 'coffeeify'
@@ -43,6 +37,13 @@ gulp.task 'watch-styles', ->
 	gulp.watch ['styles/**/*', 'themes.json'], ['styles']
 
 gulp.task 'styles', (callback)->
+	
+	fs = require "fs"
+	async = require "async"
+	postcss = require "postcss"
+	# sugarss = require "sugarss"
+	{createDebugger, matcher} = require "postcss-debug"
+	
 	# TODO: preprocess non-theme-specific css
 	
 	debug = createDebugger([
@@ -81,6 +82,30 @@ gulp.task 'styles', (callback)->
 			debug.inspect()
 			callback()
 
+gulp.task 'generate-service-worker', (callback)->
+	path = require 'path'
+	sw_precache = require 'sw-precache'
+	
+	return sw_precache.write 'service-worker.js',
+		staticFileGlobs: [
+			'./index.html'
+			'./service-worker.js'
+			'./build/**/*.{js,css,png,jpg,gif,svg,eot,ttf,woff,woff2}'
+			'./lib/**/*.{js,css,png,jpg,gif,svg,eot,ttf,woff,woff2}'
+			'./styles/**/*.{png,jpg,gif,svg,eot,ttf,woff,woff2}' # TODO: should probably copy assets to /build/ with postcss-url
+			'./styles/*.css' # TODO: should compile to /build/
+			'./images/wavey-logo.svg'
+			'./images/wavey-logo-512.png'
+		]
+		ignoreUrlParametersMatching: [/./] # fixes fontello
+		# verbose: yes
 
-gulp.task 'default', ['watch-scripts', 'watch-styles']
+gulp.task 'watch-build-and-generate-service-worker', ->
+	gulp.watch 'build/**/*', ['generate-service-worker']
+
+gulp.task 'default', [
+	'watch-scripts'
+	'watch-styles'
+	'watch-build-and-generate-service-worker'
+]
 

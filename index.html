@@ -18,12 +18,20 @@
 		<script src="lib/polyfill.js"></script>
 		<script src="build/bundle.js"></script>
 		<script>
-			if(window.require){
+			if (location.host === "audioeditor.ml") {
+				if ("serviceWorker" in navigator) {
+					navigator.serviceWorker.register("service-worker.js").catch(function(error) {
+						console.warn(error);
+					});
+				}
+			}
+			if (window.require) {
 				var script = document.createElement("script");
 				script.setAttribute("src", "node_modules/nw-dev/lib/dev.js");
 				script.setAttribute("defer", "defer");
 				document.body.appendChild(script);
 			}
 		</script>
+
 	</body>
 </html>

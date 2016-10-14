@@ -11,6 +11,7 @@
 * Several themes, including light and dark [elementary OS][] themes via [elementary.css][], and some retro themes
 * Fully scalable graphics, from the icons to the waveforms
 * Export the document or a selected range as WAV or MP3
+* Can work completely offline
 
 *Audio recording quality may or may not match native applications in a given browser.
 Record redundantly with another application if it matters to you.
@@ -54,11 +55,8 @@ After all they *are* effects and you'll want to be able to automate them just th
 * Fix pasting placing the cursor across all tracks after the top track
 * Mouse-relative zooming (preferably performant and smoothly animated)
 * Improve accessibility
-* Use [sw-precache][] because this app can work completely offline
 * Storage management (handle running out of storage, handle multiple editors loaded for the same document, and allow data purging)
 * Support web intents
-
-[sw-precache]: https://github.com/GoogleChrome/sw-precache
 
 
 ### Contributing
