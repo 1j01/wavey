@@ -26557,21 +26557,19 @@ module.exports = TracksArea = (function(superClass) {
           var dragEnd;
           e.preventDefault();
           e.dataTransfer.dropEffect = "copy";
-          if (Math.random() < 0.5) {
-            if (!editor.state.moving_selection) {
+          if (!editor.state.moving_selection) {
+            editor.setState({
+              moving_selection: true
+            });
+            window.addEventListener("dragend", dragEnd = function(e) {
+              window.removeEventListener("dragend", dragEnd);
               editor.setState({
-                moving_selection: true
+                moving_selection: false
               });
-              window.addEventListener("dragend", dragEnd = function(e) {
-                window.removeEventListener("dragend", dragEnd);
-                editor.setState({
-                  moving_selection: false
-                });
-                return editor.save();
-              });
-            }
-            return select_at_mouse(e);
+              return editor.save();
+            });
           }
+          return select_at_mouse(e);
         };
       })(this),
       onDragLeave: (function(_this) {

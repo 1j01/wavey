@@ -93,20 +93,18 @@ class TracksArea extends Component
 				# @TODO: double click to select either to the bounds of adjacent audio clips or everything on the track
 				# @TODO: drag and drop the selection?
 				# @TODO: better overall drag and drop feedback
-				# @TODO: scroll by dragging to the left or right edges
+				# @TODO: scroll by selecting (or dragging files) over to the left/right/top/bottom
 				
 				onDragOver: (e)=>
-					# FIXME: lags a bit in chrome
 					e.preventDefault()
 					e.dataTransfer.dropEffect = "copy"
-					if Math.random() < 0.5
-						unless editor.state.moving_selection
-							editor.setState moving_selection: yes
-							window.addEventListener "dragend", dragEnd = (e)=>
-								window.removeEventListener "dragend", dragEnd
-								editor.setState moving_selection: no
-								editor.save()
-						select_at_mouse e
+					unless editor.state.moving_selection
+						editor.setState moving_selection: yes
+						window.addEventListener "dragend", dragEnd = (e)=>
+							window.removeEventListener "dragend", dragEnd
+							editor.setState moving_selection: no
+							editor.save()
+					select_at_mouse e
 				
 				onDragLeave: (e)=>
 					editor.deselect()
