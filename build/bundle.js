@@ -26579,6 +26579,9 @@ module.exports = TracksArea = (function(superClass) {
       onDrop: (function(_this) {
         return function(e) {
           var file, k, len1, ref3, results;
+          if (!e.target.closest(".track-content")) {
+            return;
+          }
           e.preventDefault();
           select_at_mouse(e);
           ref3 = e.dataTransfer.files;

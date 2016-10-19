@@ -27,8 +27,11 @@ describe "AudioEditor", ->
 	it "should save undo/redo history"
 	it "should let you clear undo/redo history"
 	
-	it "should let you add tracks with clips"
+	it "should add new tracks when you choose audio files with the import button"
+	it "should add tracks when you drag audio files anywhere outside of a track's content"
 	it "should let you add clips to existing tracks"
+		# either it "should add tracks if it would push any audio around otherwise"
+		# or it "should just push audio to the right if need be"
 	it "should let you delete tracks"
 	it "should let you mute/unmute tracks"
 	it "should let you pin/unpin tracks"

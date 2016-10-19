@@ -110,6 +110,7 @@ class TracksArea extends Component
 					editor.deselect()
 				
 				onDrop: (e)=>
+					return unless e.target.closest(".track-content")
 					e.preventDefault()
 					select_at_mouse e
 					# TODO: add tracks in the order we get them, not by how long each clip takes to load
