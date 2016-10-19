@@ -24856,14 +24856,14 @@ exports.AudioEditor = (function(superClass) {
     }
   };
 
-  AudioEditor.prototype.select_horizontally = function(seconds) {
+  AudioEditor.prototype.select_horizontally = function(delta_seconds) {
     var max_length, selection, to;
     selection = this.state.selection;
     max_length = this.get_max_length();
     if (max_length == null) {
       return;
     }
-    to = Math.max(0, Math.min(max_length, selection.b + seconds));
+    to = Math.max(0, Math.min(max_length, selection.b + delta_seconds));
     return this.select(new Range(selection.a, to, selection.track_ids));
   };
 
@@ -25189,12 +25189,25 @@ exports.AudioEditor = (function(superClass) {
     this.load();
     return window.addEventListener("keydown", this.keydown_listener = (function(_this) {
       return function(e) {
+        var page, seek_or_select;
         if (e.defaultPrevented) {
           return;
         }
         if (e.altKey) {
           return;
         }
+        seek_or_select = function(delta_seconds) {
+          if (e.shiftKey) {
+            return _this.select_horizontally(delta_seconds);
+          } else {
+            return _this.seek(_this.get_current_position() + delta_seconds);
+          }
+        };
+        page = function(delta_pages) {
+          var track_content_area;
+          track_content_area = ReactDOM.findDOMNode(_this).querySelector(".track-content-area");
+          return track_content_area.scrollLeft += track_content_area.clientWidth * delta_pages;
+        };
         if (e.ctrlKey) {
           switch (e.keyCode) {
             case 65:
@@ -25272,25 +25285,21 @@ exports.AudioEditor = (function(superClass) {
               }
               break;
             case 37:
-              if (e.shiftKey) {
-                _this.select_horizontally(-1);
-              } else {
-                _this.seek(_this.get_current_position() - 1);
-              }
+              seek_or_select(-1);
               break;
             case 39:
-              if (e.shiftKey) {
-                _this.select_horizontally(+1);
-              } else {
-                _this.seek(_this.get_current_position() + 1);
-              }
+              seek_or_select(+1);
+              break;
+            case 33:
+              page(-1);
+              break;
+            case 34:
+              page(+1);
               break;
             case 38:
-            case 33:
               _this.select_up(e);
               break;
             case 40:
-            case 34:
               _this.select_down(e);
               break;
             case 36:

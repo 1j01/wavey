@@ -572,11 +572,11 @@ class exports.AudioEditor extends Component
 		else
 			@select new Range selection.a, selection.b, [next_selected_track_id ? selected_track_id]
 	
-	select_horizontally: (seconds)->
+	select_horizontally: (delta_seconds)->
 		{selection} = @state
 		max_length = @get_max_length()
 		return unless max_length?
-		to = Math.max(0, Math.min(max_length, selection.b + seconds))
+		to = Math.max(0, Math.min(max_length, selection.b + delta_seconds))
 		@select new Range selection.a, to, selection.track_ids
 	
 	select_up: (e)=>
@@ -788,6 +788,16 @@ class exports.AudioEditor extends Component
 			return if e.defaultPrevented
 			return if e.altKey
 			
+			seek_or_select = (delta_seconds)=>
+				if e.shiftKey
+					@select_horizontally(delta_seconds)
+				else
+					@seek(@get_current_position() + delta_seconds)
+			
+			page = (delta_pages)=>
+				track_content_area = ReactDOM.findDOMNode(@).querySelector(".track-content-area")
+				track_content_area.scrollLeft += track_content_area.clientWidth * delta_pages
+			
 			if e.ctrlKey
 				switch e.keyCode
 					when 65 # A
@@ -828,18 +838,16 @@ class exports.AudioEditor extends Component
 							@record()
 					# @TODO: finer control
 					when 37 # Left
-						if e.shiftKey
-							@select_horizontally -1
-						else
-							@seek @get_current_position() - 1
+						seek_or_select(-1)
 					when 39 # Right
-						if e.shiftKey
-							@select_horizontally +1
-						else
-							@seek @get_current_position() + 1
-					when 38, 33 # Up, Page Up
+						seek_or_select(+1)
+					when 33 # Page Up
+						page(-1)
+					when 34 # Page Down
+						page(+1)
+					when 38 # Up
 						@select_up e
-					when 40, 34 # Down, Page Down
+					when 40 # Down
 						@select_down e
 					when 36 # Home
 						@seek_to_start e
