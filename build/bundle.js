@@ -26743,7 +26743,7 @@ module.exports = TracksArea = (function(superClass) {
   };
 
   TracksArea.prototype.animate = function() {
-    var any_old_track_content_el, fn, i, j, k, l, len, len1, len2, position, position_indicator_el, rect, ref1, scale, scroll_x, track_content_el, track_controls_el, track_controls_els, track_el, track_els, track_rect, tracks_area_el, tracks_area_rect, tracks_content_area_el, tracks_content_area_rect, y_offset, y_offset_fns;
+    var any_old_track_content_el, any_old_track_content_rect, delta_x, fn, i, j, k, keep_margin_right, l, len, len1, len2, position, ref1, scale, scroll_by, scroll_x, track_content_el, track_controls_el, track_controls_els, track_el, track_els, track_rect, tracks_area_el, tracks_area_rect, tracks_content_area_el, tracks_content_area_rect, x, y_offset, y_offset_fns;
     scale = this.props.scale;
     this.animation_frame = requestAnimationFrame((function(_this) {
       return function() {
@@ -26778,12 +26778,22 @@ module.exports = TracksArea = (function(superClass) {
       }
     }
     if (this.refs.position_indicator) {
-      position_indicator_el = this.refs.position_indicator;
-      position = this.props.position + (this.props.playing ? actx.currentTime - this.props.position_time : 0);
       any_old_track_content_el = track_el.querySelector(".track-content");
-      rect = any_old_track_content_el.getBoundingClientRect();
-      position_indicator_el.style.left = (scale * position + rect.left - tracks_content_area_rect.left) + "px";
-      return position_indicator_el.style.top = tracks_content_area_el.scrollTop + "px";
+      any_old_track_content_rect = any_old_track_content_el.getBoundingClientRect();
+      position = this.props.position + (this.props.playing ? actx.currentTime - this.props.position_time : 0);
+      x = scale * position + any_old_track_content_rect.left;
+      if (this.props.playing) {
+        keep_margin_right = 5;
+        scroll_by = any_old_track_content_rect.width;
+        delta_x = x - tracks_content_area_el.scrollLeft - any_old_track_content_rect.right + keep_margin_right;
+        if (delta_x > 0) {
+          setTimeout(function() {
+            return tracks_content_area_el.scrollLeft += delta_x + scroll_by;
+          });
+        }
+      }
+      this.refs.position_indicator.style.left = (x - tracks_content_area_rect.left) + "px";
+      return this.refs.position_indicator.style.top = tracks_content_area_el.scrollTop + "px";
     }
   };
 

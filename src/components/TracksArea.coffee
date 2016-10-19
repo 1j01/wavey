@@ -267,12 +267,34 @@ class TracksArea extends Component
 				track_content_el.style.transform = "translateX(#{-scroll_x}px)"
 		
 		if @refs.position_indicator
-			position_indicator_el = @refs.position_indicator
-			position = @props.position + if @props.playing then actx.currentTime - @props.position_time else 0
 			any_old_track_content_el = track_el.querySelector(".track-content")
-			rect = any_old_track_content_el.getBoundingClientRect()
-			position_indicator_el.style.left = "#{scale * position + rect.left - tracks_content_area_rect.left}px"
-			position_indicator_el.style.top = "#{tracks_content_area_el.scrollTop}px"
+			any_old_track_content_rect = any_old_track_content_el.getBoundingClientRect()
+			
+			position = @props.position + if @props.playing then actx.currentTime - @props.position_time else 0
+			x = scale * position + any_old_track_content_rect.left
+			if @props.playing
+				# pagination behavior
+				keep_margin_right = 5
+				scroll_by = any_old_track_content_rect.width
+				
+				# incremental behavior
+				# keep_margin_right = 5
+				# scroll_by = 200
+				
+				# almost-smooth behavior,
+				# but scroll_by is a misnomer here
+				# and even without the setTimeout the position indicator still jiggles
+				# more problematically, if you seek ahead it's confusing
+				# keep_margin_right = 200
+				# scroll_by = 0
+				
+				delta_x = x - tracks_content_area_el.scrollLeft - any_old_track_content_rect.right + keep_margin_right
+				if delta_x > 0
+					setTimeout -> # do scroll outside of animation loop!
+						tracks_content_area_el.scrollLeft += delta_x + scroll_by
+			
+			@refs.position_indicator.style.left = "#{x - tracks_content_area_rect.left}px"
+			@refs.position_indicator.style.top = "#{tracks_content_area_el.scrollTop}px"
 	
 	componentWillUpdate: (next_props, next_state)=>
 		# for transitioning track positions
