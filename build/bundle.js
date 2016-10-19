@@ -24037,6 +24037,9 @@ exports.AudioEditor = (function(superClass) {
     this.select_vertically = bind(this.select_vertically, this);
     this.select_all = bind(this.select_all, this);
     this.deselect = bind(this.deselect, this);
+    this.select_to_position = bind(this.select_to_position, this);
+    this.select_position = bind(this.select_position, this);
+    this.select_to = bind(this.select_to, this);
     this.select = bind(this.select, this);
     this.enable_precording = bind(this.enable_precording, this);
     this.precord = bind(this.precord, this);
@@ -24353,9 +24356,9 @@ exports.AudioEditor = (function(superClass) {
     }
     if (selection != null) {
       if (e != null ? e.shiftKey : void 0) {
-        return this.select(new Range(selection.a, position, selection.track_ids));
+        return this.select_to_position(position);
       } else if (selection.length() === 0) {
-        return this.select(new Range(position, position, selection.track_ids));
+        return this.select_position(position);
       }
     }
   };
@@ -24645,7 +24648,7 @@ exports.AudioEditor = (function(superClass) {
       }
     }
     if (start_position > 0) {
-      this.select(new Range(start_position, start_position, (function() {
+      this.select_position(start_position, (function() {
         var len5, p, results;
         results = [];
         for (p = 0, len5 = tracks_to_use.length; p < len5; p++) {
@@ -24653,7 +24656,7 @@ exports.AudioEditor = (function(superClass) {
           results.push(track.id);
         }
         return results;
-      })()));
+      })());
     }
     return {
       start_position: start_position,
@@ -24802,6 +24805,50 @@ exports.AudioEditor = (function(superClass) {
     });
   };
 
+  AudioEditor.prototype.select_to = function(to_position, to_track_id) {
+    var from_track, include_tracks, j, k, len, len1, ref2, selection, sorted_tracks, to_track, track, track_ids, tracks;
+    ref2 = this.state, tracks = ref2.tracks, selection = ref2.selection;
+    to_position = Math.max(0, to_position);
+    sorted_tracks = this.get_sorted_tracks(tracks);
+    for (j = 0, len = sorted_tracks.length; j < len; j++) {
+      track = sorted_tracks[j];
+      if (track.id === selection.firstTrackID()) {
+        from_track = track;
+      }
+    }
+    for (k = 0, len1 = sorted_tracks.length; k < len1; k++) {
+      track = sorted_tracks[k];
+      if (track.id === to_track_id) {
+        to_track = track;
+      }
+    }
+    include_tracks = sorted_tracks.indexOf(from_track) < sorted_tracks.indexOf(to_track) ? sorted_tracks.slice(sorted_tracks.indexOf(from_track), sorted_tracks.indexOf(to_track) + 1) : sorted_tracks.slice(sorted_tracks.indexOf(to_track), sorted_tracks.indexOf(from_track) + 1);
+    track_ids = [selection.firstTrackID()].concat((function() {
+      var l, len2, results;
+      results = [];
+      for (l = 0, len2 = include_tracks.length; l < len2; l++) {
+        track = include_tracks[l];
+        if (track.id !== selection.firstTrackID()) {
+          results.push(track.id);
+        }
+      }
+      return results;
+    })());
+    return this.select_to_position(to_position, track_ids);
+  };
+
+  AudioEditor.prototype.select_position = function(position, track_ids) {
+    var ref2, selection;
+    selection = this.state.selection;
+    return this.select(new Range(position, position, (ref2 = track_ids != null ? track_ids : selection != null ? selection.track_ids : void 0) != null ? ref2 : []));
+  };
+
+  AudioEditor.prototype.select_to_position = function(position, track_ids) {
+    var ref2, selection;
+    selection = this.state.selection;
+    return this.select(new Range(selection.a, position, (ref2 = track_ids != null ? track_ids : selection != null ? selection.track_ids : void 0) != null ? ref2 : []));
+  };
+
   AudioEditor.prototype.deselect = function() {
     return this.select(null);
   };
@@ -24864,7 +24911,7 @@ exports.AudioEditor = (function(superClass) {
       return;
     }
     to = Math.max(0, Math.min(max_length, selection.b + delta_seconds));
-    return this.select(new Range(selection.a, to, selection.track_ids));
+    return this.select_to_position(to);
   };
 
   AudioEditor.prototype.select_up = function(e) {
@@ -26447,41 +26494,8 @@ module.exports = TracksArea = (function(superClass) {
   }
 
   TracksArea.prototype.render = function() {
-    var HACK_InfoBar_warn, document_is_basically_empty, document_width, document_width_padding, editor, j, len, playing, position, position_time, ref1, ref2, scale, select_at_mouse, select_to, track, tracks;
+    var HACK_InfoBar_warn, document_is_basically_empty, document_width, document_width_padding, editor, j, len, playing, position, position_time, ref1, ref2, scale, select_at_mouse, track, tracks;
     ref1 = this.props, tracks = ref1.tracks, position = ref1.position, position_time = ref1.position_time, scale = ref1.scale, playing = ref1.playing, editor = ref1.editor;
-    select_to = (function(_this) {
-      return function(to_position, to_track_id) {
-        var from_track, include_tracks, j, k, len, len1, range, sorted_tracks, to_track, track, track_ids;
-        to_position = Math.max(0, to_position);
-        range = _this.props.selection;
-        sorted_tracks = editor.get_sorted_tracks(tracks);
-        for (j = 0, len = sorted_tracks.length; j < len; j++) {
-          track = sorted_tracks[j];
-          if (track.id === range.firstTrackID()) {
-            from_track = track;
-          }
-        }
-        for (k = 0, len1 = sorted_tracks.length; k < len1; k++) {
-          track = sorted_tracks[k];
-          if (track.id === to_track_id) {
-            to_track = track;
-          }
-        }
-        include_tracks = sorted_tracks.indexOf(from_track) < sorted_tracks.indexOf(to_track) ? sorted_tracks.slice(sorted_tracks.indexOf(from_track), sorted_tracks.indexOf(to_track) + 1) : sorted_tracks.slice(sorted_tracks.indexOf(to_track), sorted_tracks.indexOf(from_track) + 1);
-        track_ids = [range.firstTrackID()].concat((function() {
-          var l, len2, results;
-          results = [];
-          for (l = 0, len2 = include_tracks.length; l < len2; l++) {
-            track = include_tracks[l];
-            if (track.id !== range.firstTrackID()) {
-              results.push(track.id);
-            }
-          }
-          return results;
-        })());
-        return editor.select(new Range(range.a, to_position, track_ids));
-      };
-    })(this);
     select_at_mouse = (function(_this) {
       return function(e) {
         var position_at, track_content_area_el, track_content_el, track_el, track_id, track_id_at;
@@ -26502,7 +26516,7 @@ module.exports = TracksArea = (function(superClass) {
         };
         position = position_at(e);
         track_id = track_id_at(e);
-        return editor.select(new Range(position, position, [track_id]));
+        return editor.select_position(position, [track_id]);
       };
     })(this);
     document_is_basically_empty = true;
@@ -26662,9 +26676,9 @@ module.exports = TracksArea = (function(superClass) {
             moving_selection: true
           });
           if (e.shiftKey) {
-            select_to(position, track_id);
+            editor.select_to(position, track_id);
           } else {
-            editor.select(new Range(position, position, [track_id]));
+            editor.select_position(position, [track_id]);
           }
           mouse_moved_timewise = false;
           mouse_moved_trackwise = false;
@@ -26680,7 +26694,7 @@ module.exports = TracksArea = (function(superClass) {
             if (_this.props.selection && (mouse_moved_timewise || mouse_moved_trackwise)) {
               drag_position = mouse_moved_timewise ? position_at(e) : position;
               drag_track_id = mouse_moved_trackwise ? track_id_at(e) : track_id;
-              select_to(drag_position, drag_track_id);
+              editor.select_to(drag_position, drag_track_id);
               return e.preventDefault();
             }
           });

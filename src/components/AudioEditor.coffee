@@ -208,9 +208,9 @@ class exports.AudioEditor extends Component
 		
 		if selection?
 			if e?.shiftKey
-				@select new Range selection.a, position, selection.track_ids
+				@select_to_position position
 			else if selection.length() is 0
-				@select new Range position, position, selection.track_ids
+				@select_position position
 	
 	seek_to_start: (e)=>
 		@seek 0, e
@@ -409,7 +409,7 @@ class exports.AudioEditor extends Component
 				tracks_to_use.push(track)
 		
 		if start_position > 0
-			@select new Range start_position, start_position, (track.id for track in tracks_to_use)
+			@select_position start_position, (track.id for track in tracks_to_use)
 
 		{start_position, tracks_to_use_by_type}
 	
@@ -544,6 +544,29 @@ class exports.AudioEditor extends Component
 	select: (selection)=>
 		@setState {selection}
 	
+	select_to: (to_position, to_track_id)=>
+		{tracks, selection} = @state
+		to_position = Math.max(0, to_position)
+		# TODO: this should be way simpler
+		sorted_tracks = @get_sorted_tracks tracks
+		from_track = track for track in sorted_tracks when track.id is selection.firstTrackID()
+		to_track = track for track in sorted_tracks when track.id is to_track_id
+		include_tracks =
+			if sorted_tracks.indexOf(from_track) < sorted_tracks.indexOf(to_track)
+				sorted_tracks.slice sorted_tracks.indexOf(from_track), sorted_tracks.indexOf(to_track) + 1
+			else
+				sorted_tracks.slice sorted_tracks.indexOf(to_track), sorted_tracks.indexOf(from_track) + 1
+		track_ids = [selection.firstTrackID()].concat(track.id for track in include_tracks when track.id isnt selection.firstTrackID())
+		@select_to_position to_position, track_ids
+	
+	select_position: (position, track_ids)=>
+		{selection} = @state
+		@select new Range position, position, track_ids ? selection?.track_ids ? []
+	
+	select_to_position: (position, track_ids)=>
+		{selection} = @state
+		@select new Range selection.a, position, track_ids ? selection?.track_ids ? []
+	
 	deselect: =>
 		@select null
 	
@@ -577,7 +600,7 @@ class exports.AudioEditor extends Component
 		max_length = @get_max_length()
 		return unless max_length?
 		to = Math.max(0, Math.min(max_length, selection.b + delta_seconds))
-		@select new Range selection.a, to, selection.track_ids
+		@select_to_position to
 	
 	select_up: (e)=>
 		@select_vertically "up", e
