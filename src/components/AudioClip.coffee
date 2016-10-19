@@ -44,10 +44,12 @@ class AudioClip extends Component
 				
 				key = 0
 				for chunk_x in [0..width] by chunk_length / scale
-					pathdata =
-						for x in [0..chunk_length/scale] by 0.1
-							y = height * (at(chunk_x + x) + 1) / 2
-							"#{if x is 0 then "M" else "L"}#{(chunk_x + x).toFixed(2)} #{~~y}"
+					pathdata = []
+					for x in [0..chunk_length/scale] by 0.1
+						v = at(chunk_x + x)
+						if v?
+							y = height * (v + 1) / 2
+							pathdata.push "#{if x is 0 then "M" else "L"}#{(chunk_x + x).toFixed(2)} #{~~y}"
 					key += 1
 					E "path", {key, d: pathdata.join("")}
 	

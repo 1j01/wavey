@@ -23908,7 +23908,7 @@ module.exports = AudioClip = (function(superClass) {
   }
 
   AudioClip.prototype.render = function() {
-    var at, audio_buffer, chunk_length, chunk_x, data, height, i, key, length, offset, pathdata, position, ref1, ref2, sample_rate, scale, typed_array, typed_arrays, width, x, y;
+    var at, audio_buffer, chunk_length, chunk_x, data, height, i, key, length, offset, pathdata, position, ref1, ref2, sample_rate, scale, typed_array, typed_arrays, v, width, x, y;
     ref1 = this.props, data = ref1.data, sample_rate = ref1.sample_rate, length = ref1.length, offset = ref1.offset, scale = ref1.scale, position = ref1.position;
     if (data instanceof Array) {
       typed_arrays = data[0];
@@ -23941,7 +23941,7 @@ module.exports = AudioClip = (function(superClass) {
       xmlns: "http://www.w3.org/svg/2000",
       viewBox: "0 0 " + width + " " + height
     }, (function() {
-      var j, ref3, ref4, results;
+      var j, k, ref3, ref4, ref5, results;
       if (width) {
         at = function(x) {
           var idx, len, ref3, ref4;
@@ -23952,15 +23952,14 @@ module.exports = AudioClip = (function(superClass) {
         key = 0;
         results = [];
         for (chunk_x = j = 0, ref3 = width, ref4 = chunk_length / scale; ref4 > 0 ? j <= ref3 : j >= ref3; chunk_x = j += ref4) {
-          pathdata = (function() {
-            var k, ref5, results1;
-            results1 = [];
-            for (x = k = 0, ref5 = chunk_length / scale; k <= ref5; x = k += 0.1) {
-              y = height * (at(chunk_x + x) + 1) / 2;
-              results1.push("" + (x === 0 ? "M" : "L") + ((chunk_x + x).toFixed(2)) + " " + (~~y));
+          pathdata = [];
+          for (x = k = 0, ref5 = chunk_length / scale; k <= ref5; x = k += 0.1) {
+            v = at(chunk_x + x);
+            if (v != null) {
+              y = height * (v + 1) / 2;
+              pathdata.push("" + (x === 0 ? "M" : "L") + ((chunk_x + x).toFixed(2)) + " " + (~~y));
             }
-            return results1;
-          })();
+          }
           key += 1;
           results.push(E("path", {
             key: key,
