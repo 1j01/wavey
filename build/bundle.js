@@ -26447,11 +26447,13 @@ module.exports = TracksArea = (function(superClass) {
   }
 
   TracksArea.prototype.render = function() {
-    var HACK_InfoBar_warn, document_is_basically_empty, document_width, document_width_padding, drag, editor, j, len, playing, position, position_time, ref1, ref2, scale, select_at_mouse, track, tracks;
+    var HACK_InfoBar_warn, document_is_basically_empty, document_width, document_width_padding, editor, j, len, playing, position, position_time, ref1, ref2, scale, select_at_mouse, select_to, track, tracks;
     ref1 = this.props, tracks = ref1.tracks, position = ref1.position, position_time = ref1.position_time, scale = ref1.scale, playing = ref1.playing, editor = ref1.editor;
-    drag = (function(_this) {
-      return function(range, to_position, to_track_id) {
-        var from_track, include_tracks, j, k, len, len1, sorted_tracks, to_track, track;
+    select_to = (function(_this) {
+      return function(to_position, to_track_id) {
+        var from_track, include_tracks, j, k, len, len1, range, sorted_tracks, to_track, track, track_ids;
+        to_position = Math.max(0, to_position);
+        range = _this.props.selection;
         sorted_tracks = editor.get_sorted_tracks(tracks);
         for (j = 0, len = sorted_tracks.length; j < len; j++) {
           track = sorted_tracks[j];
@@ -26466,7 +26468,7 @@ module.exports = TracksArea = (function(superClass) {
           }
         }
         include_tracks = sorted_tracks.indexOf(from_track) < sorted_tracks.indexOf(to_track) ? sorted_tracks.slice(sorted_tracks.indexOf(from_track), sorted_tracks.indexOf(to_track) + 1) : sorted_tracks.slice(sorted_tracks.indexOf(to_track), sorted_tracks.indexOf(from_track) + 1);
-        return new Range(range.a, Math.max(0, to_position), [range.firstTrackID()].concat((function() {
+        track_ids = [range.firstTrackID()].concat((function() {
           var l, len2, results;
           results = [];
           for (l = 0, len2 = include_tracks.length; l < len2; l++) {
@@ -26476,7 +26478,8 @@ module.exports = TracksArea = (function(superClass) {
             }
           }
           return results;
-        })()));
+        })());
+        return editor.select(new Range(range.a, to_position, track_ids));
       };
     })(this);
     select_at_mouse = (function(_this) {
@@ -26659,7 +26662,7 @@ module.exports = TracksArea = (function(superClass) {
             moving_selection: true
           });
           if (e.shiftKey) {
-            editor.select(drag(_this.props.selection, position, track_id));
+            select_to(position, track_id);
           } else {
             editor.select(new Range(position, position, [track_id]));
           }
@@ -26677,7 +26680,7 @@ module.exports = TracksArea = (function(superClass) {
             if (_this.props.selection && (mouse_moved_timewise || mouse_moved_trackwise)) {
               drag_position = mouse_moved_timewise ? position_at(e) : position;
               drag_track_id = mouse_moved_trackwise ? track_id_at(e) : track_id;
-              editor.select(drag(_this.props.selection, drag_position, drag_track_id));
+              select_to(drag_position, drag_track_id);
               return e.preventDefault();
             }
           });

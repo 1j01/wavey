@@ -18,7 +18,11 @@ class TracksArea extends Component
 	render: ->
 		{tracks, position, position_time, scale, playing, editor} = @props
 		
-		drag = (range, to_position, to_track_id)=>
+		# TODO: move to editor
+		select_to = (to_position, to_track_id)=>
+			to_position = Math.max(0, to_position)
+			range = @props.selection
+			# TODO: this should be way simpler
 			sorted_tracks = editor.get_sorted_tracks tracks
 			from_track = track for track in sorted_tracks when track.id is range.firstTrackID()
 			to_track = track for track in sorted_tracks when track.id is to_track_id
@@ -27,7 +31,8 @@ class TracksArea extends Component
 					sorted_tracks.slice sorted_tracks.indexOf(from_track), sorted_tracks.indexOf(to_track) + 1
 				else
 					sorted_tracks.slice sorted_tracks.indexOf(to_track), sorted_tracks.indexOf(from_track) + 1
-			new Range range.a, Math.max(0, to_position), [range.firstTrackID()].concat(track.id for track in include_tracks when track.id isnt range.firstTrackID())
+			track_ids = [range.firstTrackID()].concat(track.id for track in include_tracks when track.id isnt range.firstTrackID())
+			editor.select new Range range.a, to_position, track_ids
 		
 		select_at_mouse = (e)=>
 			# TODO: DRY, parts were copy/pasted from onMouseMove
@@ -48,6 +53,7 @@ class TracksArea extends Component
 			position = position_at e
 			track_id = track_id_at e
 			
+			# TODO: helper for selecting a position
 			editor.select new Range position, position, [track_id]
 		
 		
@@ -163,9 +169,16 @@ class TracksArea extends Component
 					editor.setState moving_selection: yes
 					
 					if e.shiftKey
-						editor.select drag @props.selection, position, track_id
+						select_to position, track_id
 					else
 						editor.select new Range position, position, [track_id]
+					
+					# auto_scroll_x = 0
+					# auto_scroll_y = 0
+					# auto_scroll_container_rect = ReactDOM.findDOMNode(@).getBoundingClientRect()
+					# auto_scroll_margin = 30
+					# auto_scroll_max_speed = 5
+					# auto_scroll_animation_frame_id = null or -1
 					
 					mouse_moved_timewise = no
 					mouse_moved_trackwise = no
@@ -178,8 +191,9 @@ class TracksArea extends Component
 						if @props.selection and (mouse_moved_timewise or mouse_moved_trackwise)
 							drag_position = if mouse_moved_timewise then position_at(e) else position
 							drag_track_id = if mouse_moved_trackwise then track_id_at(e) else track_id
-							editor.select drag @props.selection, drag_position, drag_track_id
+							select_to drag_position, drag_track_id
 							e.preventDefault()
+						
 					
 					window.addEventListener "mouseup", onMouseUp = (e)=>
 						window.removeEventListener "mouseup", onMouseUp
