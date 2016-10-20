@@ -90,9 +90,12 @@ $background-color: black !default;
 	padding: 4px 6px;
 	position: relative;
 }
+.menu-item[disabled] {
+	color: color($color alpha(50%));
+}
 .selection,
-.menu-item:hover,
-.menu-item:active,
+.menu-item:not([disabled]):hover,
+.menu-item:not([disabled]):active,
 .menu-item:focus {
 	background: color($secondary-color alpha(20%));
 }

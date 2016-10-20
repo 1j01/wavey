@@ -41,16 +41,18 @@ class DropdownMenu extends Component
 				
 				e.preventDefault()
 			
-			for item, i in items when item?
+			for item, i in items when item? then do (item)=>
 				# XXX: shouldn't really need keys here
 				if item.type is "separator"
 					E "hr", key: "i"
 				else
+					disabled = item.disabled or ("enabled" of item and not item.enabled)
 					E ".menu-item",
 						key: item.label
 						role: "menuitem"
+						disabled: disabled
 						tabIndex: 0
-						onClick: item.action
+						onClick: => item.action() unless disabled
 						item.label
 	componentDidMount: -> @updateOffset()
 	componentDidUpdate: -> @updateOffset()

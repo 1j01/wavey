@@ -79,7 +79,7 @@ class DropdownButton extends Component
 									if item.type is "separator"
 										item
 									else
-										label: item.label
-										action: =>
-											@setState menu_open: no
-											item.action()
+										Object.assign {}, item,
+											action: =>
+												@setState menu_open: no
+												item.action()

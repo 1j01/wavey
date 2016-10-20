@@ -75,8 +75,9 @@ class Controls extends Component
 					menu: [
 						{label: "Export as MP3", action: -> export_as "mp3"}
 						{label: "Export as WAV", action: -> export_as "wav"}
-						{label: "Export selection as MP3", action: -> export_as "mp3", selection} if selection?.length()
-						{label: "Export selection as WAV", action: -> export_as "wav", selection} if selection?.length()
+						{type: "separator"}
+						{label: "Export selection as MP3", enabled: selection?.length(), action: -> export_as "mp3", selection}
+						{label: "Export selection as WAV", enabled: selection?.length(), action: -> export_as "wav", selection}
 					]
 					E "i.icon-export"
 				if themes and set_theme

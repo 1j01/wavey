@@ -85,7 +85,10 @@
 	padding: 4px 6px;
 	position: relative;
 }
-.selection, .menu-item:hover, .menu-item:active, .menu-item:focus {
+.menu-item[disabled] {
+	color: rgba(0, 255, 0, 0.5);
+}
+.selection, .menu-item:not([disabled]):hover, .menu-item:not([disabled]):active, .menu-item:focus {
 	background: rgba(0, 255, 0, 0.2);
 }
 .menu hr {

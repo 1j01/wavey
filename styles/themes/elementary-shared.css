@@ -10,14 +10,18 @@
 	@extend .titlebar;
 }
 .menu .menu-item {
+	/* NOTE: not inheriting .menu .menu-item:hover here */
 	@extend .menu .menuitem;
 }
 .menu .menu-item:focus,
-.menu .menu-item:hover {
+.menu .menu-item:not([disabled]):hover {
 	outline: 0;
 	@extend .menu .menuitem:hover;
 }
-/* XXX: FIXME: why do I need .menu .menu-item:hover explicitly? */
+
+.menu .menu-item[disabled] {
+	@extend .menu .menuitem *:disabled;
+}
 
 .dropdown-menu {
 	/*@extend .window-frame.active.csd;*/

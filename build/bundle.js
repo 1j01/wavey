@@ -25743,17 +25743,21 @@ module.exports = Controls = (function(superClass) {
           action: function() {
             return export_as("wav");
           }
-        }, (selection != null ? selection.length() : void 0) ? {
+        }, {
+          type: "separator"
+        }, {
           label: "Export selection as MP3",
+          enabled: selection != null ? selection.length() : void 0,
           action: function() {
             return export_as("mp3", selection);
           }
-        } : void 0, (selection != null ? selection.length() : void 0) ? {
+        }, {
           label: "Export selection as WAV",
+          enabled: selection != null ? selection.length() : void 0,
           action: function() {
             return export_as("wav", selection);
           }
-        } : void 0
+        }
       ]
     }, E("i.icon-export")), themes && set_theme ? E(DropdownButton, {
       title: "Settings",
@@ -25929,15 +25933,14 @@ module.exports = DropdownButton = (function(superClass) {
                 if (item.type === "separator") {
                   return item;
                 } else {
-                  return {
-                    label: item.label,
+                  return Object.assign({}, item, {
                     action: function() {
                       _this.setState({
                         menu_open: false
                       });
                       return item.action();
                     }
-                  };
+                  });
                 }
               };
             })(this)(item));
@@ -26024,22 +26027,33 @@ module.exports = DropdownMenu = (function(superClass) {
       for (i = j = 0, len = items.length; j < len; i = ++j) {
         item = items[i];
         if (item != null) {
-          if (item.type === "separator") {
-            results.push(E("hr", {
-              key: "i"
-            }));
-          } else {
-            results.push(E(".menu-item", {
-              key: item.label,
-              role: "menuitem",
-              tabIndex: 0,
-              onClick: item.action
-            }, item.label));
-          }
+          results.push((function(_this) {
+            return function(item) {
+              var disabled;
+              if (item.type === "separator") {
+                return E("hr", {
+                  key: "i"
+                });
+              } else {
+                disabled = item.disabled || ("enabled" in item && !item.enabled);
+                return E(".menu-item", {
+                  key: item.label,
+                  role: "menuitem",
+                  disabled: disabled,
+                  tabIndex: 0,
+                  onClick: function() {
+                    if (!disabled) {
+                      return item.action();
+                    }
+                  }
+                }, item.label);
+              }
+            };
+          })(this)(item));
         }
       }
       return results;
-    })());
+    }).call(this));
   };
 
   DropdownMenu.prototype.componentDidMount = function() {
