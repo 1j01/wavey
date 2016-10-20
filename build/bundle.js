@@ -26704,8 +26704,16 @@ module.exports = TracksArea = (function(superClass) {
           auto_scroll_max_speed = 20;
           auto_scroll_animation_frame_id = -1;
           auto_scroll = function() {
+            var drag_position, drag_track_id, psuedo_event;
             auto_scroll_x = mouse_x < auto_scroll_container_rect.left + auto_scroll_margin ? Math.max(-1, (mouse_x - auto_scroll_container_rect.left) / auto_scroll_margin - 1) * auto_scroll_max_speed : mouse_x > auto_scroll_container_rect.right - auto_scroll_margin ? Math.min(1, (mouse_x - auto_scroll_container_rect.right) / auto_scroll_margin + 1) * auto_scroll_max_speed : 0;
             auto_scroll_y = mouse_y < auto_scroll_container_rect.top + auto_scroll_margin ? Math.max(-1, (mouse_y - auto_scroll_container_rect.top) / auto_scroll_margin - 1) * auto_scroll_max_speed : mouse_y > auto_scroll_container_rect.bottom - auto_scroll_margin ? Math.min(1, (mouse_y - auto_scroll_container_rect.bottom) / auto_scroll_margin + 1) * auto_scroll_max_speed : 0;
+            psuedo_event = {
+              clientX: mouse_x,
+              clientY: mouse_y
+            };
+            drag_position = mouse_moved_timewise ? position_at(psuedo_event) : position;
+            drag_track_id = mouse_moved_trackwise ? track_id_at(psuedo_event) : track_id;
+            editor.select_to(drag_position, drag_track_id);
             setTimeout(function() {
               auto_scroll_container_el.scrollLeft += auto_scroll_x;
               return auto_scroll_container_el.scrollTop += auto_scroll_y;

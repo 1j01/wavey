@@ -182,10 +182,15 @@ class TracksArea extends Component
 							else
 								0
 						
+						# update the selection while scrolling (XXX: a bit WET)
+						psuedo_event = clientX: mouse_x, clientY: mouse_y # XXX: bit of a hack
+						drag_position = if mouse_moved_timewise then position_at(psuedo_event) else position
+						drag_track_id = if mouse_moved_trackwise then track_id_at(psuedo_event) else track_id
+						editor.select_to drag_position, drag_track_id
+						
 						setTimeout =>
 							auto_scroll_container_el.scrollLeft += auto_scroll_x
 							auto_scroll_container_el.scrollTop += auto_scroll_y
-							# TODO: update selection while scrolling!
 						
 						auto_scroll_animation_frame_id = requestAnimationFrame(auto_scroll)
 					
