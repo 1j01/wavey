@@ -26635,7 +26635,7 @@ module.exports = TracksArea = (function(superClass) {
       })(this),
       onMouseDown: (function(_this) {
         return function(e) {
-          var mouse_moved_timewise, mouse_moved_trackwise, onMouseMove, onMouseUp, position_at, starting_clientX, track_content_area_el, track_content_el, track_id, track_id_at;
+          var auto_scroll, auto_scroll_animation_frame_id, auto_scroll_container_el, auto_scroll_container_rect, auto_scroll_margin, auto_scroll_max_speed, auto_scroll_x, auto_scroll_y, mouse_moved_timewise, mouse_moved_trackwise, mouse_x, mouse_y, onMouseMove, onMouseUp, position_at, starting_clientX, track_content_area_el, track_content_el, track_id, track_id_at;
           if (e.button !== 0) {
             return;
           }
@@ -26694,6 +26694,24 @@ module.exports = TracksArea = (function(superClass) {
           } else {
             editor.select_position(position, [track_id]);
           }
+          mouse_x = 0;
+          mouse_y = 0;
+          auto_scroll_x = 0;
+          auto_scroll_y = 0;
+          auto_scroll_container_el = ReactDOM.findDOMNode(_this).querySelector(".track-content-area");
+          auto_scroll_container_rect = auto_scroll_container_el.getBoundingClientRect();
+          auto_scroll_margin = 30;
+          auto_scroll_max_speed = 20;
+          auto_scroll_animation_frame_id = -1;
+          auto_scroll = function() {
+            auto_scroll_x = mouse_x < auto_scroll_container_rect.left + auto_scroll_margin ? Math.max(-1, (mouse_x - auto_scroll_container_rect.left) / auto_scroll_margin - 1) * auto_scroll_max_speed : mouse_x > auto_scroll_container_rect.right - auto_scroll_margin ? Math.min(1, (mouse_x - auto_scroll_container_rect.right) / auto_scroll_margin + 1) * auto_scroll_max_speed : 0;
+            auto_scroll_y = mouse_y < auto_scroll_container_rect.top + auto_scroll_margin ? Math.max(-1, (mouse_y - auto_scroll_container_rect.top) / auto_scroll_margin - 1) * auto_scroll_max_speed : mouse_y > auto_scroll_container_rect.bottom - auto_scroll_margin ? Math.min(1, (mouse_y - auto_scroll_container_rect.bottom) / auto_scroll_margin + 1) * auto_scroll_max_speed : 0;
+            setTimeout(function() {
+              auto_scroll_container_el.scrollLeft += auto_scroll_x;
+              return auto_scroll_container_el.scrollTop += auto_scroll_y;
+            });
+            return auto_scroll_animation_frame_id = requestAnimationFrame(auto_scroll);
+          };
           mouse_moved_timewise = false;
           mouse_moved_trackwise = false;
           starting_clientX = e.clientX;
@@ -26709,12 +26727,17 @@ module.exports = TracksArea = (function(superClass) {
               drag_position = mouse_moved_timewise ? position_at(e) : position;
               drag_track_id = mouse_moved_trackwise ? track_id_at(e) : track_id;
               editor.select_to(drag_position, drag_track_id);
-              return e.preventDefault();
+              e.preventDefault();
             }
+            mouse_x = e.clientX;
+            mouse_y = e.clientY;
+            cancelAnimationFrame(auto_scroll_animation_frame_id);
+            return auto_scroll_animation_frame_id = requestAnimationFrame(auto_scroll);
           });
           return window.addEventListener("mouseup", onMouseUp = function(e) {
             window.removeEventListener("mouseup", onMouseUp);
             window.removeEventListener("mousemove", onMouseMove);
+            cancelAnimationFrame(auto_scroll_animation_frame_id);
             if (!mouse_moved_timewise) {
               editor.seek(position);
             }

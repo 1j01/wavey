@@ -82,7 +82,6 @@ class TracksArea extends Component
 				# @TODO: double click to select either to the bounds of adjacent audio clips or everything on the track
 				# @TODO: drag and drop the selection?
 				# @TODO: better overall drag and drop feedback
-				# @TODO: scroll by selecting (or dragging files) over to the left/right/top/bottom
 				
 				onDragOver: (e)=>
 					e.preventDefault()
@@ -156,16 +155,44 @@ class TracksArea extends Component
 					else
 						editor.select_position position, [track_id]
 					
-					# auto_scroll_x = 0
-					# auto_scroll_y = 0
-					# auto_scroll_container_rect = ReactDOM.findDOMNode(@).getBoundingClientRect()
-					# auto_scroll_margin = 30
-					# auto_scroll_max_speed = 5
-					# auto_scroll_animation_frame_id = null or -1
+					
+					mouse_x = 0
+					mouse_y = 0
+					auto_scroll_x = 0
+					auto_scroll_y = 0
+					auto_scroll_container_el = ReactDOM.findDOMNode(@).querySelector(".track-content-area")
+					auto_scroll_container_rect = auto_scroll_container_el.getBoundingClientRect()
+					auto_scroll_margin = 30
+					auto_scroll_max_speed = 20
+					auto_scroll_animation_frame_id = -1
+					auto_scroll = =>
+						auto_scroll_x =
+							if mouse_x < auto_scroll_container_rect.left + auto_scroll_margin
+								Math.max(-1, (mouse_x - auto_scroll_container_rect.left) / auto_scroll_margin - 1) * auto_scroll_max_speed
+							else if mouse_x > auto_scroll_container_rect.right - auto_scroll_margin
+								Math.min(1, (mouse_x - auto_scroll_container_rect.right) / auto_scroll_margin + 1) * auto_scroll_max_speed
+							else
+								0
+						
+						auto_scroll_y =
+							if mouse_y < auto_scroll_container_rect.top + auto_scroll_margin
+								Math.max(-1, (mouse_y - auto_scroll_container_rect.top) / auto_scroll_margin - 1) * auto_scroll_max_speed
+							else if mouse_y > auto_scroll_container_rect.bottom - auto_scroll_margin
+								Math.min(1, (mouse_y - auto_scroll_container_rect.bottom) / auto_scroll_margin + 1) * auto_scroll_max_speed
+							else
+								0
+						
+						setTimeout =>
+							auto_scroll_container_el.scrollLeft += auto_scroll_x
+							auto_scroll_container_el.scrollTop += auto_scroll_y
+							# TODO: update selection while scrolling!
+						
+						auto_scroll_animation_frame_id = requestAnimationFrame(auto_scroll)
 					
 					mouse_moved_timewise = no
 					mouse_moved_trackwise = no
 					starting_clientX = e.clientX
+					
 					window.addEventListener "mousemove", onMouseMove = (e)=>
 						if Math.abs(e.clientX - starting_clientX) > 5
 							mouse_moved_timewise = yes
@@ -177,10 +204,15 @@ class TracksArea extends Component
 							editor.select_to drag_position, drag_track_id
 							e.preventDefault()
 						
+						mouse_x = e.clientX
+						mouse_y = e.clientY
+						cancelAnimationFrame(auto_scroll_animation_frame_id)
+						auto_scroll_animation_frame_id = requestAnimationFrame(auto_scroll)
 					
 					window.addEventListener "mouseup", onMouseUp = (e)=>
 						window.removeEventListener "mouseup", onMouseUp
 						window.removeEventListener "mousemove", onMouseMove
+						cancelAnimationFrame(auto_scroll_animation_frame_id)
 						unless mouse_moved_timewise
 							editor.seek position
 						editor.setState moving_selection: no
