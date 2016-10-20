@@ -163,23 +163,30 @@ class TracksArea extends Component
 					auto_scroll_y = 0
 					auto_scroll_container_el = ReactDOM.findDOMNode(@).querySelector(".track-content-area")
 					auto_scroll_container_rect = auto_scroll_container_el.getBoundingClientRect()
+					auto_scroll_rect =
+						left: auto_scroll_container_rect.left
+						top: auto_scroll_container_rect.top
+						width: auto_scroll_container_el.clientWidth
+						height: auto_scroll_container_el.clientHeight
+						right: auto_scroll_container_rect.left + auto_scroll_container_el.clientWidth
+						bottom: auto_scroll_container_rect.top + auto_scroll_container_el.clientHeight
 					auto_scroll_margin = 30
 					auto_scroll_max_speed = 20
 					auto_scroll_animation_frame_id = -1
 					auto_scroll = =>
 						auto_scroll_x =
-							if mouse_x < auto_scroll_container_rect.left + auto_scroll_margin
-								Math.max(-1, (mouse_x - auto_scroll_container_rect.left) / auto_scroll_margin - 1) * auto_scroll_max_speed
-							else if mouse_x > auto_scroll_container_rect.right - auto_scroll_margin
-								Math.min(1, (mouse_x - auto_scroll_container_rect.right) / auto_scroll_margin + 1) * auto_scroll_max_speed
+							if mouse_x < auto_scroll_rect.left + auto_scroll_margin
+								Math.max(-1, (mouse_x - auto_scroll_rect.left) / auto_scroll_margin - 1) * auto_scroll_max_speed
+							else if mouse_x > auto_scroll_rect.right - auto_scroll_margin
+								Math.min(1, (mouse_x - auto_scroll_rect.right) / auto_scroll_margin + 1) * auto_scroll_max_speed
 							else
 								0
 						
 						auto_scroll_y =
-							if mouse_y < auto_scroll_container_rect.top + auto_scroll_margin
-								Math.max(-1, (mouse_y - auto_scroll_container_rect.top) / auto_scroll_margin - 1) * auto_scroll_max_speed
-							else if mouse_y > auto_scroll_container_rect.bottom - auto_scroll_margin
-								Math.min(1, (mouse_y - auto_scroll_container_rect.bottom) / auto_scroll_margin + 1) * auto_scroll_max_speed
+							if mouse_y < auto_scroll_rect.top + auto_scroll_margin
+								Math.max(-1, (mouse_y - auto_scroll_rect.top) / auto_scroll_margin - 1) * auto_scroll_max_speed
+							else if mouse_y > auto_scroll_rect.bottom - auto_scroll_margin
+								Math.min(1, (mouse_y - auto_scroll_rect.bottom) / auto_scroll_margin + 1) * auto_scroll_max_speed
 							else
 								0
 						

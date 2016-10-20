@@ -26635,7 +26635,7 @@ module.exports = TracksArea = (function(superClass) {
       })(this),
       onMouseDown: (function(_this) {
         return function(e) {
-          var auto_scroll, auto_scroll_animation_frame_id, auto_scroll_container_el, auto_scroll_container_rect, auto_scroll_margin, auto_scroll_max_speed, auto_scroll_x, auto_scroll_y, mouse_moved_timewise, mouse_moved_trackwise, mouse_x, mouse_y, onMouseMove, onMouseUp, position_at, starting_clientX, track_content_area_el, track_content_el, track_id, track_id_at;
+          var auto_scroll, auto_scroll_animation_frame_id, auto_scroll_container_el, auto_scroll_container_rect, auto_scroll_margin, auto_scroll_max_speed, auto_scroll_rect, auto_scroll_x, auto_scroll_y, mouse_moved_timewise, mouse_moved_trackwise, mouse_x, mouse_y, onMouseMove, onMouseUp, position_at, starting_clientX, track_content_area_el, track_content_el, track_id, track_id_at;
           if (e.button !== 0) {
             return;
           }
@@ -26700,13 +26700,21 @@ module.exports = TracksArea = (function(superClass) {
           auto_scroll_y = 0;
           auto_scroll_container_el = ReactDOM.findDOMNode(_this).querySelector(".track-content-area");
           auto_scroll_container_rect = auto_scroll_container_el.getBoundingClientRect();
+          auto_scroll_rect = {
+            left: auto_scroll_container_rect.left,
+            top: auto_scroll_container_rect.top,
+            width: auto_scroll_container_el.clientWidth,
+            height: auto_scroll_container_el.clientHeight,
+            right: auto_scroll_container_rect.left + auto_scroll_container_el.clientWidth,
+            bottom: auto_scroll_container_rect.top + auto_scroll_container_el.clientHeight
+          };
           auto_scroll_margin = 30;
           auto_scroll_max_speed = 20;
           auto_scroll_animation_frame_id = -1;
           auto_scroll = function() {
             var drag_position, drag_track_id, psuedo_event;
-            auto_scroll_x = mouse_x < auto_scroll_container_rect.left + auto_scroll_margin ? Math.max(-1, (mouse_x - auto_scroll_container_rect.left) / auto_scroll_margin - 1) * auto_scroll_max_speed : mouse_x > auto_scroll_container_rect.right - auto_scroll_margin ? Math.min(1, (mouse_x - auto_scroll_container_rect.right) / auto_scroll_margin + 1) * auto_scroll_max_speed : 0;
-            auto_scroll_y = mouse_y < auto_scroll_container_rect.top + auto_scroll_margin ? Math.max(-1, (mouse_y - auto_scroll_container_rect.top) / auto_scroll_margin - 1) * auto_scroll_max_speed : mouse_y > auto_scroll_container_rect.bottom - auto_scroll_margin ? Math.min(1, (mouse_y - auto_scroll_container_rect.bottom) / auto_scroll_margin + 1) * auto_scroll_max_speed : 0;
+            auto_scroll_x = mouse_x < auto_scroll_rect.left + auto_scroll_margin ? Math.max(-1, (mouse_x - auto_scroll_rect.left) / auto_scroll_margin - 1) * auto_scroll_max_speed : mouse_x > auto_scroll_rect.right - auto_scroll_margin ? Math.min(1, (mouse_x - auto_scroll_rect.right) / auto_scroll_margin + 1) * auto_scroll_max_speed : 0;
+            auto_scroll_y = mouse_y < auto_scroll_rect.top + auto_scroll_margin ? Math.max(-1, (mouse_y - auto_scroll_rect.top) / auto_scroll_margin - 1) * auto_scroll_max_speed : mouse_y > auto_scroll_rect.bottom - auto_scroll_margin ? Math.min(1, (mouse_y - auto_scroll_rect.bottom) / auto_scroll_margin + 1) * auto_scroll_max_speed : 0;
             psuedo_event = {
               clientX: mouse_x,
               clientY: mouse_y
