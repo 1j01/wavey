@@ -26661,8 +26661,8 @@ module.exports = TracksArea = (function(superClass) {
             return (e.clientX - rect.left + track_content_area_el.scrollLeft) / scale;
           };
           track_id_at = function(e) {
-            var _distance, distance, k, len1, nearest_track_el, rect, track_el, track_els;
-            track_el = e.target.closest(".track");
+            var _distance, distance, k, len1, nearest_track_el, rect, ref3, track_el, track_els;
+            track_el = (ref3 = e.target) != null ? ref3.closest(".track") : void 0;
             if (track_el && track_el.dataset.trackId) {
               return track_el.dataset.trackId;
             } else {

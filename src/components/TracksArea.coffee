@@ -130,7 +130,8 @@ class TracksArea extends Component
 						(e.clientX - rect.left + track_content_area_el.scrollLeft) / scale
 					
 					track_id_at = (e)=>
-						track_el = e.target.closest(".track")
+						# XXX: HACK: `?` because of "pseudo event"; lies beget lies
+						track_el = e.target?.closest(".track")
 						if track_el and track_el.dataset.trackId
 							track_el.dataset.trackId
 						else
