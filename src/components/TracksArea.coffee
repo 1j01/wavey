@@ -26,16 +26,16 @@ class TracksArea extends Component
 			
 			track_el = e.target.closest(".track")
 			
-			position_at = (e)=>
+			position_at = (clientX)=>
 				rect = track_content_el.getBoundingClientRect()
-				(e.clientX - rect.left + track_content_area_el.scrollLeft) / scale
+				(clientX - rect.left + track_content_area_el.scrollLeft) / scale
 			
-			track_id_at = (e)->
-				track_el = e.target.closest(".track")
+			find_track_id = (el)=>
+				track_el = el.closest(".track")
 				track_el.dataset.trackId
 			
-			position = position_at e
-			track_id = track_id_at e
+			position = position_at e.clientX
+			track_id = find_track_id e.target
 			
 			editor.select_position position, [track_id]
 		
@@ -125,29 +125,24 @@ class TracksArea extends Component
 						return
 					e.preventDefault()
 					
-					position_at = (e)=>
+					position_at = (clientX)=>
 						rect = track_content_el.getBoundingClientRect()
-						(e.clientX - rect.left + track_content_area_el.scrollLeft) / scale
+						(clientX - rect.left + track_content_area_el.scrollLeft) / scale
 					
-					track_id_at = (e)=>
-						# XXX: HACK: `?` because of "pseudo event"; lies beget lies
-						track_el = e.target?.closest(".track")
-						if track_el and track_el.dataset.trackId
-							track_el.dataset.trackId
-						else
-							track_els = ReactDOM.findDOMNode(@).querySelectorAll(".track")
-							nearest_track_el = track_els[0]
-							distance = Infinity
-							for track_el in track_els when track_el.dataset.trackId
-								rect = track_el.getBoundingClientRect()
-								_distance = Math.abs(e.clientY - (rect.top + rect.height / 2))
-								if _distance < distance
-									nearest_track_el = track_el
-									distance = _distance
-							nearest_track_el.dataset.trackId
+					nearest_track_id_at = (clientY)=>
+						track_els = ReactDOM.findDOMNode(@).querySelectorAll(".track")
+						nearest_track_el = track_els[0]
+						distance = Infinity
+						for track_el in track_els when track_el.dataset.trackId
+							rect = track_el.getBoundingClientRect()
+							_distance = Math.abs(clientY - (rect.top + rect.height / 2))
+							if _distance < distance
+								nearest_track_el = track_el
+								distance = _distance
+						nearest_track_el.dataset.trackId
 					
-					position = position_at e
-					track_id = track_id_at e
+					position = position_at e.clientX
+					track_id = nearest_track_id_at e.clientY
 					
 					editor.setState moving_selection: yes
 					
@@ -172,7 +167,7 @@ class TracksArea extends Component
 						bottom: auto_scroll_container_rect.top + auto_scroll_container_el.clientHeight
 					auto_scroll_margin = 30
 					auto_scroll_max_speed = 20
-					auto_scroll_animation_frame_id = -1
+					@auto_scroll_animation_frame = -1
 					auto_scroll = =>
 						auto_scroll_x =
 							if mouse_x < auto_scroll_rect.left + auto_scroll_margin
@@ -191,16 +186,15 @@ class TracksArea extends Component
 								0
 						
 						# update the selection while scrolling (XXX: a bit WET)
-						psuedo_event = clientX: mouse_x, clientY: mouse_y # XXX: bit of a hack
-						drag_position = if mouse_moved_timewise then position_at(psuedo_event) else position
-						drag_track_id = if mouse_moved_trackwise then track_id_at(psuedo_event) else track_id
+						drag_position = if mouse_moved_timewise then position_at(mouse_x) else position
+						drag_track_id = if mouse_moved_trackwise then nearest_track_id_at(mouse_y) else track_id
 						editor.select_to drag_position, drag_track_id
 						
 						setTimeout =>
 							auto_scroll_container_el.scrollLeft += auto_scroll_x
 							auto_scroll_container_el.scrollTop += auto_scroll_y
 						
-						auto_scroll_animation_frame_id = requestAnimationFrame(auto_scroll)
+						@auto_scroll_animation_frame = requestAnimationFrame(auto_scroll)
 					
 					mouse_moved_timewise = no
 					mouse_moved_trackwise = no
@@ -209,23 +203,23 @@ class TracksArea extends Component
 					window.addEventListener "mousemove", onMouseMove = (e)=>
 						if Math.abs(e.clientX - starting_clientX) > 5
 							mouse_moved_timewise = yes
-						if track_id_at(e) isnt track_id
+						if nearest_track_id_at(e.clientY) isnt track_id
 							mouse_moved_trackwise = yes
 						if @props.selection and (mouse_moved_timewise or mouse_moved_trackwise)
-							drag_position = if mouse_moved_timewise then position_at(e) else position
-							drag_track_id = if mouse_moved_trackwise then track_id_at(e) else track_id
+							drag_position = if mouse_moved_timewise then position_at(e.clientX) else position
+							drag_track_id = if mouse_moved_trackwise then nearest_track_id_at(e.clientY) else track_id
 							editor.select_to drag_position, drag_track_id
 							e.preventDefault()
 						
 						mouse_x = e.clientX
 						mouse_y = e.clientY
-						cancelAnimationFrame(auto_scroll_animation_frame_id)
-						auto_scroll_animation_frame_id = requestAnimationFrame(auto_scroll)
+						cancelAnimationFrame(@auto_scroll_animation_frame)
+						@auto_scroll_animation_frame = requestAnimationFrame(auto_scroll)
 					
 					window.addEventListener "mouseup", onMouseUp = (e)=>
 						window.removeEventListener "mouseup", onMouseUp
 						window.removeEventListener "mousemove", onMouseMove
-						cancelAnimationFrame(auto_scroll_animation_frame_id)
+						cancelAnimationFrame(@auto_scroll_animation_frame)
 						unless mouse_moved_timewise
 							editor.seek position
 						editor.setState moving_selection: no
@@ -380,3 +374,4 @@ class TracksArea extends Component
 	
 	componentWillUnmount: ->
 		cancelAnimationFrame @animation_frame
+		cancelAnimationFrame @auto_scroll_animation_frame

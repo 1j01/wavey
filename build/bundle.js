@@ -26512,24 +26512,24 @@ module.exports = TracksArea = (function(superClass) {
     ref1 = this.props, tracks = ref1.tracks, position = ref1.position, position_time = ref1.position_time, scale = ref1.scale, playing = ref1.playing, editor = ref1.editor;
     select_at_mouse = (function(_this) {
       return function(e) {
-        var position_at, track_content_area_el, track_content_el, track_el, track_id, track_id_at;
+        var find_track_id, position_at, track_content_area_el, track_content_el, track_el, track_id;
         track_content_el = e.target.closest(".track-content");
         track_content_area_el = e.target.closest(".track-content-area");
         if (track_content_el == null) {
           return;
         }
         track_el = e.target.closest(".track");
-        position_at = function(e) {
+        position_at = function(clientX) {
           var rect;
           rect = track_content_el.getBoundingClientRect();
-          return (e.clientX - rect.left + track_content_area_el.scrollLeft) / scale;
+          return (clientX - rect.left + track_content_area_el.scrollLeft) / scale;
         };
-        track_id_at = function(e) {
-          track_el = e.target.closest(".track");
+        find_track_id = function(el) {
+          track_el = el.closest(".track");
           return track_el.dataset.trackId;
         };
-        position = position_at(e);
-        track_id = track_id_at(e);
+        position = position_at(e.clientX);
+        track_id = find_track_id(e.target);
         return editor.select_position(position, [track_id]);
       };
     })(this);
@@ -26635,7 +26635,7 @@ module.exports = TracksArea = (function(superClass) {
       })(this),
       onMouseDown: (function(_this) {
         return function(e) {
-          var auto_scroll, auto_scroll_animation_frame_id, auto_scroll_container_el, auto_scroll_container_rect, auto_scroll_margin, auto_scroll_max_speed, auto_scroll_rect, auto_scroll_x, auto_scroll_y, mouse_moved_timewise, mouse_moved_trackwise, mouse_x, mouse_y, onMouseMove, onMouseUp, position_at, starting_clientX, track_content_area_el, track_content_el, track_id, track_id_at;
+          var auto_scroll, auto_scroll_container_el, auto_scroll_container_rect, auto_scroll_margin, auto_scroll_max_speed, auto_scroll_rect, auto_scroll_x, auto_scroll_y, mouse_moved_timewise, mouse_moved_trackwise, mouse_x, mouse_y, nearest_track_id_at, onMouseMove, onMouseUp, position_at, starting_clientX, track_content_area_el, track_content_el, track_id;
           if (e.button !== 0) {
             return;
           }
@@ -26655,37 +26655,32 @@ module.exports = TracksArea = (function(superClass) {
             return;
           }
           e.preventDefault();
-          position_at = function(e) {
+          position_at = function(clientX) {
             var rect;
             rect = track_content_el.getBoundingClientRect();
-            return (e.clientX - rect.left + track_content_area_el.scrollLeft) / scale;
+            return (clientX - rect.left + track_content_area_el.scrollLeft) / scale;
           };
-          track_id_at = function(e) {
-            var _distance, distance, k, len1, nearest_track_el, rect, ref3, track_el, track_els;
-            track_el = (ref3 = e.target) != null ? ref3.closest(".track") : void 0;
-            if (track_el && track_el.dataset.trackId) {
-              return track_el.dataset.trackId;
-            } else {
-              track_els = ReactDOM.findDOMNode(_this).querySelectorAll(".track");
-              nearest_track_el = track_els[0];
-              distance = 2e308;
-              for (k = 0, len1 = track_els.length; k < len1; k++) {
-                track_el = track_els[k];
-                if (!track_el.dataset.trackId) {
-                  continue;
-                }
-                rect = track_el.getBoundingClientRect();
-                _distance = Math.abs(e.clientY - (rect.top + rect.height / 2));
-                if (_distance < distance) {
-                  nearest_track_el = track_el;
-                  distance = _distance;
-                }
+          nearest_track_id_at = function(clientY) {
+            var _distance, distance, k, len1, nearest_track_el, rect, track_el, track_els;
+            track_els = ReactDOM.findDOMNode(_this).querySelectorAll(".track");
+            nearest_track_el = track_els[0];
+            distance = 2e308;
+            for (k = 0, len1 = track_els.length; k < len1; k++) {
+              track_el = track_els[k];
+              if (!track_el.dataset.trackId) {
+                continue;
               }
-              return nearest_track_el.dataset.trackId;
+              rect = track_el.getBoundingClientRect();
+              _distance = Math.abs(clientY - (rect.top + rect.height / 2));
+              if (_distance < distance) {
+                nearest_track_el = track_el;
+                distance = _distance;
+              }
             }
+            return nearest_track_el.dataset.trackId;
           };
-          position = position_at(e);
-          track_id = track_id_at(e);
+          position = position_at(e.clientX);
+          track_id = nearest_track_id_at(e.clientY);
           editor.setState({
             moving_selection: true
           });
@@ -26710,23 +26705,19 @@ module.exports = TracksArea = (function(superClass) {
           };
           auto_scroll_margin = 30;
           auto_scroll_max_speed = 20;
-          auto_scroll_animation_frame_id = -1;
+          _this.auto_scroll_animation_frame = -1;
           auto_scroll = function() {
-            var drag_position, drag_track_id, psuedo_event;
+            var drag_position, drag_track_id;
             auto_scroll_x = mouse_x < auto_scroll_rect.left + auto_scroll_margin ? Math.max(-1, (mouse_x - auto_scroll_rect.left) / auto_scroll_margin - 1) * auto_scroll_max_speed : mouse_x > auto_scroll_rect.right - auto_scroll_margin ? Math.min(1, (mouse_x - auto_scroll_rect.right) / auto_scroll_margin + 1) * auto_scroll_max_speed : 0;
             auto_scroll_y = mouse_y < auto_scroll_rect.top + auto_scroll_margin ? Math.max(-1, (mouse_y - auto_scroll_rect.top) / auto_scroll_margin - 1) * auto_scroll_max_speed : mouse_y > auto_scroll_rect.bottom - auto_scroll_margin ? Math.min(1, (mouse_y - auto_scroll_rect.bottom) / auto_scroll_margin + 1) * auto_scroll_max_speed : 0;
-            psuedo_event = {
-              clientX: mouse_x,
-              clientY: mouse_y
-            };
-            drag_position = mouse_moved_timewise ? position_at(psuedo_event) : position;
-            drag_track_id = mouse_moved_trackwise ? track_id_at(psuedo_event) : track_id;
+            drag_position = mouse_moved_timewise ? position_at(mouse_x) : position;
+            drag_track_id = mouse_moved_trackwise ? nearest_track_id_at(mouse_y) : track_id;
             editor.select_to(drag_position, drag_track_id);
             setTimeout(function() {
               auto_scroll_container_el.scrollLeft += auto_scroll_x;
               return auto_scroll_container_el.scrollTop += auto_scroll_y;
             });
-            return auto_scroll_animation_frame_id = requestAnimationFrame(auto_scroll);
+            return _this.auto_scroll_animation_frame = requestAnimationFrame(auto_scroll);
           };
           mouse_moved_timewise = false;
           mouse_moved_trackwise = false;
@@ -26736,24 +26727,24 @@ module.exports = TracksArea = (function(superClass) {
             if (Math.abs(e.clientX - starting_clientX) > 5) {
               mouse_moved_timewise = true;
             }
-            if (track_id_at(e) !== track_id) {
+            if (nearest_track_id_at(e.clientY) !== track_id) {
               mouse_moved_trackwise = true;
             }
             if (_this.props.selection && (mouse_moved_timewise || mouse_moved_trackwise)) {
-              drag_position = mouse_moved_timewise ? position_at(e) : position;
-              drag_track_id = mouse_moved_trackwise ? track_id_at(e) : track_id;
+              drag_position = mouse_moved_timewise ? position_at(e.clientX) : position;
+              drag_track_id = mouse_moved_trackwise ? nearest_track_id_at(e.clientY) : track_id;
               editor.select_to(drag_position, drag_track_id);
               e.preventDefault();
             }
             mouse_x = e.clientX;
             mouse_y = e.clientY;
-            cancelAnimationFrame(auto_scroll_animation_frame_id);
-            return auto_scroll_animation_frame_id = requestAnimationFrame(auto_scroll);
+            cancelAnimationFrame(_this.auto_scroll_animation_frame);
+            return _this.auto_scroll_animation_frame = requestAnimationFrame(auto_scroll);
           });
           return window.addEventListener("mouseup", onMouseUp = function(e) {
             window.removeEventListener("mouseup", onMouseUp);
             window.removeEventListener("mousemove", onMouseMove);
-            cancelAnimationFrame(auto_scroll_animation_frame_id);
+            cancelAnimationFrame(_this.auto_scroll_animation_frame);
             if (!mouse_moved_timewise) {
               editor.seek(position);
             }
@@ -26933,7 +26924,8 @@ module.exports = TracksArea = (function(superClass) {
   };
 
   TracksArea.prototype.componentWillUnmount = function() {
-    return cancelAnimationFrame(this.animation_frame);
+    cancelAnimationFrame(this.animation_frame);
+    return cancelAnimationFrame(this.auto_scroll_animation_frame);
   };
 
   return TracksArea;
