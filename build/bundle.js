@@ -26689,10 +26689,8 @@ module.exports = TracksArea = (function(superClass) {
           } else {
             editor.select_position(position, [track_id]);
           }
-          mouse_x = 0;
-          mouse_y = 0;
-          auto_scroll_x = 0;
-          auto_scroll_y = 0;
+          auto_scroll_margin = 30;
+          auto_scroll_max_speed = 20;
           auto_scroll_container_el = ReactDOM.findDOMNode(_this).querySelector(".track-content-area");
           auto_scroll_container_rect = auto_scroll_container_el.getBoundingClientRect();
           auto_scroll_rect = {
@@ -26703,13 +26701,15 @@ module.exports = TracksArea = (function(superClass) {
             right: auto_scroll_container_rect.left + auto_scroll_container_el.clientWidth,
             bottom: auto_scroll_container_rect.top + auto_scroll_container_el.clientHeight
           };
-          auto_scroll_margin = 30;
-          auto_scroll_max_speed = 20;
+          mouse_x = 0;
+          mouse_y = 0;
+          auto_scroll_x = 0;
+          auto_scroll_y = 0;
           _this.auto_scroll_animation_frame = -1;
           auto_scroll = function() {
             var drag_position, drag_track_id;
-            auto_scroll_x = mouse_x < auto_scroll_rect.left + auto_scroll_margin ? Math.max(-1, (mouse_x - auto_scroll_rect.left) / auto_scroll_margin - 1) * auto_scroll_max_speed : mouse_x > auto_scroll_rect.right - auto_scroll_margin ? Math.min(1, (mouse_x - auto_scroll_rect.right) / auto_scroll_margin + 1) * auto_scroll_max_speed : 0;
-            auto_scroll_y = mouse_y < auto_scroll_rect.top + auto_scroll_margin ? Math.max(-1, (mouse_y - auto_scroll_rect.top) / auto_scroll_margin - 1) * auto_scroll_max_speed : mouse_y > auto_scroll_rect.bottom - auto_scroll_margin ? Math.min(1, (mouse_y - auto_scroll_rect.bottom) / auto_scroll_margin + 1) * auto_scroll_max_speed : 0;
+            auto_scroll_x = mouse_x < auto_scroll_rect.left + auto_scroll_margin ? Math.floor(Math.max(-1, (mouse_x - auto_scroll_rect.left) / auto_scroll_margin - 1) * auto_scroll_max_speed) : mouse_x > auto_scroll_rect.right - auto_scroll_margin ? Math.ceil(Math.min(1, (mouse_x - auto_scroll_rect.right) / auto_scroll_margin + 1) * auto_scroll_max_speed) : 0;
+            auto_scroll_y = mouse_y < auto_scroll_rect.top + auto_scroll_margin ? Math.floor(Math.max(-1, (mouse_y - auto_scroll_rect.top) / auto_scroll_margin - 1) * auto_scroll_max_speed) : mouse_y > auto_scroll_rect.bottom - auto_scroll_margin ? Math.ceil(Math.min(1, (mouse_y - auto_scroll_rect.bottom) / auto_scroll_margin + 1) * auto_scroll_max_speed) : 0;
             drag_position = mouse_moved_timewise ? position_at(mouse_x) : position;
             drag_track_id = mouse_moved_trackwise ? nearest_track_id_at(mouse_y) : track_id;
             editor.select_to(drag_position, drag_track_id);

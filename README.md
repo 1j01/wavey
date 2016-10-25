@@ -48,7 +48,7 @@ After all they *are* effects and you'll want to be able to automate them just th
 
 * Web Intents or similar, possibly [Ballista](https://github.com/chromium/ballista)
 
-* Accessibility and internationalization
+* Internationalization
 
 
 ### TODO
@@ -57,7 +57,7 @@ After all they *are* effects and you'll want to be able to automate them just th
 * Fix pasting placing the cursor across all tracks after the top track
 * Mouse-relative zooming (preferably performant and smoothly animated)
 * Storage management (handle running out of storage, handle multiple editors loaded for the same document, and allow data purging)
-
+* Improve accessibility
 
 ### Contributing
 
