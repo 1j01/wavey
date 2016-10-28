@@ -2,8 +2,10 @@
 @import "../../node_modules/elementary.css/lib/elementary-dark.css";
 @import "./elementary-shared.css";
 
-/* FIXME: border around selection is light on the left/right
-but on the top/bottom it's cut off by the border of the track */
+.selection:not(.cursor) {
+	/* Make border visible inside (not hidden behind the .track-content's border) */
+	box-shadow: 0 0 0px 1px rgba(0, 193, 255, 0.5) inset;
+}
 
 .audio-clip,
 .midi-notes rect {
