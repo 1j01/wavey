@@ -154,7 +154,7 @@ class exports.AudioEditor extends Component
 	
 	# @TODO: soft undo/redo
 	
-	get_max_length: ->
+	_get_max_length_or_do_default: (default_fn)->
 		{tracks} = @state
 		
 		max_length = 0
@@ -165,17 +165,23 @@ class exports.AudioEditor extends Component
 					if recording
 						max_length = Math.max max_length, clip.position + (clip.length ? recording.length ? 0)
 					else
-						InfoBar.warn "Not all tracks have finished loading."
-						return
+						return default_fn()
 				else
 					audio_buffer = audio_clips.audio_buffers[clip.audio_id]
 					if audio_buffer
 						max_length = Math.max max_length, clip.position + clip.length
 					else
-						InfoBar.warn "Not all tracks have finished loading."
-						return
+						return default_fn()
 		
 		max_length
+	
+	get_max_length_or_zero: ->
+		@_get_max_length_or_do_default -> 0
+	
+	get_max_length_or_warn: ->
+		@_get_max_length_or_do_default ->
+			InfoBar.warn "Not all tracks have finished loading."
+			undefined
 	
 	get_current_position: ->
 		@state.position +
@@ -191,7 +197,7 @@ class exports.AudioEditor extends Component
 			throw new Error "Tried to seek to invalid position: #{position}"
 		
 		position = Math.max 0, position
-		max_length = @get_max_length()
+		max_length = @get_max_length_or_zero()
 		
 		{playing, recording, selection} = @state
 		
@@ -216,7 +222,7 @@ class exports.AudioEditor extends Component
 		@seek 0, e
 	
 	seek_to_end: (e)=>
-		end = @get_max_length()
+		end = @get_max_length_or_warn()
 		return unless end?
 		@seek end, e
 	
@@ -226,7 +232,7 @@ class exports.AudioEditor extends Component
 	play_from: (from_position)=>
 		@pause() if @state.playing
 		
-		max_length = @get_max_length()
+		max_length = @get_max_length_or_warn()
 		unless @state.recording
 			return unless max_length?
 			
@@ -574,7 +580,7 @@ class exports.AudioEditor extends Component
 	
 	select_all: =>
 		{tracks} = @state
-		max_length = @get_max_length()
+		max_length = @get_max_length_or_warn()
 		return unless max_length?
 		@select new Range 0, max_length, (track.id for track in tracks)
 	
@@ -599,7 +605,7 @@ class exports.AudioEditor extends Component
 	
 	select_horizontally: (delta_seconds)->
 		{selection} = @state
-		max_length = @get_max_length()
+		max_length = @get_max_length_or_warn()
 		return unless max_length?
 		to = Math.max(0, Math.min(max_length, selection.b + delta_seconds))
 		@select_to_position to
@@ -781,7 +787,7 @@ class exports.AudioEditor extends Component
 			length = range.length()
 		else
 			start = 0
-			length = @get_max_length()
+			length = @get_max_length_or_warn()
 		number_of_channels = 2
 		oactx = new OfflineAudioContext number_of_channels, sample_rate * length, sample_rate
 		@_schedule_playback start, oactx
@@ -890,6 +896,7 @@ class exports.AudioEditor extends Component
 	render: ->
 		{tracks, selection, position, position_time, scale, playing, recording, precording_enabled} = @state
 		{themes, set_theme} = @props
+		
 		E ".audio-editor",
 			className: {playing}
 			tabIndex: 0

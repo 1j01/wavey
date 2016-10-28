@@ -44,15 +44,10 @@ class TracksArea extends Component
 		for track in tracks when track.type isnt "beat"
 			document_is_basically_empty = no
 		
-		
 		# TODO: decide if this is the ideal or what (seems pretty decent)
 		document_width_padding = window.innerWidth/2
 		
-		# FIXME: XXX: HACK: this is Not the Way
-		HACK_InfoBar_warn = InfoBar.warn
-		InfoBar.warn = ->
-		document_width = (editor.get_max_length() ? 0) * scale + document_width_padding
-		InfoBar.warn = HACK_InfoBar_warn
+		document_width = Math.max(editor.get_max_length_or_zero() * scale, window.innerWidth) + document_width_padding
 		
 		E ".tracks-area",
 			onMouseDown: (e)=>

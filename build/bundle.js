@@ -24293,7 +24293,7 @@ exports.AudioEditor = (function(superClass) {
     }
   };
 
-  AudioEditor.prototype.get_max_length = function() {
+  AudioEditor.prototype._get_max_length_or_do_default = function(default_fn) {
     var audio_buffer, clip, j, k, len, len1, max_length, recording, ref2, ref3, ref4, track, tracks;
     tracks = this.state.tracks;
     max_length = 0;
@@ -24308,22 +24308,33 @@ exports.AudioEditor = (function(superClass) {
             if (recording) {
               max_length = Math.max(max_length, clip.position + ((ref3 = (ref4 = clip.length) != null ? ref4 : recording.length) != null ? ref3 : 0));
             } else {
-              InfoBar.warn("Not all tracks have finished loading.");
-              return;
+              return default_fn();
             }
           } else {
             audio_buffer = audio_clips.audio_buffers[clip.audio_id];
             if (audio_buffer) {
               max_length = Math.max(max_length, clip.position + clip.length);
             } else {
-              InfoBar.warn("Not all tracks have finished loading.");
-              return;
+              return default_fn();
             }
           }
         }
       }
     }
     return max_length;
+  };
+
+  AudioEditor.prototype.get_max_length_or_zero = function() {
+    return this._get_max_length_or_do_default(function() {
+      return 0;
+    });
+  };
+
+  AudioEditor.prototype.get_max_length_or_warn = function() {
+    return this._get_max_length_or_do_default(function() {
+      InfoBar.warn("Not all tracks have finished loading.");
+      return void 0;
+    });
   };
 
   AudioEditor.prototype.get_current_position = function() {
@@ -24337,7 +24348,7 @@ exports.AudioEditor = (function(superClass) {
       throw new Error("Tried to seek to invalid position: " + position);
     }
     position = Math.max(0, position);
-    max_length = this.get_max_length();
+    max_length = this.get_max_length_or_zero();
     ref2 = this.state, playing = ref2.playing, recording = ref2.recording, selection = ref2.selection;
     if (recording) {
       return;
@@ -24369,7 +24380,7 @@ exports.AudioEditor = (function(superClass) {
 
   AudioEditor.prototype.seek_to_end = function(e) {
     var end;
-    end = this.get_max_length();
+    end = this.get_max_length_or_warn();
     if (end == null) {
       return;
     }
@@ -24386,7 +24397,7 @@ exports.AudioEditor = (function(superClass) {
     if (this.state.playing) {
       this.pause();
     }
-    max_length = this.get_max_length();
+    max_length = this.get_max_length_or_warn();
     if (!this.state.recording) {
       if (max_length == null) {
         return;
@@ -24859,7 +24870,7 @@ exports.AudioEditor = (function(superClass) {
   AudioEditor.prototype.select_all = function() {
     var max_length, track, tracks;
     tracks = this.state.tracks;
-    max_length = this.get_max_length();
+    max_length = this.get_max_length_or_warn();
     if (max_length == null) {
       return;
     }
@@ -24909,7 +24920,7 @@ exports.AudioEditor = (function(superClass) {
   AudioEditor.prototype.select_horizontally = function(delta_seconds) {
     var max_length, selection, to;
     selection = this.state.selection;
-    max_length = this.get_max_length();
+    max_length = this.get_max_length_or_warn();
     if (max_length == null) {
       return;
     }
@@ -25210,7 +25221,7 @@ exports.AudioEditor = (function(superClass) {
       length = range.length();
     } else {
       start = 0;
-      length = this.get_max_length();
+      length = this.get_max_length_or_warn();
     }
     number_of_channels = 2;
     oactx = new OfflineAudioContext(number_of_channels, sample_rate * length, sample_rate);
@@ -26511,7 +26522,7 @@ module.exports = TracksArea = (function(superClass) {
   }
 
   TracksArea.prototype.render = function() {
-    var HACK_InfoBar_warn, document_is_basically_empty, document_width, document_width_padding, editor, j, len, playing, position, position_time, ref1, ref2, scale, select_at_mouse, track, tracks;
+    var document_is_basically_empty, document_width, document_width_padding, editor, j, len, playing, position, position_time, ref1, scale, select_at_mouse, track, tracks;
     ref1 = this.props, tracks = ref1.tracks, position = ref1.position, position_time = ref1.position_time, scale = ref1.scale, playing = ref1.playing, editor = ref1.editor;
     select_at_mouse = (function(_this) {
       return function(e) {
@@ -26544,10 +26555,7 @@ module.exports = TracksArea = (function(superClass) {
       }
     }
     document_width_padding = window.innerWidth / 2;
-    HACK_InfoBar_warn = InfoBar.warn;
-    InfoBar.warn = function() {};
-    document_width = ((ref2 = editor.get_max_length()) != null ? ref2 : 0) * scale + document_width_padding;
-    InfoBar.warn = HACK_InfoBar_warn;
+    document_width = Math.max(editor.get_max_length_or_zero() * scale, window.innerWidth) + document_width_padding;
     return E(".tracks-area", {
       onMouseDown: (function(_this) {
         return function(e) {
@@ -26621,16 +26629,16 @@ module.exports = TracksArea = (function(superClass) {
       })(this),
       onDrop: (function(_this) {
         return function(e) {
-          var file, k, len1, ref3, results;
+          var file, k, len1, ref2, results;
           if (!e.target.closest(".track-content")) {
             return;
           }
           e.preventDefault();
           select_at_mouse(e);
-          ref3 = e.dataTransfer.files;
+          ref2 = e.dataTransfer.files;
           results = [];
-          for (k = 0, len1 = ref3.length; k < len1; k++) {
-            file = ref3[k];
+          for (k = 0, len1 = ref2.length; k < len1; k++) {
+            file = ref2[k];
             results.push(editor.add_clip(file, true));
           }
           return results;
@@ -26768,7 +26776,7 @@ module.exports = TracksArea = (function(superClass) {
       key: "position-indicator",
       ref: "position_indicator"
     }) : void 0, (function() {
-      var k, len1, ref3, ref4, results;
+      var k, len1, ref2, ref3, results;
       results = [];
       for (k = 0, len1 = tracks.length; k < len1; k++) {
         track = tracks[k];
@@ -26787,7 +26795,7 @@ module.exports = TracksArea = (function(superClass) {
               track: track,
               scale: scale,
               editor: editor,
-              selection: (((ref3 = this.props.selection) != null ? ref3.containsTrack(track) : void 0) ? this.props.selection : void 0)
+              selection: (((ref2 = this.props.selection) != null ? ref2.containsTrack(track) : void 0) ? this.props.selection : void 0)
             }));
             break;
           case "midi":
@@ -26796,7 +26804,7 @@ module.exports = TracksArea = (function(superClass) {
               track: track,
               scale: scale,
               editor: editor,
-              selection: (((ref4 = this.props.selection) != null ? ref4.containsTrack(track) : void 0) ? this.props.selection : void 0)
+              selection: (((ref3 = this.props.selection) != null ? ref3.containsTrack(track) : void 0) ? this.props.selection : void 0)
             }));
             break;
           default:
