@@ -188,35 +188,32 @@ class TracksArea extends Component
 							else
 								0
 						
-						# update the selection while scrolling (XXX: using a psuedo-event)
-						onMouseMove
-							clientX: mouse_x
-							clientY: mouse_y
-							preventDefault: ->
+						# update the selection while auto-scrolling
+						update_selection()
 						
 						setTimeout =>
 							auto_scroll_container_el.scrollLeft += auto_scroll_x
 							auto_scroll_container_el.scrollTop += auto_scroll_y
 						
-						cancelAnimationFrame(@auto_scroll_animation_frame)
 						@auto_scroll_animation_frame = requestAnimationFrame(auto_scroll)
 					
 					mouse_moved_timewise = no
 					mouse_moved_trackwise = no
-					
-					window.addEventListener "mousemove", onMouseMove = (e)=>
-						if Math.abs(position_at(e.clientX) - starting_position) > 5 / scale
+					update_selection = =>
+						if Math.abs(position_at(mouse_x) - starting_position) > 5 / scale
 							mouse_moved_timewise = yes
-						if nearest_track_id_at(e.clientY) isnt starting_track_id
+						if nearest_track_id_at(mouse_y) isnt starting_track_id
 							mouse_moved_trackwise = yes
 						if @props.selection and (mouse_moved_timewise or mouse_moved_trackwise)
-							drag_position = if mouse_moved_timewise then position_at(e.clientX) else starting_position
-							drag_track_id = if mouse_moved_trackwise then nearest_track_id_at(e.clientY) else starting_track_id
+							drag_position = if mouse_moved_timewise then position_at(mouse_x) else starting_position
+							drag_track_id = if mouse_moved_trackwise then nearest_track_id_at(mouse_y) else starting_track_id
 							editor.select_to drag_position, drag_track_id
-							e.preventDefault()
-						
+					
+					window.addEventListener "mousemove", onMouseMove = (e)=>
 						mouse_x = e.clientX
 						mouse_y = e.clientY
+						update_selection()
+						e.preventDefault()
 						cancelAnimationFrame(@auto_scroll_animation_frame)
 						@auto_scroll_animation_frame = requestAnimationFrame(auto_scroll)
 					

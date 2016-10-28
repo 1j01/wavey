@@ -26635,7 +26635,7 @@ module.exports = TracksArea = (function(superClass) {
       })(this),
       onMouseDown: (function(_this) {
         return function(e) {
-          var auto_scroll, auto_scroll_container_el, auto_scroll_container_rect, auto_scroll_margin, auto_scroll_max_speed, auto_scroll_rect, auto_scroll_x, auto_scroll_y, mouse_moved_timewise, mouse_moved_trackwise, mouse_x, mouse_y, nearest_track_id_at, onMouseMove, onMouseUp, position_at, starting_position, starting_track_id, track_content_area_el, track_content_el;
+          var auto_scroll, auto_scroll_container_el, auto_scroll_container_rect, auto_scroll_margin, auto_scroll_max_speed, auto_scroll_rect, auto_scroll_x, auto_scroll_y, mouse_moved_timewise, mouse_moved_trackwise, mouse_x, mouse_y, nearest_track_id_at, onMouseMove, onMouseUp, position_at, starting_position, starting_track_id, track_content_area_el, track_content_el, update_selection;
           if (e.button !== 0) {
             return;
           }
@@ -26709,36 +26709,34 @@ module.exports = TracksArea = (function(superClass) {
           auto_scroll = function() {
             auto_scroll_x = mouse_x < auto_scroll_rect.left + auto_scroll_margin ? Math.floor(Math.max(-1, (mouse_x - auto_scroll_rect.left) / auto_scroll_margin - 1) * auto_scroll_max_speed) : mouse_x > auto_scroll_rect.right - auto_scroll_margin ? Math.ceil(Math.min(1, (mouse_x - auto_scroll_rect.right) / auto_scroll_margin + 1) * auto_scroll_max_speed) : 0;
             auto_scroll_y = mouse_y < auto_scroll_rect.top + auto_scroll_margin ? Math.floor(Math.max(-1, (mouse_y - auto_scroll_rect.top) / auto_scroll_margin - 1) * auto_scroll_max_speed) : mouse_y > auto_scroll_rect.bottom - auto_scroll_margin ? Math.ceil(Math.min(1, (mouse_y - auto_scroll_rect.bottom) / auto_scroll_margin + 1) * auto_scroll_max_speed) : 0;
-            onMouseMove({
-              clientX: mouse_x,
-              clientY: mouse_y,
-              preventDefault: function() {}
-            });
+            update_selection();
             setTimeout(function() {
               auto_scroll_container_el.scrollLeft += auto_scroll_x;
               return auto_scroll_container_el.scrollTop += auto_scroll_y;
             });
-            cancelAnimationFrame(_this.auto_scroll_animation_frame);
             return _this.auto_scroll_animation_frame = requestAnimationFrame(auto_scroll);
           };
           mouse_moved_timewise = false;
           mouse_moved_trackwise = false;
-          window.addEventListener("mousemove", onMouseMove = function(e) {
+          update_selection = function() {
             var drag_position, drag_track_id;
-            if (Math.abs(position_at(e.clientX) - starting_position) > 5 / scale) {
+            if (Math.abs(position_at(mouse_x) - starting_position) > 5 / scale) {
               mouse_moved_timewise = true;
             }
-            if (nearest_track_id_at(e.clientY) !== starting_track_id) {
+            if (nearest_track_id_at(mouse_y) !== starting_track_id) {
               mouse_moved_trackwise = true;
             }
             if (_this.props.selection && (mouse_moved_timewise || mouse_moved_trackwise)) {
-              drag_position = mouse_moved_timewise ? position_at(e.clientX) : starting_position;
-              drag_track_id = mouse_moved_trackwise ? nearest_track_id_at(e.clientY) : starting_track_id;
-              editor.select_to(drag_position, drag_track_id);
-              e.preventDefault();
+              drag_position = mouse_moved_timewise ? position_at(mouse_x) : starting_position;
+              drag_track_id = mouse_moved_trackwise ? nearest_track_id_at(mouse_y) : starting_track_id;
+              return editor.select_to(drag_position, drag_track_id);
             }
+          };
+          window.addEventListener("mousemove", onMouseMove = function(e) {
             mouse_x = e.clientX;
             mouse_y = e.clientY;
+            update_selection();
+            e.preventDefault();
             cancelAnimationFrame(_this.auto_scroll_animation_frame);
             return _this.auto_scroll_animation_frame = requestAnimationFrame(auto_scroll);
           });
