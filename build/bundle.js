@@ -23636,15 +23636,20 @@ module.exports = Range = (function() {
       }
       return results;
     })();
-    track_ids = start_track_id ? sorted_track_ids.slice(sorted_track_ids.indexOf(start_track_id)) : [];
-    while (track_ids.length < rows.length) {
-      new_track = {
-        id: GUID(),
-        type: "audio",
-        clips: []
-      };
-      tracks.push(new_track);
-      track_ids.push(new_track.id);
+    if (start_track_id) {
+      track_ids = sorted_track_ids.slice(sorted_track_ids.indexOf(start_track_id));
+      track_ids.length = rows.length;
+    } else {
+      track_ids = [];
+      while (track_ids.length < rows.length) {
+        new_track = {
+          id: GUID(),
+          type: "audio",
+          clips: []
+        };
+        tracks.push(new_track);
+        track_ids.push(new_track.id);
+      }
     }
     for (i = 0, len = tracks.length; i < len; i++) {
       track = tracks[i];

@@ -130,15 +130,16 @@ class Range
 		rows = (row for row in stuff.rows when row.length > 0)
 		
 		sorted_track_ids = (track.id for track in sorted_tracks)
-		track_ids =
-			if start_track_id
-				sorted_track_ids.slice sorted_track_ids.indexOf(start_track_id)
-			else
-				[]
-		while track_ids.length < rows.length
-			new_track = {id: GUID(), type: "audio", clips: []}
-			tracks.push new_track
-			track_ids.push new_track.id
+		
+		if start_track_id
+			track_ids = sorted_track_ids.slice sorted_track_ids.indexOf(start_track_id)
+			track_ids.length = rows.length
+		else
+			track_ids = []
+			while track_ids.length < rows.length
+				new_track = {id: GUID(), type: "audio", clips: []}
+				tracks.push new_track
+				track_ids.push new_track.id
 		
 		for track in tracks when track.type is "audio" and track.id in track_ids
 			row = rows[track_ids.indexOf track.id]
