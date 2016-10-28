@@ -165,8 +165,8 @@ class TracksArea extends Component
 						right: auto_scroll_container_rect.left + auto_scroll_container_el.clientWidth
 						bottom: auto_scroll_container_rect.top + auto_scroll_container_el.clientHeight
 					
-					mouse_x = 0
-					mouse_y = 0
+					mouse_x = e.clientX
+					mouse_y = e.clientY
 					auto_scroll_x = 0
 					auto_scroll_y = 0
 					@auto_scroll_animation_frame = -1
@@ -188,15 +188,17 @@ class TracksArea extends Component
 							else
 								0
 						
-						# update the selection while scrolling (XXX: a bit WET)
-						drag_position = if mouse_moved_timewise then position_at(mouse_x) else position
-						drag_track_id = if mouse_moved_trackwise then nearest_track_id_at(mouse_y) else track_id
-						editor.select_to drag_position, drag_track_id
+						# update the selection while scrolling (XXX: using a psuedo-event)
+						onMouseMove
+							clientX: mouse_x
+							clientY: mouse_y
+							preventDefault: ->
 						
 						setTimeout =>
 							auto_scroll_container_el.scrollLeft += auto_scroll_x
 							auto_scroll_container_el.scrollTop += auto_scroll_y
 						
+						cancelAnimationFrame(@auto_scroll_animation_frame)
 						@auto_scroll_animation_frame = requestAnimationFrame(auto_scroll)
 					
 					mouse_moved_timewise = no
@@ -285,8 +287,8 @@ class TracksArea extends Component
 		tracks_area_el = ReactDOM.findDOMNode(@)
 		tracks_area_rect = tracks_area_el.getBoundingClientRect()
 		
-		tracks_content_area_el = tracks_area_el.querySelector(".track-content-area")
-		tracks_content_area_rect = tracks_content_area_el.getBoundingClientRect()
+		track_content_area_el = tracks_area_el.querySelector(".track-content-area")
+		track_content_area_rect = track_content_area_el.getBoundingClientRect()
 		
 		track_els = tracks_area_el.querySelectorAll(".track")
 		track_controls_els = tracks_area_el.querySelectorAll(".track-controls")
@@ -295,7 +297,7 @@ class TracksArea extends Component
 			track_rect = track_el.getBoundingClientRect()
 			track_controls_el.style.top = "#{track_rect.top - tracks_area_rect.top + parseInt(getComputedStyle(track_el).paddingTop)}px"
 		
-		scroll_x = tracks_content_area_el.scrollLeft
+		scroll_x = track_content_area_el.scrollLeft
 		for track_el in track_els
 			track_content_el = track_el.querySelector(".track-content > *")
 			y_offset_fns = @offset_y_fns_by_track_id[track_el.dataset.trackId] ? []
@@ -327,13 +329,13 @@ class TracksArea extends Component
 				# keep_margin_right = 200
 				# scroll_by = 0
 				
-				delta_x = x - tracks_content_area_el.scrollLeft - any_old_track_content_rect.right + keep_margin_right
+				delta_x = x - track_content_area_el.scrollLeft - any_old_track_content_rect.right + keep_margin_right
 				if delta_x > 0
 					setTimeout -> # do scroll outside of animation loop!
-						tracks_content_area_el.scrollLeft += delta_x + scroll_by
+						track_content_area_el.scrollLeft += delta_x + scroll_by
 			
-			@refs.position_indicator.style.left = "#{x - tracks_content_area_rect.left}px"
-			@refs.position_indicator.style.top = "#{tracks_content_area_el.scrollTop}px"
+			@refs.position_indicator.style.left = "#{x - track_content_area_rect.left}px"
+			@refs.position_indicator.style.top = "#{track_content_area_el.scrollTop}px"
 	
 	componentWillUpdate: (next_props, next_state)=>
 		# for transitioning track positions

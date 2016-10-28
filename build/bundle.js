@@ -26701,22 +26701,24 @@ module.exports = TracksArea = (function(superClass) {
             right: auto_scroll_container_rect.left + auto_scroll_container_el.clientWidth,
             bottom: auto_scroll_container_rect.top + auto_scroll_container_el.clientHeight
           };
-          mouse_x = 0;
-          mouse_y = 0;
+          mouse_x = e.clientX;
+          mouse_y = e.clientY;
           auto_scroll_x = 0;
           auto_scroll_y = 0;
           _this.auto_scroll_animation_frame = -1;
           auto_scroll = function() {
-            var drag_position, drag_track_id;
             auto_scroll_x = mouse_x < auto_scroll_rect.left + auto_scroll_margin ? Math.floor(Math.max(-1, (mouse_x - auto_scroll_rect.left) / auto_scroll_margin - 1) * auto_scroll_max_speed) : mouse_x > auto_scroll_rect.right - auto_scroll_margin ? Math.ceil(Math.min(1, (mouse_x - auto_scroll_rect.right) / auto_scroll_margin + 1) * auto_scroll_max_speed) : 0;
             auto_scroll_y = mouse_y < auto_scroll_rect.top + auto_scroll_margin ? Math.floor(Math.max(-1, (mouse_y - auto_scroll_rect.top) / auto_scroll_margin - 1) * auto_scroll_max_speed) : mouse_y > auto_scroll_rect.bottom - auto_scroll_margin ? Math.ceil(Math.min(1, (mouse_y - auto_scroll_rect.bottom) / auto_scroll_margin + 1) * auto_scroll_max_speed) : 0;
-            drag_position = mouse_moved_timewise ? position_at(mouse_x) : position;
-            drag_track_id = mouse_moved_trackwise ? nearest_track_id_at(mouse_y) : track_id;
-            editor.select_to(drag_position, drag_track_id);
+            onMouseMove({
+              clientX: mouse_x,
+              clientY: mouse_y,
+              preventDefault: function() {}
+            });
             setTimeout(function() {
               auto_scroll_container_el.scrollLeft += auto_scroll_x;
               return auto_scroll_container_el.scrollTop += auto_scroll_y;
             });
+            cancelAnimationFrame(_this.auto_scroll_animation_frame);
             return _this.auto_scroll_animation_frame = requestAnimationFrame(auto_scroll);
           };
           mouse_moved_timewise = false;
@@ -26813,7 +26815,7 @@ module.exports = TracksArea = (function(superClass) {
   };
 
   TracksArea.prototype.animate = function() {
-    var any_old_track_content_el, any_old_track_content_rect, delta_x, fn, i, j, k, keep_margin_right, l, len, len1, len2, position, ref1, scale, scroll_by, scroll_x, track_content_el, track_controls_el, track_controls_els, track_el, track_els, track_rect, tracks_area_el, tracks_area_rect, tracks_content_area_el, tracks_content_area_rect, x, y_offset, y_offset_fns;
+    var any_old_track_content_el, any_old_track_content_rect, delta_x, fn, i, j, k, keep_margin_right, l, len, len1, len2, position, ref1, scale, scroll_by, scroll_x, track_content_area_el, track_content_area_rect, track_content_el, track_controls_el, track_controls_els, track_el, track_els, track_rect, tracks_area_el, tracks_area_rect, x, y_offset, y_offset_fns;
     scale = this.props.scale;
     this.animation_frame = requestAnimationFrame((function(_this) {
       return function() {
@@ -26822,8 +26824,8 @@ module.exports = TracksArea = (function(superClass) {
     })(this));
     tracks_area_el = ReactDOM.findDOMNode(this);
     tracks_area_rect = tracks_area_el.getBoundingClientRect();
-    tracks_content_area_el = tracks_area_el.querySelector(".track-content-area");
-    tracks_content_area_rect = tracks_content_area_el.getBoundingClientRect();
+    track_content_area_el = tracks_area_el.querySelector(".track-content-area");
+    track_content_area_rect = track_content_area_el.getBoundingClientRect();
     track_els = tracks_area_el.querySelectorAll(".track");
     track_controls_els = tracks_area_el.querySelectorAll(".track-controls");
     for (i = j = 0, len = track_controls_els.length; j < len; i = ++j) {
@@ -26832,7 +26834,7 @@ module.exports = TracksArea = (function(superClass) {
       track_rect = track_el.getBoundingClientRect();
       track_controls_el.style.top = (track_rect.top - tracks_area_rect.top + parseInt(getComputedStyle(track_el).paddingTop)) + "px";
     }
-    scroll_x = tracks_content_area_el.scrollLeft;
+    scroll_x = track_content_area_el.scrollLeft;
     for (k = 0, len1 = track_els.length; k < len1; k++) {
       track_el = track_els[k];
       track_content_el = track_el.querySelector(".track-content > *");
@@ -26855,15 +26857,15 @@ module.exports = TracksArea = (function(superClass) {
       if (this.props.playing) {
         keep_margin_right = 5;
         scroll_by = any_old_track_content_rect.width;
-        delta_x = x - tracks_content_area_el.scrollLeft - any_old_track_content_rect.right + keep_margin_right;
+        delta_x = x - track_content_area_el.scrollLeft - any_old_track_content_rect.right + keep_margin_right;
         if (delta_x > 0) {
           setTimeout(function() {
-            return tracks_content_area_el.scrollLeft += delta_x + scroll_by;
+            return track_content_area_el.scrollLeft += delta_x + scroll_by;
           });
         }
       }
-      this.refs.position_indicator.style.left = (x - tracks_content_area_rect.left) + "px";
-      return this.refs.position_indicator.style.top = tracks_content_area_el.scrollTop + "px";
+      this.refs.position_indicator.style.left = (x - track_content_area_rect.left) + "px";
+      return this.refs.position_indicator.style.top = track_content_area_el.scrollTop + "px";
     }
   };
 
