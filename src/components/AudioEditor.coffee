@@ -546,6 +546,8 @@ class exports.AudioEditor extends Component
 	
 	select_to: (to_position, to_track_id)=>
 		{tracks, selection} = @state
+		if not selection
+			return @select_position to_position, [to_track_id]
 		to_position = Math.max(0, to_position)
 		# TODO: this should be way simpler
 		sorted_tracks = @get_sorted_tracks tracks

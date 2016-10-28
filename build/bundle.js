@@ -24808,6 +24808,9 @@ exports.AudioEditor = (function(superClass) {
   AudioEditor.prototype.select_to = function(to_position, to_track_id) {
     var from_track, include_tracks, j, k, len, len1, ref2, selection, sorted_tracks, to_track, track, track_ids, tracks;
     ref2 = this.state, tracks = ref2.tracks, selection = ref2.selection;
+    if (!selection) {
+      return this.select_position(to_position, [to_track_id]);
+    }
     to_position = Math.max(0, to_position);
     sorted_tracks = this.get_sorted_tracks(tracks);
     for (j = 0, len = sorted_tracks.length; j < len; j++) {
