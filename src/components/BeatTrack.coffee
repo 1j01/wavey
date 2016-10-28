@@ -6,6 +6,6 @@ BeatMarkings = require "./BeatMarkings.coffee"
 module.exports =
 class BeatTrack extends Component
 	render: ->
-		{track, scale, editor} = @props
+		{track, scale, editor, document_width} = @props
 		E Track, {track, editor},
-			E BeatMarkings, {scale}
+			E BeatMarkings, {scale, document_width}

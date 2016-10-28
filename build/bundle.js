@@ -25570,45 +25570,33 @@ module.exports = BeatMarkings = (function(superClass) {
   }
 
   BeatMarkings.prototype.render = function() {
-    var scale, x, xs;
-    scale = this.props.scale;
+    var bpm, bps, document_width, ref1, scale, x;
+    ref1 = this.props, scale = ref1.scale, document_width = ref1.document_width;
+    bpm = 240;
+    bps = bpm / 60;
     return E(".beat-markings", {
       style: {
         position: "relative"
       }
     }, (function() {
-      var i, results;
+      var i, ref2, results;
       results = [];
-      for (x = i = 0; i <= 50; x = ++i) {
-        results.push([
-          E(".beat-marking", {
-            key: x,
-            style: {
-              position: "absolute",
-              left: (x * scale) + "px"
-            }
-          }), (function() {
-            var j, results1;
-            results1 = [];
-            for (xs = j = 1; j <= 3; xs = ++j) {
-              results1.push(E(".beat-marking.sub", {
-                key: x + "+" + xs + "/4",
-                style: {
-                  position: "absolute",
-                  left: (x * scale + xs * scale / 4) + "px"
-                }
-              }));
-            }
-            return results1;
-          })()
-        ]);
+      for (x = i = 0, ref2 = document_width / scale * bps; 0 <= ref2 ? i <= ref2 : i >= ref2; x = 0 <= ref2 ? ++i : --i) {
+        results.push(E(".beat-marking", {
+          "class": (x % 4 > 0 ? "sub" : void 0),
+          key: x,
+          style: {
+            position: "absolute",
+            left: (x * scale / bps) + "px"
+          }
+        }));
       }
       return results;
     })());
   };
 
   BeatMarkings.prototype.shouldComponentUpdate = function(last_props) {
-    return this.props.scale !== last_props.scale;
+    return this.props.document_width !== last_props.document_width || this.props.scale !== last_props.scale;
   };
 
   return BeatMarkings;
@@ -25635,13 +25623,14 @@ module.exports = BeatTrack = (function(superClass) {
   }
 
   BeatTrack.prototype.render = function() {
-    var editor, ref1, scale, track;
-    ref1 = this.props, track = ref1.track, scale = ref1.scale, editor = ref1.editor;
+    var document_width, editor, ref1, scale, track;
+    ref1 = this.props, track = ref1.track, scale = ref1.scale, editor = ref1.editor, document_width = ref1.document_width;
     return E(Track, {
       track: track,
       editor: editor
     }, E(BeatMarkings, {
-      scale: scale
+      scale: scale,
+      document_width: document_width
     }));
   };
 
@@ -26786,7 +26775,8 @@ module.exports = TracksArea = (function(superClass) {
               key: track.id,
               track: track,
               scale: scale,
-              editor: editor
+              editor: editor,
+              document_width: document_width
             }));
             break;
           case "audio":

@@ -239,7 +239,7 @@ class TracksArea extends Component
 				for track in tracks
 					switch track.type
 						when "beat"
-							E BeatTrack, {key: track.id, track, scale, editor}
+							E BeatTrack, {key: track.id, track, scale, editor, document_width}
 						when "audio"
 							E AudioTrack, {
 								key: track.id, track, scale, editor
