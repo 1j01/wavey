@@ -141,15 +141,15 @@ class TracksArea extends Component
 								distance = _distance
 						nearest_track_el.dataset.trackId
 					
-					position = position_at e.clientX
-					track_id = nearest_track_id_at e.clientY
+					starting_position = position_at e.clientX
+					starting_track_id = nearest_track_id_at e.clientY
 					
 					editor.setState moving_selection: yes
 					
 					if e.shiftKey
-						editor.select_to position, track_id
+						editor.select_to starting_position, starting_track_id
 					else
-						editor.select_position position, [track_id]
+						editor.select_position starting_position, [starting_track_id]
 					
 					
 					auto_scroll_margin = 30
@@ -203,16 +203,15 @@ class TracksArea extends Component
 					
 					mouse_moved_timewise = no
 					mouse_moved_trackwise = no
-					starting_clientX = e.clientX
 					
 					window.addEventListener "mousemove", onMouseMove = (e)=>
-						if Math.abs(e.clientX - starting_clientX) > 5
+						if Math.abs(position_at(e.clientX) - starting_position) > 5 / scale
 							mouse_moved_timewise = yes
-						if nearest_track_id_at(e.clientY) isnt track_id
+						if nearest_track_id_at(e.clientY) isnt starting_track_id
 							mouse_moved_trackwise = yes
 						if @props.selection and (mouse_moved_timewise or mouse_moved_trackwise)
-							drag_position = if mouse_moved_timewise then position_at(e.clientX) else position
-							drag_track_id = if mouse_moved_trackwise then nearest_track_id_at(e.clientY) else track_id
+							drag_position = if mouse_moved_timewise then position_at(e.clientX) else starting_position
+							drag_track_id = if mouse_moved_trackwise then nearest_track_id_at(e.clientY) else starting_track_id
 							editor.select_to drag_position, drag_track_id
 							e.preventDefault()
 						
@@ -226,7 +225,7 @@ class TracksArea extends Component
 						window.removeEventListener "mousemove", onMouseMove
 						cancelAnimationFrame(@auto_scroll_animation_frame)
 						unless mouse_moved_timewise
-							editor.seek position
+							editor.seek starting_position
 						editor.setState moving_selection: no
 						editor.save()
 				
