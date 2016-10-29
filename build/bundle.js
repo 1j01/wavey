@@ -24062,7 +24062,7 @@ exports.AudioEditor = (function(superClass) {
     this.seek_to_end = bind(this.seek_to_end, this);
     this.seek_to_start = bind(this.seek_to_start, this);
     this.seek = bind(this.seek, this);
-    this.scroll_position_indicator_into_view = bind(this.scroll_position_indicator_into_view, this);
+    this.scroll_position_into_view = bind(this.scroll_position_into_view, this);
     this.state = {
       tracks: [
         {
@@ -24347,21 +24347,26 @@ exports.AudioEditor = (function(superClass) {
     return this.state.position + (this.state.playing ? actx.currentTime - this.state.position_time : 0);
   };
 
-  AudioEditor.prototype.scroll_position_indicator_into_view = function(arg) {
-    var backwards, container, forwards, indicator, indicator_x, margin, ref2;
-    ref2 = arg != null ? arg : {}, forwards = ref2.forwards, backwards = ref2.backwards;
+  AudioEditor.prototype.scroll_position_into_view = function(position, arg) {
+    var any_old_track_content_el, any_old_track_content_rect, backwards, container, container_rect, forwards, margin, ref2, scale, x;
+    ref2 = arg != null ? arg : {}, forwards = ref2.forwards, backwards = ref2.backwards, margin = ref2.margin;
+    if (margin == null) {
+      margin = 15;
+    }
+    scale = this.state.scale;
     container = ReactDOM.findDOMNode(this).querySelector(".track-content-area");
-    indicator = ReactDOM.findDOMNode(this).querySelector(".position-indicator");
-    indicator_x = parseInt(indicator.style.left);
-    margin = 15;
+    container_rect = container.getBoundingClientRect();
+    any_old_track_content_el = container.querySelector(".track-content");
+    any_old_track_content_rect = any_old_track_content_el.getBoundingClientRect();
+    x = position * scale + any_old_track_content_rect.left - container_rect.left;
     if (!((forwards != null) && !forwards)) {
-      if (indicator_x > container.scrollLeft + container.clientWidth) {
-        container.scrollLeft = indicator_x - container.clientWidth + margin;
+      if (x > container.scrollLeft + container.clientWidth) {
+        container.scrollLeft = x - container.clientWidth + margin;
       }
     }
     if (!((backwards != null) && !backwards)) {
-      if (indicator_x < container.scrollLeft) {
-        return container.scrollLeft = indicator_x - margin;
+      if (x < container.scrollLeft) {
+        return container.scrollLeft = x - margin;
       }
     }
   };
@@ -24384,7 +24389,7 @@ exports.AudioEditor = (function(superClass) {
         recording: recording
       }, (function(_this) {
         return function() {
-          return _this.scroll_position_indicator_into_view({
+          return _this.scroll_position_into_view(position, {
             forwards: false
           });
         };
@@ -24394,7 +24399,11 @@ exports.AudioEditor = (function(superClass) {
       this.setState({
         position_time: actx.currentTime,
         position: position
-      }, this.scroll_position_indicator_into_view);
+      }, (function(_this) {
+        return function() {
+          return _this.scroll_position_into_view(position);
+        };
+      })(this));
     }
     if (selection != null) {
       if (e != null ? e.shiftKey : void 0) {

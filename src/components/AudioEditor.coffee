@@ -190,23 +190,20 @@ class exports.AudioEditor extends Component
 			else
 				0
 	
-	scroll_position_indicator_into_view: ({forwards, backwards}={})=>
-		# ReactDOM.findDOMNode(@).querySelector(".position-indicator").scrollIntoView()
-		# ReactDOM.findDOMNode(@).querySelector(".position-indicator").scrollIntoView(behavior: "smooth")
-		# ReactDOM.findDOMNode(@).querySelector(".track-content-area").scrollLeft = 
-		# ReactDOM.findDOMNode(@).querySelector(".position-indicator").style.left
-		# setTimeout =>
-		# requestAnimationFrame =>
+	scroll_position_into_view: (position, {forwards, backwards, margin}={})=>
+		margin ?= 15
+		{scale} = @state
 		container = ReactDOM.findDOMNode(@).querySelector(".track-content-area")
-		indicator = ReactDOM.findDOMNode(@).querySelector(".position-indicator")
-		indicator_x = parseInt(indicator.style.left)
-		margin = 15
+		container_rect = container.getBoundingClientRect()
+		any_old_track_content_el = container.querySelector(".track-content")
+		any_old_track_content_rect = any_old_track_content_el.getBoundingClientRect()
+		x = position * scale + any_old_track_content_rect.left - container_rect.left
 		unless forwards? and not forwards
-			if indicator_x > container.scrollLeft + container.clientWidth
-				container.scrollLeft = indicator_x - container.clientWidth + margin
+			if x > container.scrollLeft + container.clientWidth
+				container.scrollLeft = x - container.clientWidth + margin
 		unless backwards? and not backwards
-			if indicator_x < container.scrollLeft
-				container.scrollLeft = indicator_x - margin
+			if x < container.scrollLeft
+				container.scrollLeft = x - margin
 	
 	seek: (position, e)=>
 		
@@ -224,22 +221,20 @@ class exports.AudioEditor extends Component
 		if playing and max_length? and position < max_length
 			@play_from position
 			@setState {recording}, =>
-				@scroll_position_indicator_into_view(forwards: no) # (allow it to paginate)
+				@scroll_position_into_view(position, forwards: no) # (allow it to paginate)
+				# we might actually want it to use this incremental scrolling behavior though, rather than the pagination
 		else
 			@pause()
 			@setState
 				position_time: actx.currentTime
 				position: position
-				@scroll_position_indicator_into_view
+				=> @scroll_position_into_view(position)
 		
 		if selection?
 			if e?.shiftKey
 				@select_to_position position
 			else if selection.length() is 0
 				@select_position position
-		
-		# @scroll_position_indicator_into_view()
-		# setTimeout @scroll_position_indicator_into_view
 	
 	seek_to_start: (e)=>
 		@seek 0, e
