@@ -24062,6 +24062,7 @@ exports.AudioEditor = (function(superClass) {
     this.seek_to_end = bind(this.seek_to_end, this);
     this.seek_to_start = bind(this.seek_to_start, this);
     this.seek = bind(this.seek, this);
+    this.scroll_position_indicator_into_view = bind(this.scroll_position_indicator_into_view, this);
     this.state = {
       tracks: [
         {
@@ -24346,6 +24347,25 @@ exports.AudioEditor = (function(superClass) {
     return this.state.position + (this.state.playing ? actx.currentTime - this.state.position_time : 0);
   };
 
+  AudioEditor.prototype.scroll_position_indicator_into_view = function(arg) {
+    var backwards, container, forwards, indicator, indicator_x, margin, ref2;
+    ref2 = arg != null ? arg : {}, forwards = ref2.forwards, backwards = ref2.backwards;
+    container = ReactDOM.findDOMNode(this).querySelector(".track-content-area");
+    indicator = ReactDOM.findDOMNode(this).querySelector(".position-indicator");
+    indicator_x = parseInt(indicator.style.left);
+    margin = 15;
+    if (!((forwards != null) && !forwards)) {
+      if (indicator_x > container.scrollLeft + container.clientWidth) {
+        container.scrollLeft = indicator_x - container.clientWidth + margin;
+      }
+    }
+    if (!((backwards != null) && !backwards)) {
+      if (indicator_x < container.scrollLeft) {
+        return container.scrollLeft = indicator_x - margin;
+      }
+    }
+  };
+
   AudioEditor.prototype.seek = function(position, e) {
     var max_length, playing, recording, ref2, selection;
     if (isNaN(position)) {
@@ -24362,13 +24382,19 @@ exports.AudioEditor = (function(superClass) {
       this.play_from(position);
       this.setState({
         recording: recording
-      });
+      }, (function(_this) {
+        return function() {
+          return _this.scroll_position_indicator_into_view({
+            forwards: false
+          });
+        };
+      })(this));
     } else {
       this.pause();
       this.setState({
         position_time: actx.currentTime,
         position: position
-      });
+      }, this.scroll_position_indicator_into_view);
     }
     if (selection != null) {
       if (e != null ? e.shiftKey : void 0) {
@@ -26865,6 +26891,7 @@ module.exports = TracksArea = (function(superClass) {
         delta_x = x - track_content_area_el.scrollLeft - any_old_track_content_rect.right + keep_margin_right;
         if (delta_x > 0) {
           setTimeout(function() {
+            delta_x = x - track_content_area_el.scrollLeft - any_old_track_content_rect.right + keep_margin_right;
             return track_content_area_el.scrollLeft += delta_x + scroll_by;
           });
         }

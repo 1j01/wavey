@@ -325,6 +325,8 @@ class TracksArea extends Component
 				delta_x = x - track_content_area_el.scrollLeft - any_old_track_content_rect.right + keep_margin_right
 				if delta_x > 0
 					setTimeout -> # do scroll outside of animation loop!
+						# XXX: recalculate delta because it may have changed
+						delta_x = x - track_content_area_el.scrollLeft - any_old_track_content_rect.right + keep_margin_right
 						track_content_area_el.scrollLeft += delta_x + scroll_by
 			
 			@refs.position_indicator.style.left = "#{x - track_content_area_rect.left}px"

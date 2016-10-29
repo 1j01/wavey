@@ -190,6 +190,24 @@ class exports.AudioEditor extends Component
 			else
 				0
 	
+	scroll_position_indicator_into_view: ({forwards, backwards}={})=>
+		# ReactDOM.findDOMNode(@).querySelector(".position-indicator").scrollIntoView()
+		# ReactDOM.findDOMNode(@).querySelector(".position-indicator").scrollIntoView(behavior: "smooth")
+		# ReactDOM.findDOMNode(@).querySelector(".track-content-area").scrollLeft = 
+		# ReactDOM.findDOMNode(@).querySelector(".position-indicator").style.left
+		# setTimeout =>
+		# requestAnimationFrame =>
+		container = ReactDOM.findDOMNode(@).querySelector(".track-content-area")
+		indicator = ReactDOM.findDOMNode(@).querySelector(".position-indicator")
+		indicator_x = parseInt(indicator.style.left)
+		margin = 15
+		unless forwards? and not forwards
+			if indicator_x > container.scrollLeft + container.clientWidth
+				container.scrollLeft = indicator_x - container.clientWidth + margin
+		unless backwards? and not backwards
+			if indicator_x < container.scrollLeft
+				container.scrollLeft = indicator_x - margin
+	
 	seek: (position, e)=>
 		
 		if isNaN position
@@ -205,18 +223,23 @@ class exports.AudioEditor extends Component
 		
 		if playing and max_length? and position < max_length
 			@play_from position
-			@setState {recording}
+			@setState {recording}, =>
+				@scroll_position_indicator_into_view(forwards: no) # (allow it to paginate)
 		else
 			@pause()
 			@setState
 				position_time: actx.currentTime
 				position: position
+				@scroll_position_indicator_into_view
 		
 		if selection?
 			if e?.shiftKey
 				@select_to_position position
 			else if selection.length() is 0
 				@select_position position
+		
+		# @scroll_position_indicator_into_view()
+		# setTimeout @scroll_position_indicator_into_view
 	
 	seek_to_start: (e)=>
 		@seek 0, e
