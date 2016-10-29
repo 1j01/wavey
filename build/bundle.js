@@ -26711,11 +26711,12 @@ module.exports = TracksArea = (function(superClass) {
           auto_scroll_x = 0;
           auto_scroll_y = 0;
           _this.auto_scroll_animation_frame = -1;
+          _this.auto_scroll_timeout_id = -1;
           auto_scroll = function() {
             auto_scroll_x = mouse_x < auto_scroll_rect.left + auto_scroll_margin ? Math.floor(Math.max(-1, (mouse_x - auto_scroll_rect.left) / auto_scroll_margin - 1) * auto_scroll_max_speed) : mouse_x > auto_scroll_rect.right - auto_scroll_margin ? Math.ceil(Math.min(1, (mouse_x - auto_scroll_rect.right) / auto_scroll_margin + 1) * auto_scroll_max_speed) : 0;
             auto_scroll_y = mouse_y < auto_scroll_rect.top + auto_scroll_margin ? Math.floor(Math.max(-1, (mouse_y - auto_scroll_rect.top) / auto_scroll_margin - 1) * auto_scroll_max_speed) : mouse_y > auto_scroll_rect.bottom - auto_scroll_margin ? Math.ceil(Math.min(1, (mouse_y - auto_scroll_rect.bottom) / auto_scroll_margin + 1) * auto_scroll_max_speed) : 0;
             update_selection();
-            setTimeout(function() {
+            _this.auto_scroll_timeout_id = setTimeout(function() {
               auto_scroll_container_el.scrollLeft += auto_scroll_x;
               return auto_scroll_container_el.scrollTop += auto_scroll_y;
             });
@@ -26749,6 +26750,7 @@ module.exports = TracksArea = (function(superClass) {
             window.removeEventListener("mouseup", onMouseUp);
             window.removeEventListener("mousemove", onMouseMove);
             cancelAnimationFrame(_this.auto_scroll_animation_frame);
+            clearTimeout(_this.auto_scroll_timeout_id);
             if (!mouse_moved_timewise) {
               editor.seek(starting_position);
             }

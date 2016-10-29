@@ -165,6 +165,7 @@ class TracksArea extends Component
 					auto_scroll_x = 0
 					auto_scroll_y = 0
 					@auto_scroll_animation_frame = -1
+					@auto_scroll_timeout_id = -1
 					
 					auto_scroll = =>
 						auto_scroll_x =
@@ -186,7 +187,7 @@ class TracksArea extends Component
 						# update the selection while auto-scrolling
 						update_selection()
 						
-						setTimeout =>
+						@auto_scroll_timeout_id = setTimeout =>
 							auto_scroll_container_el.scrollLeft += auto_scroll_x
 							auto_scroll_container_el.scrollTop += auto_scroll_y
 						
@@ -216,6 +217,7 @@ class TracksArea extends Component
 						window.removeEventListener "mouseup", onMouseUp
 						window.removeEventListener "mousemove", onMouseMove
 						cancelAnimationFrame(@auto_scroll_animation_frame)
+						clearTimeout(@auto_scroll_timeout_id)
 						unless mouse_moved_timewise
 							editor.seek starting_position
 						editor.setState moving_selection: no
