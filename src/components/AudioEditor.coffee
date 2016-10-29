@@ -205,6 +205,11 @@ class exports.AudioEditor extends Component
 			if x < container.scrollLeft
 				container.scrollLeft = x - margin
 	
+	scroll_selection_into_view: ->
+		# TODO: scroll selection added in direction go that do
+		for el in ReactDOM.findDOMNode(@).querySelectorAll(".selection")
+			el.scrollIntoViewIfNeeded?()
+	
 	seek: (position, e)=>
 		
 		if isNaN position
@@ -588,10 +593,12 @@ class exports.AudioEditor extends Component
 	select_position: (position, track_ids)=>
 		{selection} = @state
 		@select new Range position, position, track_ids ? selection?.track_ids ? []
+		@scroll_position_into_view(position)
 	
 	select_to_position: (position, track_ids)=>
 		{selection} = @state
 		@select new Range selection.a, position, track_ids ? selection?.track_ids ? []
+		@scroll_position_into_view(position)
 	
 	deselect: =>
 		@select null
@@ -601,6 +608,7 @@ class exports.AudioEditor extends Component
 		max_length = @get_max_length_or_warn()
 		return unless max_length?
 		@select new Range 0, max_length, (track.id for track in tracks)
+		@scroll_position_into_view(max_length)
 	
 	select_vertically: (direction, e)=>
 		{tracks, selection} = @state
@@ -620,6 +628,7 @@ class exports.AudioEditor extends Component
 			@select new Range selection.a, selection.b, selection.track_ids.concat(next_selected_track_id) if next_selected_track_id
 		else
 			@select new Range selection.a, selection.b, [next_selected_track_id ? selected_track_id]
+		@scroll_selection_into_view()
 	
 	select_horizontally: (delta_seconds)->
 		{selection} = @state

@@ -24371,6 +24371,17 @@ exports.AudioEditor = (function(superClass) {
     }
   };
 
+  AudioEditor.prototype.scroll_selection_into_view = function() {
+    var el, j, len, ref2, results;
+    ref2 = ReactDOM.findDOMNode(this).querySelectorAll(".selection");
+    results = [];
+    for (j = 0, len = ref2.length; j < len; j++) {
+      el = ref2[j];
+      results.push(typeof el.scrollIntoViewIfNeeded === "function" ? el.scrollIntoViewIfNeeded() : void 0);
+    }
+    return results;
+  };
+
   AudioEditor.prototype.seek = function(position, e) {
     var max_length, playing, recording, ref2, selection;
     if (isNaN(position)) {
@@ -24894,13 +24905,15 @@ exports.AudioEditor = (function(superClass) {
   AudioEditor.prototype.select_position = function(position, track_ids) {
     var ref2, selection;
     selection = this.state.selection;
-    return this.select(new Range(position, position, (ref2 = track_ids != null ? track_ids : selection != null ? selection.track_ids : void 0) != null ? ref2 : []));
+    this.select(new Range(position, position, (ref2 = track_ids != null ? track_ids : selection != null ? selection.track_ids : void 0) != null ? ref2 : []));
+    return this.scroll_position_into_view(position);
   };
 
   AudioEditor.prototype.select_to_position = function(position, track_ids) {
     var ref2, selection;
     selection = this.state.selection;
-    return this.select(new Range(selection.a, position, (ref2 = track_ids != null ? track_ids : selection != null ? selection.track_ids : void 0) != null ? ref2 : []));
+    this.select(new Range(selection.a, position, (ref2 = track_ids != null ? track_ids : selection != null ? selection.track_ids : void 0) != null ? ref2 : []));
+    return this.scroll_position_into_view(position);
   };
 
   AudioEditor.prototype.deselect = function() {
@@ -24914,7 +24927,7 @@ exports.AudioEditor = (function(superClass) {
     if (max_length == null) {
       return;
     }
-    return this.select(new Range(0, max_length, (function() {
+    this.select(new Range(0, max_length, (function() {
       var j, len, results;
       results = [];
       for (j = 0, len = tracks.length; j < len; j++) {
@@ -24923,6 +24936,7 @@ exports.AudioEditor = (function(superClass) {
       }
       return results;
     })()));
+    return this.scroll_position_into_view(max_length);
   };
 
   AudioEditor.prototype.select_vertically = function(direction, e) {
@@ -24950,11 +24964,12 @@ exports.AudioEditor = (function(superClass) {
     next_selected_track_id = (ref3 = sorted_tracks[track_index + delta]) != null ? ref3.id : void 0;
     if (e != null ? e.shiftKey : void 0) {
       if (next_selected_track_id) {
-        return this.select(new Range(selection.a, selection.b, selection.track_ids.concat(next_selected_track_id)));
+        this.select(new Range(selection.a, selection.b, selection.track_ids.concat(next_selected_track_id)));
       }
     } else {
-      return this.select(new Range(selection.a, selection.b, [next_selected_track_id != null ? next_selected_track_id : selected_track_id]));
+      this.select(new Range(selection.a, selection.b, [next_selected_track_id != null ? next_selected_track_id : selected_track_id]));
     }
+    return this.scroll_selection_into_view();
   };
 
   AudioEditor.prototype.select_horizontally = function(delta_seconds) {
