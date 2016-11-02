@@ -1,8 +1,7 @@
 
 # [![Wavey](images/wavey-logotype.png)][app]
 
-[Wavey is the audio editor of the future.][app]
-
+[Wavey][app] is a simple web-based digital audio workstation (DAW), currently in alpha.
 
 ### Features
 
