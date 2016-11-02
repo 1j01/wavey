@@ -593,12 +593,14 @@ class exports.AudioEditor extends Component
 	select_position: (position, track_ids)=>
 		{selection} = @state
 		@select new Range position, position, track_ids ? selection?.track_ids ? []
-		@scroll_position_into_view(position)
+		unless @state.moving_selection
+			@scroll_position_into_view(position)
 	
 	select_to_position: (position, track_ids)=>
 		{selection} = @state
 		@select new Range selection.a, position, track_ids ? selection?.track_ids ? []
-		@scroll_position_into_view(position)
+		unless @state.moving_selection
+			@scroll_position_into_view(position)
 	
 	deselect: =>
 		@select null

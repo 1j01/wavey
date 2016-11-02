@@ -24906,14 +24906,18 @@ exports.AudioEditor = (function(superClass) {
     var ref2, selection;
     selection = this.state.selection;
     this.select(new Range(position, position, (ref2 = track_ids != null ? track_ids : selection != null ? selection.track_ids : void 0) != null ? ref2 : []));
-    return this.scroll_position_into_view(position);
+    if (!this.state.moving_selection) {
+      return this.scroll_position_into_view(position);
+    }
   };
 
   AudioEditor.prototype.select_to_position = function(position, track_ids) {
     var ref2, selection;
     selection = this.state.selection;
     this.select(new Range(selection.a, position, (ref2 = track_ids != null ? track_ids : selection != null ? selection.track_ids : void 0) != null ? ref2 : []));
-    return this.scroll_position_into_view(position);
+    if (!this.state.moving_selection) {
+      return this.scroll_position_into_view(position);
+    }
   };
 
   AudioEditor.prototype.deselect = function() {
