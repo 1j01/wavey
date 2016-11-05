@@ -90,9 +90,9 @@ class Controls extends Component
 						menu: [
 							# {label: "Manage Storage", action: -> }
 							# {type: "separator"}
-							# {label: "About Wavey", action: -> window.open("https://github.com/1j01/wavey")}
-							# {label: "Report an issue", action: -> window.open("https://github.com/1j01/wavey/issues")}
-							# {type: "separator"}
+							{label: "About Wavey", action: -> window.open("https://github.com/1j01/wavey")}
+							{label: "Report an issue", action: -> window.open("https://github.com/1j01/wavey/issues")}
+							{type: "separator"}
 						].concat(
 							for name, id of themes
 								do (name, id)->

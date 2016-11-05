@@ -25842,7 +25842,21 @@ module.exports = Controls = (function(superClass) {
       onClick: new_document
     }, E("i.icon-document-new")), themes && set_theme ? E(DropdownButton, {
       title: "Settings",
-      menu: [].concat((function() {
+      menu: [
+        {
+          label: "About Wavey",
+          action: function() {
+            return window.open("https://github.com/1j01/wavey");
+          }
+        }, {
+          label: "Report an issue",
+          action: function() {
+            return window.open("https://github.com/1j01/wavey/issues");
+          }
+        }, {
+          type: "separator"
+        }
+      ].concat((function() {
         var results;
         results = [];
         for (name in themes) {
