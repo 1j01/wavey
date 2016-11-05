@@ -113,13 +113,14 @@ XXX: FIXME: Y U NO WORK?
 .document-controls .icon-gear {
 	background: url("images/gear.svg");
 }
-
 .document-controls .icon-export {
 	background: url("images/document-export.svg");
 }
-
 .document-controls .icon-import {
 	background: url("images/document-import.svg");
+}
+.document-controls .icon-document-new {
+	background: url("images/document-new.svg");
 }
 
 .beat-track .track-content,

@@ -824,6 +824,17 @@ class exports.AudioEditor extends Component
 			.then (rendered_audio_buffer)=>
 				export_audio_buffer_as rendered_audio_buffer, file_type
 	
+	new_document: ->
+		ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+		ID_LENGTH = 8
+		generate_id = ->
+			rtn = ""
+			for i in [0..ID_LENGTH]
+				rtn += ALPHABET[Math.floor(Math.random() * ALPHABET.length)]
+			rtn
+		new_document_id = generate_id()
+		window.open(location.origin + location.pathname + "#document=" + new_document_id)
+	
 	componentDidUpdate: (last_props, last_state)=>
 		{document_id} = @props
 		{tracks, selection, undos, redos, moving_selection} = @state

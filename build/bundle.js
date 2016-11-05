@@ -25292,6 +25292,22 @@ exports.AudioEditor = (function(superClass) {
     })(this));
   };
 
+  AudioEditor.prototype.new_document = function() {
+    var ALPHABET, ID_LENGTH, generate_id, new_document_id;
+    ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    ID_LENGTH = 8;
+    generate_id = function() {
+      var i, j, ref2, rtn;
+      rtn = "";
+      for (i = j = 0, ref2 = ID_LENGTH; 0 <= ref2 ? j <= ref2 : j >= ref2; i = 0 <= ref2 ? ++j : --j) {
+        rtn += ALPHABET[Math.floor(Math.random() * ALPHABET.length)];
+      }
+      return rtn;
+    };
+    new_document_id = generate_id();
+    return window.open(location.origin + location.pathname + "#document=" + new_document_id);
+  };
+
   AudioEditor.prototype.componentDidUpdate = function(last_props, last_state) {
     var document_id, moving_selection, redos, ref2, selection, tracks, undos;
     document_id = this.props.document_id;
@@ -25715,9 +25731,9 @@ module.exports = Controls = (function(superClass) {
   }
 
   Controls.prototype.render = function() {
-    var editor, enable_precording, export_as, fn, i, id, import_files, len, midi_input, name, pause, play, playing, precord, precording_enabled, record, record_midi, recording, recording_options_menu, ref1, ref2, seek_to_end, seek_to_start, selection, set_theme, stop_recording, themes;
+    var editor, enable_precording, export_as, fn, i, id, import_files, len, midi_input, name, new_document, pause, play, playing, precord, precording_enabled, record, record_midi, recording, recording_options_menu, ref1, ref2, seek_to_end, seek_to_start, selection, set_theme, stop_recording, themes;
     ref1 = this.props, playing = ref1.playing, recording = ref1.recording, selection = ref1.selection, precording_enabled = ref1.precording_enabled, themes = ref1.themes, set_theme = ref1.set_theme, editor = ref1.editor;
-    play = editor.play, pause = editor.pause, seek_to_start = editor.seek_to_start, seek_to_end = editor.seek_to_end, record = editor.record, record_midi = editor.record_midi, stop_recording = editor.stop_recording, precord = editor.precord, enable_precording = editor.enable_precording, export_as = editor.export_as, import_files = editor.import_files;
+    play = editor.play, pause = editor.pause, seek_to_start = editor.seek_to_start, seek_to_end = editor.seek_to_end, record = editor.record, record_midi = editor.record_midi, stop_recording = editor.stop_recording, precord = editor.precord, enable_precording = editor.enable_precording, export_as = editor.export_as, import_files = editor.import_files, new_document = editor.new_document;
     recording_options_menu = [];
     if (editor.state.midi_inputs.length) {
       ref2 = editor.state.midi_inputs;
@@ -25821,9 +25837,12 @@ module.exports = Controls = (function(superClass) {
           }
         }
       ]
-    }, E("i.icon-export")), themes && set_theme ? E(DropdownButton, {
+    }, E("i.icon-export")), E("button.button", {
+      title: "New document",
+      onClick: new_document
+    }, E("i.icon-document-new")), themes && set_theme ? E(DropdownButton, {
       title: "Settings",
-      menu: (function() {
+      menu: [].concat((function() {
         var results;
         results = [];
         for (name in themes) {
@@ -25838,7 +25857,7 @@ module.exports = Controls = (function(superClass) {
           })(name, id));
         }
         return results;
-      })()
+      })())
     }, E("i.icon-gear")) : void 0));
   };
 

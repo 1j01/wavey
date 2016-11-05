@@ -6,7 +6,7 @@ module.exports =
 class Controls extends Component
 	render: ->
 		{playing, recording, selection, precording_enabled, themes, set_theme, editor} = @props
-		{play, pause, seek_to_start, seek_to_end, record, record_midi, stop_recording, precord, enable_precording, export_as, import_files} = editor
+		{play, pause, seek_to_start, seek_to_end, record, record_midi, stop_recording, precord, enable_precording, export_as, import_files, new_document} = editor
 		
 		recording_options_menu = []
 		if editor.state.midi_inputs.length
@@ -80,12 +80,23 @@ class Controls extends Component
 						{label: "Export selection as WAV", enabled: selection?.length(), action: -> export_as "wav", selection}
 					]
 					E "i.icon-export"
+				E "button.button",
+					title: "New document"
+					onClick: new_document
+					E "i.icon-document-new"
 				if themes and set_theme
 					E DropdownButton,
 						title: "Settings"
-						menu:
+						menu: [
+							# {label: "Manage Storage", action: -> }
+							# {type: "separator"}
+							# {label: "About Wavey", action: -> window.open("https://github.com/1j01/wavey")}
+							# {label: "Report an issue", action: -> window.open("https://github.com/1j01/wavey/issues")}
+							# {type: "separator"}
+						].concat(
 							for name, id of themes
 								do (name, id)->
 									label: name
 									action: -> set_theme id
+						)
 						E "i.icon-gear"

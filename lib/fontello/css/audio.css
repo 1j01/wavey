@@ -1,11 +1,11 @@
 @font-face {
   font-family: 'audio';
-  src: url('../font/audio.eot?25952138');
-  src: url('../font/audio.eot?25952138#iefix') format('embedded-opentype'),
-       url('../font/audio.woff2?25952138') format('woff2'),
-       url('../font/audio.woff?25952138') format('woff'),
-       url('../font/audio.ttf?25952138') format('truetype'),
-       url('../font/audio.svg?25952138#audio') format('svg');
+  src: url('../font/audio.eot?34885895');
+  src: url('../font/audio.eot?34885895#iefix') format('embedded-opentype'),
+       url('../font/audio.woff2?34885895') format('woff2'),
+       url('../font/audio.woff?34885895') format('woff'),
+       url('../font/audio.ttf?34885895') format('truetype'),
+       url('../font/audio.svg?34885895#audio') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -15,7 +15,7 @@
 @media screen and (-webkit-min-device-pixel-ratio:0) {
   @font-face {
     font-family: 'audio';
-    src: url('../font/audio.svg?25952138#audio') format('svg');
+    src: url('../font/audio.svg?34885895#audio') format('svg');
   }
 }
 */
@@ -55,27 +55,27 @@
   /* text-shadow: 1px 1px 1px rgba(127, 127, 127, 0.3); */
 }
  
-.icon-gear:before { content: '\e800'; } /* '' */
+.icon-export:before { content: '\e800'; } /* '' */
 .icon-volume-off:before { content: '\e801'; } /* '' */
 .icon-volume-down:before { content: '\e802'; } /* '' */
 .icon-volume-up:before { content: '\e803'; } /* '' */
 .icon-mic:before { content: '\e804'; } /* '' */
-.icon-circle-empty:before { content: '\e805'; } /* '' */
+.icon-document-open:before { content: '\e806'; } /* '' */
 .icon-reorder-handle:before { content: '\e807'; } /* '' */
 .icon-theme:before { content: '\e808'; } /* '' */
-.icon-share:before { content: '\e809'; } /* '' */
-.icon-history:before { content: '\e80a'; } /* '' */
-.icon-play:before { content: '\e80b'; } /* '' */
+.icon-document-save:before { content: '\e809'; } /* '' */
+.icon-import:before { content: '\e80a'; } /* '' */
 .icon-pin:before { content: '\e80c'; } /* '' */
-.icon-stop:before { content: '\e80d'; } /* '' */
-.icon-pause:before { content: '\e80e'; } /* '' */
-.icon-record:before { content: '\e80f'; } /* '' */
+.icon-document-new:before { content: '\e80f'; } /* '' */
 .icon-go-to-end:before { content: '\e810'; } /* '' */
 .icon-go-to-start:before { content: '\e811'; } /* '' */
 .icon-loop:before { content: '\e812'; } /* '' */
-.icon-clock:before { content: '\e813'; } /* '' */
-.icon-x:before { content: '\e814'; } /* '' */
-.icon-export:before { content: '\e815'; } /* '' */
-.icon-file:before { content: '\e816'; } /* '' */
-.icon-import:before { content: '\e817'; } /* '' */
-.icon-folder:before { content: '\e81a'; } /* '' */
+.icon-document-save-as:before { content: '\e813'; } /* '' */
+.icon-close-window:before { content: '\e814'; } /* '' */
+.icon-gear:before { content: '\e818'; } /* '' */
+.icon-record:before { content: '\e81c'; } /* '' */
+.icon-eq:before { content: '\e81d'; } /* '' */
+.icon-pause:before { content: '\e81e'; } /* '' */
+.icon-play-rtl:before { content: '\e81f'; } /* '' */
+.icon-play:before { content: '\e820'; } /* '' */
+.icon-stop:before { content: '\e821'; } /* '' */
