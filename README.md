@@ -57,12 +57,18 @@ After all they *are* effects and you'll want to be able to automate them just th
 * Storage management (handle running out of storage, handle multiple editors loaded for the same document, and allow data purging)
 * Improve accessibility
 
+
 ### Contributing
 
 Contributions and criticism welcome.
 [Open up an issue][new issue] to discuss features, problems, or improvements!
 
 This project is built with [CoffeeScript][], [React][], and [ReactScript][].
+
+[Fork and clone the repository](https://guides.github.com/activities/forking/) and then
+with [Node.js](https://nodejs.org/en/),
+open up a command line and enter
+`npm install` and `npm run dev`
 
 
 ### License
