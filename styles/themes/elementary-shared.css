@@ -78,6 +78,11 @@ XXX: FIXME: Y U NO WORK?
 }
 */
 
+body,
+.controls {
+	border-radius: 0 !important;
+	margin: 0 !important;
+}
 .controls .document-controls button {
 	border: 1px solid transparent !important;
 	box-shadow: none;
