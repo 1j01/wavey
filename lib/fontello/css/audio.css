@@ -1,11 +1,11 @@
 @font-face {
   font-family: 'audio';
-  src: url('../font/audio.eot?34885895');
-  src: url('../font/audio.eot?34885895#iefix') format('embedded-opentype'),
-       url('../font/audio.woff2?34885895') format('woff2'),
-       url('../font/audio.woff?34885895') format('woff'),
-       url('../font/audio.ttf?34885895') format('truetype'),
-       url('../font/audio.svg?34885895#audio') format('svg');
+  src: url('../font/audio.eot?58239843');
+  src: url('../font/audio.eot?58239843#iefix') format('embedded-opentype'),
+       url('../font/audio.woff2?58239843') format('woff2'),
+       url('../font/audio.woff?58239843') format('woff'),
+       url('../font/audio.ttf?58239843') format('truetype'),
+       url('../font/audio.svg?58239843#audio') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -15,7 +15,7 @@
 @media screen and (-webkit-min-device-pixel-ratio:0) {
   @font-face {
     font-family: 'audio';
-    src: url('../font/audio.svg?34885895#audio') format('svg');
+    src: url('../font/audio.svg?58239843#audio') format('svg');
   }
 }
 */
@@ -65,17 +65,17 @@
 .icon-theme:before { content: '\e808'; } /* '' */
 .icon-document-save:before { content: '\e809'; } /* '' */
 .icon-import:before { content: '\e80a'; } /* '' */
+.icon-play:before { content: '\e80b'; } /* '' */
 .icon-pin:before { content: '\e80c'; } /* '' */
+.icon-stop:before { content: '\e80d'; } /* '' */
+.icon-pause:before { content: '\e80e'; } /* '' */
 .icon-document-new:before { content: '\e80f'; } /* '' */
 .icon-go-to-end:before { content: '\e810'; } /* '' */
 .icon-go-to-start:before { content: '\e811'; } /* '' */
 .icon-loop:before { content: '\e812'; } /* '' */
 .icon-document-save-as:before { content: '\e813'; } /* '' */
 .icon-close-window:before { content: '\e814'; } /* '' */
+.icon-midi:before { content: '\e816'; } /* '' */
 .icon-gear:before { content: '\e818'; } /* '' */
 .icon-record:before { content: '\e81c'; } /* '' */
 .icon-eq:before { content: '\e81d'; } /* '' */
-.icon-pause:before { content: '\e81e'; } /* '' */
-.icon-play-rtl:before { content: '\e81f'; } /* '' */
-.icon-play:before { content: '\e820'; } /* '' */
-.icon-stop:before { content: '\e821'; } /* '' */

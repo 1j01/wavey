@@ -7,34 +7,6 @@
   "ascent": 850,
   "glyphs": [
     {
-      "uid": "7c0e2636afcb6cb6a74caec54da4ebe8",
-      "css": "play",
-      "code": 59424,
-      "src": "custom_icons",
-      "selected": true,
-      "svg": {
-        "path": "M125 93.7L125 906.2 875 500Z",
-        "width": 1000
-      },
-      "search": [
-        "media-playback-start-symbolic"
-      ]
-    },
-    {
-      "uid": "c1a66b213034dcff86701678d98d3463",
-      "css": "play-rtl",
-      "code": 59423,
-      "src": "custom_icons",
-      "selected": true,
-      "svg": {
-        "path": "M875 62.5L875 875 125 468.7 875 62.5Z",
-        "width": 1000
-      },
-      "search": [
-        "media-playback-start-rtl-symbolic"
-      ]
-    },
-    {
       "uid": "0afbb00323696f49e9c47f4d9fe6390b",
       "css": "go-to-end",
       "code": 59408,
@@ -45,48 +17,6 @@
       "css": "go-to-start",
       "code": 59409,
       "src": "entypo"
-    },
-    {
-      "uid": "72166b13aabf919ac3a1a8d536886484",
-      "css": "pause",
-      "code": 59422,
-      "src": "custom_icons",
-      "selected": true,
-      "svg": {
-        "path": "M562.5 125L812.5 125 812.5 875 562.5 875ZM187.5 125L437.5 125 437.5 875 187.5 875Z",
-        "width": 1000
-      },
-      "search": [
-        "media-playback-pause-symbolic"
-      ]
-    },
-    {
-      "uid": "fd7cdb60f524e1dc90583095aa8f50a9",
-      "css": "record",
-      "code": 59420,
-      "src": "custom_icons",
-      "selected": true,
-      "svg": {
-        "path": "M500 188.6C328.2 188.6 188.6 328.2 188.6 500 188.6 671.8 328.2 811.4 500 811.4 671.8 811.4 811.4 671.8 811.4 500 811.4 328.2 671.8 188.6 500 188.6Z",
-        "width": 1000
-      },
-      "search": [
-        "media-record-symbolic"
-      ]
-    },
-    {
-      "uid": "d560194590d1bf9349dcb940b7160aba",
-      "css": "stop",
-      "code": 59425,
-      "src": "custom_icons",
-      "selected": true,
-      "svg": {
-        "path": "M187.5 187.5L187.5 812.5 812.5 812.5 812.5 187.5Z",
-        "width": 1000
-      },
-      "search": [
-        "media-playback-stop-symbolic"
-      ]
     },
     {
       "uid": "19c50c52858a81de58f9db488aba77bc",
@@ -260,6 +190,100 @@
       },
       "search": [
         "window-close-symbolic"
+      ]
+    },
+    {
+      "uid": "d8d378d0ce413f231dfa37592e39c227",
+      "css": "pause",
+      "code": 59406,
+      "src": "entypo"
+    },
+    {
+      "uid": "cb13afd4722a849d48056540bb74c47e",
+      "css": "play",
+      "code": 59403,
+      "src": "entypo"
+    },
+    {
+      "uid": "48f2e18872fe74d4579a4c8a1527fc1e",
+      "css": "stop",
+      "code": 59405,
+      "src": "entypo"
+    },
+    {
+      "uid": "fda731b5a4026685e1a9c7e64228e2b2",
+      "css": "midi",
+      "code": 59414,
+      "src": "entypo"
+    },
+    {
+      "uid": "fd7cdb60f524e1dc90583095aa8f50a9",
+      "css": "record",
+      "code": 59420,
+      "src": "custom_icons",
+      "selected": true,
+      "svg": {
+        "path": "M500 188.6C328.2 188.6 188.6 328.2 188.6 500 188.6 671.8 328.2 811.4 500 811.4 671.8 811.4 811.4 671.8 811.4 500 811.4 328.2 671.8 188.6 500 188.6Z",
+        "width": 1000
+      },
+      "search": [
+        "media-record-symbolic"
+      ]
+    },
+    {
+      "uid": "7c0e2636afcb6cb6a74caec54da4ebe8",
+      "css": "play",
+      "code": 59424,
+      "src": "custom_icons",
+      "selected": false,
+      "svg": {
+        "path": "M125 93.7L125 906.2 875 500Z",
+        "width": 1000
+      },
+      "search": [
+        "media-playback-start-symbolic"
+      ]
+    },
+    {
+      "uid": "c1a66b213034dcff86701678d98d3463",
+      "css": "play-rtl",
+      "code": 59423,
+      "src": "custom_icons",
+      "selected": false,
+      "svg": {
+        "path": "M875 62.5L875 875 125 468.7 875 62.5Z",
+        "width": 1000
+      },
+      "search": [
+        "media-playback-start-rtl-symbolic"
+      ]
+    },
+    {
+      "uid": "72166b13aabf919ac3a1a8d536886484",
+      "css": "pause",
+      "code": 59422,
+      "src": "custom_icons",
+      "selected": false,
+      "svg": {
+        "path": "M562.5 125L812.5 125 812.5 875 562.5 875ZM187.5 125L437.5 125 437.5 875 187.5 875Z",
+        "width": 1000
+      },
+      "search": [
+        "media-playback-pause-symbolic"
+      ]
+    },
+    {
+      "uid": "d560194590d1bf9349dcb940b7160aba",
+      "css": "stop-1",
+      "code": 59425,
+      "src": "custom_icons",
+      "selected": false,
+      "svg": {
+        "path": "M187.5 187.5L187.5 812.5 812.5 812.5 812.5 187.5Z",
+        "width": 1000
+      },
+      "search": [
+        "media-playback-stop-symbolic"
       ]
     },
     {
