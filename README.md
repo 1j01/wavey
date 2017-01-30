@@ -10,7 +10,7 @@
 * Several themes, including light and dark [elementary OS][] themes via [elementary.css][], and some retro themes
 * Fully scalable graphics, from the icons to the waveforms
 * Export the document or a selected range as WAV or MP3
-* Can work completely offline
+* Can work completely offline, with [sw-precache][]
 
 *Audio recording quality may or may not match native applications in a given browser.
 Record redundantly with another application if it matters to you.
@@ -35,7 +35,7 @@ you want to line up with some main audio track(s).
 * Effects! I'm holding off on adding gain and panning because
 I think if the effects UI is good enough, they should be able to simply be effects,
 and I don't want to just immitate the status quo UI and end up with something that's "good enough" but not as good as it could be.
-They (or just gain) may warrant some shortcutting, such as being added by default to the effects chain,
+They (or just gain) may warrant some special treatment such as being added by default to the effects chain,
 but they probably shouldn't be separate from it.
 After all they *are* effects and you'll want to be able to automate them just the same.
 
@@ -99,6 +99,7 @@ SOFTWARE.
 [app]: https://audioeditor.ml/
 [elementary OS]: https://elementary.io/
 [elementary.css]: https://github.com/1j01/elementary.css/
+[sw-precache]: https://github.com/GoogleChrome/sw-precache
 [CoffeeScript]: http://coffeescript.org/
 [React]: https://facebook.github.io/react/
 [ReactScript]: https://github.com/1j01/react-script
