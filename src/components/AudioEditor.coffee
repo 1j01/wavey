@@ -935,7 +935,7 @@ class exports.AudioEditor extends Component
 	
 	render: ->
 		{tracks, selection, position, position_time, scale, playing, recording, precording_enabled} = @state
-		{themes, set_theme} = @props
+		{themes, set_theme, get_theme} = @props
 		
 		E ".audio-editor",
 			className: {playing}
@@ -970,7 +970,7 @@ class exports.AudioEditor extends Component
 						@setState scale: @state.scale * 0.75
 					else
 						@setState scale: @state.scale / 0.75
-			E Controls, {playing, recording, selection, precording_enabled, themes, set_theme, editor: @, key: "controls"}
+			E Controls, {playing, recording, selection, precording_enabled, themes, set_theme, get_theme, editor: @, key: "controls"}
 			E "div",
 				key: "infobar"
 				E InfoBar #, ref: (@infobar)=> # @TODO: instanced InfoBar API

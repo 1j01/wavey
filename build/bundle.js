@@ -23710,9 +23710,7 @@ module.exports = Range = (function() {
 
 
 },{"./helpers.coffee":195,"./versions.coffee":196}],177:[function(require,module,exports){
-var AudioEditor, E, ReactDOM, container, localforage, ref, ref1, ref2, ref3, set_theme, theme_link, themes;
-
-localforage = require("localforage");
+var AudioEditor, E, ReactDOM, container, ref, ref1, ref2, ref3, themes;
 
 ReactDOM = require("react-dom");
 
@@ -23720,30 +23718,13 @@ E = require("./helpers.coffee").E;
 
 AudioEditor = require("./components/AudioEditor.coffee").AudioEditor;
 
-if (location.protocol === "http:" && location.host.match(/editor|app/)) {
+if (location.protocol === "http:" && location.host.match(/editor|app|wavey/)) {
   location.protocol = "https:";
 }
 
 window.actx = new ((ref = (ref1 = (ref2 = (ref3 = window.AudioContext) != null ? ref3 : window.webkitAudioContext) != null ? ref2 : window.mozAudioContext) != null ? ref1 : window.oAudioContext) != null ? ref : window.msAudioContext);
 
 themes = require("../themes.json");
-
-theme_link = document.createElement("link");
-
-theme_link.rel = "stylesheet";
-
-theme_link.type = "text/css";
-
-document.head.appendChild(theme_link);
-
-set_theme = function(theme) {
-  localforage.setItem("theme", theme);
-  return theme_link.href = "/build/themes/" + theme;
-};
-
-localforage.getItem("theme", function(err, theme) {
-  return set_theme(theme != null ? theme : "elementary.css");
-});
 
 container = document.createElement("div");
 
@@ -23758,7 +23739,8 @@ window.render = function() {
     key: document_id,
     document_id: document_id,
     themes: themes,
-    set_theme: set_theme
+    set_theme: set_theme,
+    get_theme: get_theme
   }), container);
 };
 
@@ -23767,7 +23749,7 @@ window.addEventListener("hashchange", render);
 render();
 
 
-},{"../themes.json":197,"./components/AudioEditor.coffee":180,"./helpers.coffee":195,"localforage":28,"react-dom":29}],178:[function(require,module,exports){
+},{"../themes.json":197,"./components/AudioEditor.coffee":180,"./helpers.coffee":195,"react-dom":29}],178:[function(require,module,exports){
 var AudioClipStorage, localforage;
 
 localforage = require("localforage");
@@ -25459,9 +25441,9 @@ exports.AudioEditor = (function(superClass) {
   };
 
   AudioEditor.prototype.render = function() {
-    var playing, position, position_time, precording_enabled, recording, ref2, ref3, scale, selection, set_theme, themes, tracks;
+    var get_theme, playing, position, position_time, precording_enabled, recording, ref2, ref3, scale, selection, set_theme, themes, tracks;
     ref2 = this.state, tracks = ref2.tracks, selection = ref2.selection, position = ref2.position, position_time = ref2.position_time, scale = ref2.scale, playing = ref2.playing, recording = ref2.recording, precording_enabled = ref2.precording_enabled;
-    ref3 = this.props, themes = ref3.themes, set_theme = ref3.set_theme;
+    ref3 = this.props, themes = ref3.themes, set_theme = ref3.set_theme, get_theme = ref3.get_theme;
     return E(".audio-editor", {
       className: {
         playing: playing
@@ -25540,6 +25522,7 @@ exports.AudioEditor = (function(superClass) {
       precording_enabled: precording_enabled,
       themes: themes,
       set_theme: set_theme,
+      get_theme: get_theme,
       editor: this,
       key: "controls"
     }), E("div", {
@@ -25731,8 +25714,8 @@ module.exports = Controls = (function(superClass) {
   }
 
   Controls.prototype.render = function() {
-    var editor, enable_precording, export_as, fn, i, id, import_files, len, midi_input, name, new_document, pause, play, playing, precord, precording_enabled, record, record_midi, recording, recording_options_menu, ref1, ref2, seek_to_end, seek_to_start, selection, set_theme, stop_recording, themes;
-    ref1 = this.props, playing = ref1.playing, recording = ref1.recording, selection = ref1.selection, precording_enabled = ref1.precording_enabled, themes = ref1.themes, set_theme = ref1.set_theme, editor = ref1.editor;
+    var editor, enable_precording, export_as, fn, get_theme, i, id, import_files, len, midi_input, name, new_document, pause, play, playing, precord, precording_enabled, record, record_midi, recording, recording_options_menu, ref1, ref2, seek_to_end, seek_to_start, selection, set_theme, stop_recording, themes;
+    ref1 = this.props, playing = ref1.playing, recording = ref1.recording, selection = ref1.selection, precording_enabled = ref1.precording_enabled, themes = ref1.themes, set_theme = ref1.set_theme, get_theme = ref1.get_theme, editor = ref1.editor;
     play = editor.play, pause = editor.pause, seek_to_start = editor.seek_to_start, seek_to_end = editor.seek_to_end, record = editor.record, record_midi = editor.record_midi, stop_recording = editor.stop_recording, precord = editor.precord, enable_precording = editor.enable_precording, export_as = editor.export_as, import_files = editor.import_files, new_document = editor.new_document;
     recording_options_menu = [];
     if (editor.state.midi_inputs.length) {
@@ -25840,7 +25823,7 @@ module.exports = Controls = (function(superClass) {
     }, E("i.icon-export")), E("button.button", {
       title: "New document",
       onClick: new_document
-    }, E("i.icon-document-new")), themes && set_theme ? E(DropdownButton, {
+    }, E("i.icon-document-new")), themes ? E(DropdownButton, {
       title: "Settings",
       menu: [
         {
@@ -25866,7 +25849,8 @@ module.exports = Controls = (function(superClass) {
               label: name,
               action: function() {
                 return set_theme(id);
-              }
+              },
+              enabled: get_theme() !== id
             };
           })(name, id));
         }

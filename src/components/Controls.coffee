@@ -5,7 +5,7 @@ DropdownButton = require "./DropdownButton.coffee"
 module.exports =
 class Controls extends Component
 	render: ->
-		{playing, recording, selection, precording_enabled, themes, set_theme, editor} = @props
+		{playing, recording, selection, precording_enabled, themes, set_theme, get_theme, editor} = @props
 		{play, pause, seek_to_start, seek_to_end, record, record_midi, stop_recording, precord, enable_precording, export_as, import_files, new_document} = editor
 		
 		recording_options_menu = []
@@ -84,7 +84,7 @@ class Controls extends Component
 					title: "New document"
 					onClick: new_document
 					E "i.icon-document-new"
-				if themes and set_theme
+				if themes
 					E DropdownButton,
 						title: "Settings"
 						menu: [
@@ -98,5 +98,6 @@ class Controls extends Component
 								do (name, id)->
 									label: name
 									action: -> set_theme id
+									enabled: get_theme() isnt id
 						)
 						E "i.icon-gear"

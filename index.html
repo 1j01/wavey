@@ -8,6 +8,37 @@
 		<link href="styles/base.css" rel="stylesheet" type="text/css">
 		<link href="lib/octicons/octicons.css" rel="stylesheet" type="text/css">
 		<link href="lib/fontello/css/audio.css" rel="stylesheet" type="text/css">
+		<script>
+			(function(){
+				var default_theme = "elementary.css";
+				var theme_storage_key = "audio editor theme";
+				
+				var href_for = function(theme){
+					// XXX: absolute URL
+					// FIXME: URL resolution in NW.js app
+					return "/build/themes/" + theme;
+				};
+				try{
+					var current_theme = localStorage[theme_storage_key];
+				}catch(e){}
+				
+				current_theme = current_theme || default_theme;
+				document.write('<link rel="stylesheet" type="text/css" href="' + href_for(current_theme) + '" id="theme-link" />');
+				
+				var theme_link = document.getElementById("theme-link");
+				self.set_theme = function(theme){
+					current_theme = theme;
+					try{
+						localStorage[theme_storage_key] = current_theme;
+					}catch(e){}
+					theme_link.href = href_for(current_theme);
+					render(); // update for use of get_theme()
+				};
+				self.get_theme = function(){
+					return current_theme;
+				};
+			})();
+		</script>
 		<link rel="icon" href="images/wavey-logo-16.png" sizes="16x16" type="image/png">
 		<link rel="icon" href="images/wavey-logo-512.png" sizes="512x512" type="image/png">
 		<link rel="icon" href="images/wavey-logo.svg" sizes="any" type="image/svg+xml">
