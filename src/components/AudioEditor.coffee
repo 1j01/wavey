@@ -775,7 +775,6 @@ class exports.AudioEditor extends Component
 					console.error err
 				else
 					# @TODO: optimize by decoding and storing in parallel, but keep good error handling
-					# TODO: show error message on failure
 					actx.decodeAudioData array_buffer, (buffer)=>
 						audio_clips.audio_buffers[clip.audio_id] = buffer
 						
@@ -786,10 +785,9 @@ class exports.AudioEditor extends Component
 							@insert stuff, selection.start(), selection.firstTrackID()
 						else
 							@insert stuff, 0
-			# oh, FIXME: this is supposed to be for decodeAudioData
-			, (e)=>
-				InfoBar.warn "Audio not playable or not supported."
-				console.error e
+					, (e)=>
+						InfoBar.warn "File type not recognized or audio not playable."
+						console.error e
 		
 		reader.onerror = (e)=>
 			InfoBar.warn "Failed to read audio file."

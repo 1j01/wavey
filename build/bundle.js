@@ -25215,11 +25215,11 @@ exports.AudioEditor = (function(superClass) {
               } else {
                 return _this.insert(stuff, 0);
               }
+            }, function(e) {
+              InfoBar.warn("File type not recognized or audio not playable.");
+              return console.error(e);
             });
           }
-        }, function(e) {
-          InfoBar.warn("Audio not playable or not supported.");
-          return console.error(e);
         });
       };
     })(this);
