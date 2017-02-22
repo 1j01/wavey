@@ -24066,7 +24066,8 @@ exports.AudioEditor = (function(superClass) {
       audio_stream: null,
       midi_inputs: [],
       precording_enabled: false,
-      moving_selection: false
+      moving_selection: false,
+      loaded_document_data: false
     };
     this._setup_midi((function(_this) {
       return function() {
@@ -24109,6 +24110,9 @@ exports.AudioEditor = (function(superClass) {
 
   AudioEditor.prototype.load = function() {
     var document_id;
+    this.setState({
+      loaded_document_data: false
+    });
     document_id = this.props.document_id;
     return localforage.getItem("document:" + document_id, (function(_this) {
       return function(err, doc) {
@@ -24205,11 +24209,16 @@ exports.AudioEditor = (function(superClass) {
           _this.setState({
             tracks: tracks,
             undos: undos,
-            redos: redos
+            redos: redos,
+            loaded_document_data: true
           });
           if (selection != null) {
             return _this.select(Range.fromJSON(selection));
           }
+        } else {
+          return _this.setState({
+            loaded_document_data: true
+          });
         }
       };
     })(this));
@@ -24448,27 +24457,39 @@ exports.AudioEditor = (function(superClass) {
     });
   };
 
-  AudioEditor.prototype._schedule_playback = function(from_position, actx) {
-    var channel, channel_index, chunk, chunk_index, clip, clip_length, include_metronome, j, k, l, len, len1, len2, len3, len4, len5, length_to_play_of_clip, loaded, m, n, p, playback_sources, recording, ref2, ref3, ref4, ref5, ref6, ref7, source, start_time, starting_offset_into_clip, track, tracks;
-    include_metronome = !(actx instanceof OfflineAudioContext);
-    tracks = this.state.tracks;
-    playback_sources = [];
-    for (j = 0, len = tracks.length; j < len; j++) {
-      track = tracks[j];
+  AudioEditor.prototype.is_loaded = function() {
+    var clip, j, k, len, len1, loaded, ref2, ref3, ref4, track;
+    if (!this.state.loaded_document_data) {
+      return false;
+    }
+    ref2 = this.state.tracks;
+    for (j = 0, len = ref2.length; j < len; j++) {
+      track = ref2[j];
       if (track.type === "audio" && !track.muted) {
-        ref2 = track.clips;
-        for (k = 0, len1 = ref2.length; k < len1; k++) {
-          clip = ref2[k];
-          loaded = clip.recording_id ? ((ref3 = audio_clips.recordings[clip.recording_id]) != null ? ref3.chunks : void 0) != null : audio_clips.audio_buffers[clip.audio_id] != null;
+        ref3 = track.clips;
+        for (k = 0, len1 = ref3.length; k < len1; k++) {
+          clip = ref3[k];
+          loaded = clip.recording_id ? ((ref4 = audio_clips.recordings[clip.recording_id]) != null ? ref4.chunks : void 0) != null : audio_clips.audio_buffers[clip.audio_id] != null;
           if (!loaded) {
-            InfoBar.warn("Not all tracks have finished loading.");
-            throw new Error("Not all tracks have finished loading.");
+            return false;
           }
         }
       }
     }
-    for (l = 0, len2 = tracks.length; l < len2; l++) {
-      track = tracks[l];
+    return true;
+  };
+
+  AudioEditor.prototype._schedule_playback = function(from_position, actx) {
+    var channel, channel_index, chunk, chunk_index, clip, clip_length, include_metronome, j, k, l, len, len1, len2, len3, length_to_play_of_clip, m, playback_sources, recording, ref2, ref3, ref4, ref5, ref6, source, start_time, starting_offset_into_clip, track;
+    include_metronome = !(actx instanceof OfflineAudioContext);
+    playback_sources = [];
+    if (!this.is_loaded()) {
+      InfoBar.warn("Not all tracks have finished loading.");
+      throw new Error("Not all tracks have finished loading.");
+    }
+    ref2 = this.state.tracks;
+    for (j = 0, len = ref2.length; j < len; j++) {
+      track = ref2[j];
       if (!track.muted) {
         switch (track.type) {
           case "beat":
@@ -24477,20 +24498,20 @@ exports.AudioEditor = (function(superClass) {
             }
             break;
           case "audio":
-            ref4 = track.clips;
-            for (m = 0, len3 = ref4.length; m < len3; m++) {
-              clip = ref4[m];
+            ref3 = track.clips;
+            for (k = 0, len1 = ref3.length; k < len1; k++) {
+              clip = ref3[k];
               source = actx.createBufferSource();
               source.gain = actx.createGain();
               if (clip.recording_id) {
                 recording = audio_clips.recordings[clip.recording_id];
                 if (recording.audio_buffer == null) {
-                  if ((ref5 = recording.chunks[0]) != null ? ref5.length : void 0) {
+                  if ((ref4 = recording.chunks[0]) != null ? ref4.length : void 0) {
                     recording.audio_buffer = actx.createBuffer(recording.chunks.length, recording.chunks[0].length * recording.chunks[0][0].length, recording.sample_rate);
-                    ref6 = recording.chunks;
-                    for (channel_index = n = 0, len4 = ref6.length; n < len4; channel_index = ++n) {
-                      channel = ref6[channel_index];
-                      for (chunk_index = p = 0, len5 = channel.length; p < len5; chunk_index = ++p) {
+                    ref5 = recording.chunks;
+                    for (channel_index = l = 0, len2 = ref5.length; l < len2; channel_index = ++l) {
+                      channel = ref5[channel_index];
+                      for (chunk_index = m = 0, len3 = channel.length; m < len3; chunk_index = ++m) {
                         chunk = channel[chunk_index];
                         recording.audio_buffer.copyToChannel(chunk, channel_index, chunk_index * chunk.length);
                       }
@@ -24500,7 +24521,7 @@ exports.AudioEditor = (function(superClass) {
                 if (recording.audio_buffer != null) {
                   source.buffer = recording.audio_buffer;
                 }
-                clip_length = (ref7 = clip.length) != null ? ref7 : recording.length;
+                clip_length = (ref6 = clip.length) != null ? ref6 : recording.length;
               } else {
                 source.buffer = audio_clips.audio_buffers[clip.audio_id];
                 clip_length = clip.length;
@@ -25295,7 +25316,9 @@ exports.AudioEditor = (function(superClass) {
     document_id = this.props.document_id;
     ref2 = this.state, tracks = ref2.tracks, selection = ref2.selection, undos = ref2.undos, redos = ref2.redos, moving_selection = ref2.moving_selection;
     if (tracks !== last_state.tracks || (selection !== last_state.selection && !moving_selection) || undos !== last_state.undos || redos !== last_state.redos) {
-      this.save();
+      if (this.state.loaded_document_data) {
+        this.save();
+      }
     }
     if (tracks !== last_state.tracks) {
       this.update_playback();

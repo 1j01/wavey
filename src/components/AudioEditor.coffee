@@ -39,6 +39,7 @@ class exports.AudioEditor extends Component
 			midi_inputs: []
 			precording_enabled: no
 			moving_selection: no
+			loaded_document_data: no
 		
 		@_setup_midi =>
 			do update_inputs = =>
@@ -62,6 +63,8 @@ class exports.AudioEditor extends Component
 				render()
 	
 	load: ->
+		@setState loaded_document_data: no
+		
 		{document_id} = @props
 		localforage.getItem "document:#{document_id}", (err, doc)=>
 			if err
@@ -112,8 +115,10 @@ class exports.AudioEditor extends Component
 				
 				{state, undos, redos} = doc
 				{tracks, selection} = state
-				@setState {tracks, undos, redos}
+				@setState {tracks, undos, redos, loaded_document_data: yes}
 				@select Range.fromJSON selection if selection?
+			else
+				@setState {loaded_document_data: yes}
 	
 	undoable: (fn)->
 		{tracks, selection, undos, redos} = @state
@@ -274,25 +279,28 @@ class exports.AudioEditor extends Component
 			playing: yes
 			playback_sources: @_schedule_playback from_position, actx
 	
-	_schedule_playback: (from_position, actx)->
-		include_metronome = not (actx instanceof OfflineAudioContext)
-		
-		{tracks} = @state
-		
-		playback_sources = []
-		
-		for track in tracks when track.type is "audio" and not track.muted
+	is_loaded: ->
+		return no unless @state.loaded_document_data
+		for track in @state.tracks when track.type is "audio" and not track.muted
 			for clip in track.clips
 				loaded =
 					if clip.recording_id
 						audio_clips.recordings[clip.recording_id]?.chunks?
 					else
 						audio_clips.audio_buffers[clip.audio_id]?
-				unless loaded
-					InfoBar.warn "Not all tracks have finished loading."
-					throw new Error "Not all tracks have finished loading."
-				
-		for track in tracks when not track.muted
+				return no unless loaded
+		return yes
+	
+	_schedule_playback: (from_position, actx)->
+		include_metronome = not (actx instanceof OfflineAudioContext)
+		
+		playback_sources = []
+		
+		unless @is_loaded()
+			InfoBar.warn "Not all tracks have finished loading."
+			throw new Error "Not all tracks have finished loading."
+		
+		for track in @state.tracks when not track.muted
 			switch track.type
 				when "beat"
 					unless include_metronome
@@ -767,6 +775,7 @@ class exports.AudioEditor extends Component
 					console.error err
 				else
 					# @TODO: optimize by decoding and storing in parallel, but keep good error handling
+					# TODO: show error message on failure
 					actx.decodeAudioData array_buffer, (buffer)=>
 						audio_clips.audio_buffers[clip.audio_id] = buffer
 						
@@ -777,6 +786,7 @@ class exports.AudioEditor extends Component
 							@insert stuff, selection.start(), selection.firstTrackID()
 						else
 							@insert stuff, 0
+			# oh, FIXME: this is supposed to be for decodeAudioData
 			, (e)=>
 				InfoBar.warn "Audio not playable or not supported."
 				console.error e
@@ -845,7 +855,10 @@ class exports.AudioEditor extends Component
 			undos isnt last_state.undos or
 			redos isnt last_state.redos
 		)
-			@save()
+			if @state.loaded_document_data
+				@save()
+			# else
+			# 	InfoBar.warn("The document has not yet loaded.")
 		
 		if tracks isnt last_state.tracks
 			@update_playback()

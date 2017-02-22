@@ -358,6 +358,7 @@ class TracksArea extends Component
 						y_offset_fns = @offset_y_fns_by_track_id[track_el.dataset.trackId] ?= []
 						fn = =>
 							pos = (Date.now() - start_time) / 1000 / transition_seconds
+							# FIXME: splicing from the array from fn breaks the loop over the functions by changing the length
 							if pos > 1
 								index = y_offset_fns.indexOf(fn)
 								y_offset_fns.splice(index, 1) if index > -1
