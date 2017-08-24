@@ -26606,7 +26606,7 @@ module.exports = TracksArea = (function(superClass) {
   function TracksArea() {
     this.componentDidUpdate = bind(this.componentDidUpdate, this);
     this.componentWillUpdate = bind(this.componentWillUpdate, this);
-    this.offset_y_fns_by_track_id = {};
+    this.y_offset_anims_by_track_id = {};
   }
 
   TracksArea.prototype.render = function() {
@@ -26914,7 +26914,7 @@ module.exports = TracksArea = (function(superClass) {
   };
 
   TracksArea.prototype.animate = function() {
-    var any_old_track_content_el, any_old_track_content_rect, delta_x, fn, i, j, k, keep_margin_right, l, len, len1, len2, position, ref1, scale, scroll_by, scroll_x, track_content_area_el, track_content_area_rect, track_content_el, track_controls_el, track_controls_els, track_el, track_els, track_rect, tracks_area_el, tracks_area_rect, x, y_offset, y_offset_fns;
+    var anim, any_old_track_content_el, any_old_track_content_rect, delta_x, i, j, k, keep_margin_right, l, len, len1, len2, new_y_offset_anims, pos, position, ref1, scale, scroll_by, scroll_x, track_content_area_el, track_content_area_rect, track_content_el, track_controls_el, track_controls_els, track_el, track_els, track_rect, tracks_area_el, tracks_area_rect, x, y_offset, y_offset_anims;
     scale = this.props.scale;
     this.animation_frame = requestAnimationFrame((function(_this) {
       return function() {
@@ -26937,12 +26937,18 @@ module.exports = TracksArea = (function(superClass) {
     for (k = 0, len1 = track_els.length; k < len1; k++) {
       track_el = track_els[k];
       track_content_el = track_el.querySelector(".track-content > *");
-      y_offset_fns = (ref1 = this.offset_y_fns_by_track_id[track_el.dataset.trackId]) != null ? ref1 : [];
+      y_offset_anims = (ref1 = this.y_offset_anims_by_track_id[track_el.dataset.trackId]) != null ? ref1 : [];
+      new_y_offset_anims = [];
       y_offset = 0;
-      for (l = 0, len2 = y_offset_fns.length; l < len2; l++) {
-        fn = y_offset_fns[l];
-        y_offset += fn();
+      for (l = 0, len2 = y_offset_anims.length; l < len2; l++) {
+        anim = y_offset_anims[l];
+        pos = anim.pos();
+        if (pos <= 1) {
+          y_offset += anim.fn(pos);
+          new_y_offset_anims.push(anim);
+        }
       }
+      this.y_offset_anims_by_track_id[track_el.dataset.trackId] = new_y_offset_anims;
       track_el.style.transform = "translate(" + scroll_x + "px, " + y_offset + "px)";
       if (!track_el.classList.contains("timeline-independent")) {
         track_content_el.style.transform = "translateX(" + (-scroll_x) + "px)";
@@ -26993,25 +26999,20 @@ module.exports = TracksArea = (function(superClass) {
       if (last_rect != null) {
         (function(_this) {
           return (function(last_rect, current_rect) {
-            var base, delta_y, fn, name, start_time, transition_seconds, y_offset_fns;
+            var base, delta_y, name, start_time, transition_seconds, y_offset_anims;
             delta_y = last_rect.top - current_rect.top;
             if (delta_y) {
               transition_seconds = 0.3;
               start_time = Date.now();
-              y_offset_fns = (base = _this.offset_y_fns_by_track_id)[name = track_el.dataset.trackId] != null ? base[name] : base[name] = [];
-              fn = function() {
-                var index, pos;
-                pos = (Date.now() - start_time) / 1000 / transition_seconds;
-                if (pos > 1) {
-                  index = y_offset_fns.indexOf(fn);
-                  if (index > -1) {
-                    y_offset_fns.splice(index, 1);
-                  }
-                  return 0;
+              y_offset_anims = (base = _this.y_offset_anims_by_track_id)[name = track_el.dataset.trackId] != null ? base[name] : base[name] = [];
+              return y_offset_anims.push({
+                pos: function() {
+                  return (Date.now() - start_time) / 1000 / transition_seconds;
+                },
+                fn: function(pos) {
+                  return delta_y * easing.easeInOutQuart(1 - pos);
                 }
-                return delta_y * easing.easeInOutQuart(1 - pos);
-              };
-              return y_offset_fns.push(fn);
+              });
             }
           });
         })(this)(last_rect, current_rect);

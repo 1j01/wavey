@@ -13,7 +13,7 @@ easing = require "easingjs"
 module.exports =
 class TracksArea extends Component
 	constructor: ->
-		@offset_y_fns_by_track_id = {}
+		@y_offset_anims_by_track_id = {}
 	
 	render: ->
 		{tracks, position, position_time, scale, playing, editor} = @props
@@ -293,9 +293,19 @@ class TracksArea extends Component
 		scroll_x = track_content_area_el.scrollLeft
 		for track_el in track_els
 			track_content_el = track_el.querySelector(".track-content > *")
-			y_offset_fns = @offset_y_fns_by_track_id[track_el.dataset.trackId] ? []
+			
+			y_offset_anims = @y_offset_anims_by_track_id[track_el.dataset.trackId] ? []
+			
+			new_y_offset_anims = []
 			y_offset = 0
-			y_offset += fn() for fn in y_offset_fns
+			for anim in y_offset_anims
+				pos = anim.pos()
+				if pos <= 1
+					y_offset += anim.fn(pos)
+					new_y_offset_anims.push(anim)
+			
+			@y_offset_anims_by_track_id[track_el.dataset.trackId] = new_y_offset_anims
+			
 			track_el.style.transform = "translate(#{scroll_x}px, #{y_offset}px)"
 			unless track_el.classList.contains("timeline-independent")
 				track_content_el.style.transform = "translateX(#{-scroll_x}px)"
@@ -355,16 +365,11 @@ class TracksArea extends Component
 						# add a transition
 						transition_seconds = 0.3
 						start_time = Date.now()
-						y_offset_fns = @offset_y_fns_by_track_id[track_el.dataset.trackId] ?= []
-						fn = =>
-							pos = (Date.now() - start_time) / 1000 / transition_seconds
-							# FIXME: splicing from the array from fn breaks the loop over the functions by changing the length
-							if pos > 1
-								index = y_offset_fns.indexOf(fn)
-								y_offset_fns.splice(index, 1) if index > -1
-								return 0
-							delta_y * easing.easeInOutQuart(1 - pos)
-						y_offset_fns.push(fn)
+						y_offset_anims = @y_offset_anims_by_track_id[track_el.dataset.trackId] ?= []
+						y_offset_anims.push({
+							pos: -> (Date.now() - start_time) / 1000 / transition_seconds
+							fn: (pos)-> delta_y * easing.easeInOutQuart(1 - pos)
+						})
 		
 		# update immediately to avoid one-frame artifacts
 		cancelAnimationFrame @animation_frame
