@@ -24322,16 +24322,24 @@ exports.AudioEditor = (function(superClass) {
   };
 
   AudioEditor.prototype.get_max_length_or_zero = function() {
-    return this._get_max_length_or_do_default(function() {
-      return 0;
-    });
+    return this._get_max_length_or_do_default((function(_this) {
+      return function() {
+        return 0;
+      };
+    })(this));
   };
 
   AudioEditor.prototype.get_max_length_or_warn = function() {
-    return this._get_max_length_or_do_default(function() {
-      InfoBar.warn("Not all tracks have finished loading.");
-      return void 0;
-    });
+    return this._get_max_length_or_do_default((function(_this) {
+      return function() {
+        _this._warn_that_document_isnt_loaded();
+        return void 0;
+      };
+    })(this));
+  };
+
+  AudioEditor.prototype._warn_that_document_isnt_loaded = function() {
+    return InfoBar.warn("Not all tracks have finished loading.");
   };
 
   AudioEditor.prototype.get_current_position = function() {
@@ -24484,7 +24492,7 @@ exports.AudioEditor = (function(superClass) {
     include_metronome = !(actx instanceof OfflineAudioContext);
     playback_sources = [];
     if (!this.is_loaded()) {
-      InfoBar.warn("Not all tracks have finished loading.");
+      this._warn_that_document_isnt_loaded();
       throw new Error("Not all tracks have finished loading.");
     }
     ref2 = this.state.tracks;
@@ -24578,12 +24586,10 @@ exports.AudioEditor = (function(superClass) {
     }
     return navigator.mediaDevices.getUserMedia({
       audio: true
-    }).then((function(_this) {
-      return function(stream) {
-        return success_callback(stream);
-      };
-    })(this))["catch"]((function(_this) {
+    }).then(success_callback, (function(_this) {
       return function(error) {
+        var error_string;
+        error_string = error.name + (error.message ? ": " + error.message : "");
         switch (error.name) {
           case "PermissionDeniedError":
           case "PermissionDismissedError":
@@ -24593,10 +24599,14 @@ exports.AudioEditor = (function(superClass) {
             InfoBar.warn("No recording devices were found.");
             break;
           case "SourceUnavailableError":
-            InfoBar.warn("No available recording devices were found. Is one in use?");
+            InfoBar.warn("No available recording devices were found. Another application may be using the device.");
+            break;
+          case "NotReadableError":
+          case "TrackStartError":
+            InfoBar.warn("Failed to open recording device. Another application may be using the device. (" + error_string + ")");
             break;
           default:
-            InfoBar.warn(("Failed to start recording: " + error.name) + (error.message ? ": " + error.message : ""));
+            InfoBar.warn("Failed to start recording: " + error_string);
         }
         return console.error("navigator.mediaDevices.getUserMedia", error);
       };
@@ -24738,6 +24748,9 @@ exports.AudioEditor = (function(superClass) {
 
   AudioEditor.prototype.record = function() {
     if (this.state.recording) {
+      return;
+    }
+    if (this.get_max_length_or_warn() == null) {
       return;
     }
     return this._get_audio_stream((function(_this) {

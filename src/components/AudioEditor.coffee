@@ -181,12 +181,17 @@ class exports.AudioEditor extends Component
 		max_length
 	
 	get_max_length_or_zero: ->
-		@_get_max_length_or_do_default -> 0
+		@_get_max_length_or_do_default => 0
 	
 	get_max_length_or_warn: ->
-		@_get_max_length_or_do_default ->
-			InfoBar.warn "Not all tracks have finished loading."
+		@_get_max_length_or_do_default =>
+			@_warn_that_document_isnt_loaded()
 			undefined
+	
+	_warn_that_document_isnt_loaded: ->
+		# TODO: show a better error if it's been determined that [part of] a recording is missing from storage.
+		# or an audio clip, or generally show reasons why the document may have failed to load.
+		InfoBar.warn "Not all tracks have finished loading."
 	
 	get_current_position: ->
 		@state.position +
@@ -297,7 +302,8 @@ class exports.AudioEditor extends Component
 		playback_sources = []
 		
 		unless @is_loaded()
-			InfoBar.warn "Not all tracks have finished loading."
+			@_warn_that_document_isnt_loaded()
+			# XXX: using throw for logical flow? (that's a no no, yo)
 			throw new Error "Not all tracks have finished loading."
 		
 		for track in @state.tracks when not track.muted
@@ -357,24 +363,26 @@ class exports.AudioEditor extends Component
 	
 	end_recording: =>
 		# method overridden by @record
+		# XXX: bad way to do things (an "antipattern", you could say)
 	
 	_get_audio_stream: (success_callback)=>
 		if @state.audio_stream
 			return success_callback(@state.audio_stream)
 		
 		navigator.mediaDevices.getUserMedia audio: yes
-			.then (stream)=>
-				success_callback(stream)
-			.catch (error)=>
+			.then success_callback, (error)=>
+				error_string = error.name + if error.message then ": #{error.message}" else ""
 				switch error.name
 					when "PermissionDeniedError", "PermissionDismissedError"
 						return
 					when "NotFoundError", "DevicesNotFoundError"
 						InfoBar.warn "No recording devices were found."
 					when "SourceUnavailableError"
-						InfoBar.warn "No available recording devices were found. Is one in use?"
+						InfoBar.warn "No available recording devices were found. Another application may be using the device."
+					when "NotReadableError", "TrackStartError" # TrackStartError is Chrome-specific
+						InfoBar.warn "Failed to open recording device. Another application may be using the device. (#{error_string})"
 					else
-						InfoBar.warn "Failed to start recording: #{error.name}" + if error.message then ": #{error.message}" else ""
+						InfoBar.warn "Failed to start recording: #{error_string}"
 				console.error "navigator.mediaDevices.getUserMedia", error
 	
 	_setup_midi: (success_callback)=>
@@ -462,8 +470,18 @@ class exports.AudioEditor extends Component
 		InfoBar.warn "MIDI recording is not yet implemented"
 	
 	record: =>
-		# TODO: you should actually while recording be able to start recording with more (or less) devices
+		# TODO: you should actually be able to toggle recording thru individual devices while recording
+		# this may be complicated by play_from calling pause() and whatnot
+		# also by kinda wanting to be able to "undo not recording"
+		# FIXME: if the UI is lagging you can click the record button twice before it gets the audio stream and sets state
+		# and it'll start recording in duplicate and you won't be able to stop one of the recordings
+		# also it might break because of the way I implemented ending the recording (overwriting @end_recording)
 		return if @state.recording
+		# the following is needed because we otherwise implicitly call get_max_length_or_warn via play_from later
+		# and we want to get the warning earlier and cancel
+		# could maybe use is_loaded instead?
+		return unless @get_max_length_or_warn()?
+		
 		# wanted_track_types = ["audio", "midi"]
 		# tracks_to_use_by_type = _find_places_to_record(wanted_track_types)
 		# console.log {wanted_track_types, tracks_to_use_by_type}
