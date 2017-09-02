@@ -24526,7 +24526,7 @@ exports.AudioEditor = (function(superClass) {
     playback_sources = [];
     is_loaded = this.check_if_document_loaded_and_warn_otherwise();
     if (!is_loaded) {
-      return;
+      return [];
     }
     ref2 = this.state.tracks;
     for (j = 0, len = ref2.length; j < len; j++) {

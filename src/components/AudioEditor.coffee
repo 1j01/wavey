@@ -282,6 +282,7 @@ class exports.AudioEditor extends Component
 				from_position = 0
 		
 		@setState
+			# FIXME: setTimeout is unreliable; should use onended!
 			tid: unless @state.recording then setTimeout @pause, (max_length - from_position) * 1000 + 20
 			# NOTE: an extra few ms because it shouldn't fade out prematurely
 			# (even though it might sound better, it might lead you to believe
@@ -325,7 +326,7 @@ class exports.AudioEditor extends Component
 		playback_sources = []
 		
 		is_loaded = @check_if_document_loaded_and_warn_otherwise()
-		return unless is_loaded
+		return [] unless is_loaded
 		
 		for track in @state.tracks when not track.muted
 			switch track.type
