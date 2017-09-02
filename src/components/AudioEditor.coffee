@@ -37,7 +37,14 @@ class exports.AudioEditor extends Component
 			recording: no
 			active_recordings: []
 			# recording_start_position: null # probably same as position?
-			
+			# TODO: multiple audio streams
+			# might want to make active_recordings into a higher level thing
+			# its currently limited to data to be serialized
+			# so like an array of objects like {audio_stream?, midi_input?, recording?, clip}
+			# not sure how to make it clear recording is to be serialized
+			# I suppose I could have a serializable Recording class or something :/
+			# or call it recording_metadata
+			# also: see further below TODO about active_recordings
 			audio_stream: null
 			midi_inputs: []
 			precording_enabled: no
@@ -188,15 +195,12 @@ class exports.AudioEditor extends Component
 	
 	get_max_length_or_warn: ->
 		@_get_max_length_or_do_default =>
-			@_warn_that_document_isnt_loaded()
+			is_loaded = @check_if_document_loaded_and_warn_otherwise()
+			if is_loaded
+				InfoBar.error "The document length is unknown. This is a bug."
+				console?.error? "_get_max_length_or_do_default is doing the default
+					even though check_if_document_loaded_and_warn_otherwise says its loaded"
 			undefined
-	
-	_warn_that_document_isnt_loaded: (reason_not_loaded, extra_console_info=[])->
-		# TODO: show a better error if it's been determined that [part of] a recording is missing from storage.
-		# or an audio clip, or generally show reasons why the document may have failed to load.
-		reason_not_loaded ?= "Not all tracks have finished loading."
-		InfoBar.warn reason_not_loaded
-		console?.warn? reason_not_loaded, extra_console_info...
 	
 	get_current_position: ->
 		@state.position +
@@ -289,9 +293,10 @@ class exports.AudioEditor extends Component
 			playing: yes
 			playback_sources: @_schedule_playback from_position, actx
 	
-	check_document_loaded: ->
+	check_if_document_loaded_and_warn_otherwise: ->
 		unless @state.loaded_document_data
-			return [no, "The document hasn't loaded yet."]
+			InfoBar.warn "The document hasn't loaded yet."
+			return no
 		for track in @state.tracks when track.type is "audio" and not track.muted
 			for clip in track.clips
 				if clip.recording_id
@@ -301,7 +306,8 @@ class exports.AudioEditor extends Component
 							"audio_clips.recordings[clip.recording_id]:",
 							audio_clips.recordings[clip.recording_id]
 						)
-						return [no, "Not all tracks have loaded yet."]
+						InfoBar.warn audio_clips.errors[clip.audio_id] ? "Not all tracks have loaded yet."
+						return no
 				else
 					unless audio_clips.audio_buffers[clip.audio_id]?
 						console?.debug?(
@@ -309,18 +315,17 @@ class exports.AudioEditor extends Component
 							"audio_clips.audio_buffers[clip.audio_id]:",
 							audio_clips.audio_buffers[clip.audio_id]
 						)
-
-						return [no, "Not all tracks have loaded yet"]
-		return [yes]
+						InfoBar.warn audio_clips.errors[clip.audio_id] ? "Not all tracks have loaded yet."
+						return no
+		return yes
 	
 	_schedule_playback: (from_position, actx)->
 		include_metronome = not (actx instanceof OfflineAudioContext)
 		
 		playback_sources = []
 		
-		[is_loaded, reason_not_loaded, extra_console_info] = @check_document_loaded()
+		is_loaded = @check_if_document_loaded_and_warn_otherwise()
 		return unless is_loaded
-			@_warn_that_document_isnt_loaded(reason_not_loaded, extra_console_info)
 		
 		for track in @state.tracks when not track.muted
 			switch track.type
@@ -522,13 +527,12 @@ class exports.AudioEditor extends Component
 		# this may be complicated by play_from calling pause() and whatnot
 		# also by kinda wanting to be able to "undo not recording"
 		# FIXME: if the UI is lagging you can click the record button twice before it gets the audio stream and sets state
-		# and it'll start recording in duplicate and you won't be able to stop one of the recordings
+		# and it'll start recording in duplicate and you might not be able to stop one of the recordings
 		return if @state.recording
 		# the following is needed because we otherwise implicitly call get_max_length_or_warn via play_from later
 		# and we want to get the warning earlier and cancel
-		[is_loaded, reason_not_loaded, extra_console_info] = @check_document_loaded()
+		is_loaded = @check_if_document_loaded_and_warn_otherwise()
 		return unless is_loaded
-			@_warn_that_document_isnt_loaded(reason_not_loaded, extra_console_info)
 		
 		# wanted_track_types = ["audio", "midi"]
 		# tracks_to_use_by_type = _find_places_to_record(wanted_track_types)

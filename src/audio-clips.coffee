@@ -7,6 +7,7 @@ class AudioClipStorage
 	@audio_buffers = {}
 	@recordings = {}
 	@loading = {}
+	@errors = {}
 	
 	throttle = 0
 	
@@ -15,6 +16,16 @@ class AudioClipStorage
 		return if AudioClipStorage.loading[clip.audio_id]?
 		
 		AudioClipStorage.loading[clip.audio_id] = yes
+		
+		fail_warn = (error_message)->
+			AudioClipStorage.errors[clip.audio_id] = error_message
+			InfoBar.warn error_message
+			# TODO: button on infobar to remove broken clips
+			# including when showing errors via AudioClipStorage.errors[clip.audio_id]
+			# maybe that should be a map of clip ids to functions that show infobars
+			# maybe internal, with API like has_error(clip) show_error(clip)
+			# load_clip would probably take a callback for removing broken clips
+			# (not just the one clip) and it would be undoable
 		
 		if clip.recording_id?
 			localforage.getItem "recording:#{clip.recording_id}", (err, recording)=>
@@ -44,15 +55,15 @@ class AudioClipStorage
 												recording.chunks = chunks
 												render()
 										else
-											InfoBar.warn "Part of a recording is missing from storage."
-											console.warn "A chunk of a recording (#{chunk_id}) is missing from storage.", clip, recording
+											fail_warn "Part of a recording is missing from storage."
+											console.warn "A chunk of a recording (chunk_id: #{chunk_id}) is missing from storage.", clip, recording
 								, throttle += 1
 						if channel_chunk_ids.length is 0 and channel_index is recording.chunk_ids.length - 1
 							recording.chunks = chunks
 							render()
 				else
-					InfoBar.warn "A recording is missing from storage."
-					console.warn "A recording is missing from storage.", clip
+					fail_warn "A recording is missing from storage."
+					console.warn "A recording is missing from storage. clip:", clip
 		else
 			localforage.getItem "audio:#{clip.audio_id}", (err, array_buffer)=>
 				if err
@@ -64,8 +75,8 @@ class AudioClipStorage
 						InfoBar.hide "Not all tracks have finished loading."
 						render()
 				else
-					InfoBar.warn "An audio clip is missing from storage."
-					console.warn "An audio clip is missing from storage.", clip
+					fail_warn "An audio clip is missing from storage."
+					console.warn "An audio clip is missing from storage. clip:", clip
 	
 	@load_clips = (tracks, InfoBar)->
 		for track in tracks when track.type is "audio"

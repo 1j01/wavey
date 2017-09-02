@@ -23765,9 +23765,12 @@ module.exports = AudioClipStorage = (function() {
 
   AudioClipStorage.loading = {};
 
+  AudioClipStorage.errors = {};
+
   throttle = 0;
 
   AudioClipStorage.load_clip = function(clip, InfoBar) {
+    var fail_warn;
     if (AudioClipStorage.audio_buffers[clip.audio_id] != null) {
       return;
     }
@@ -23775,6 +23778,10 @@ module.exports = AudioClipStorage = (function() {
       return;
     }
     AudioClipStorage.loading[clip.audio_id] = true;
+    fail_warn = function(error_message) {
+      AudioClipStorage.errors[clip.audio_id] = error_message;
+      return InfoBar.warn(error_message);
+    };
     if (clip.recording_id != null) {
       return localforage.getItem("recording:" + clip.recording_id, function(err, recording) {
         var channel_chunk_ids, channel_index, chunk_id, chunk_index, chunks, fn, i, j, len, len1, ref, results, total_loaded_chunks;
@@ -23805,8 +23812,8 @@ module.exports = AudioClipStorage = (function() {
                         return render();
                       }
                     } else {
-                      InfoBar.warn("Part of a recording is missing from storage.");
-                      return console.warn("A chunk of a recording (" + chunk_id + ") is missing from storage.", clip, recording);
+                      fail_warn("Part of a recording is missing from storage.");
+                      return console.warn("A chunk of a recording (chunk_id: " + chunk_id + ") is missing from storage.", clip, recording);
                     }
                   };
                 })(this));
@@ -23825,8 +23832,8 @@ module.exports = AudioClipStorage = (function() {
           }
           return results;
         } else {
-          InfoBar.warn("A recording is missing from storage.");
-          return console.warn("A recording is missing from storage.", clip);
+          fail_warn("A recording is missing from storage.");
+          return console.warn("A recording is missing from storage. clip:", clip);
         }
       });
     } else {
@@ -23841,8 +23848,8 @@ module.exports = AudioClipStorage = (function() {
             return render();
           });
         } else {
-          InfoBar.warn("An audio clip is missing from storage.");
-          return console.warn("An audio clip is missing from storage.", clip);
+          fail_warn("An audio clip is missing from storage.");
+          return console.warn("An audio clip is missing from storage. clip:", clip);
         }
       });
     }
@@ -23971,7 +23978,8 @@ module.exports = AudioClip = (function(superClass) {
 var Component, Controls, E, GUID, InfoBar, Range, ReactDOM, TracksArea, audio_clips, document_version, export_audio_buffer_as, get_clip_start_end, localforage, normal_tracks_in, ref, ref1, stuff_version, webmidi,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-  hasProp = {}.hasOwnProperty;
+  hasProp = {}.hasOwnProperty,
+  indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 ref = require("../helpers.coffee"), E = ref.E, Component = ref.Component, GUID = ref.GUID, get_clip_start_end = ref.get_clip_start_end, normal_tracks_in = ref.normal_tracks_in;
 
@@ -24032,6 +24040,7 @@ exports.AudioEditor = (function(superClass) {
     this.precord = bind(this.precord, this);
     this.stop_recording = bind(this.stop_recording, this);
     this.record = bind(this.record, this);
+    this._save_recording = bind(this._save_recording, this);
     this.record_midi = bind(this.record_midi, this);
     this._find_places_to_record = bind(this._find_places_to_record, this);
     this._setup_midi = bind(this._setup_midi, this);
@@ -24063,6 +24072,7 @@ exports.AudioEditor = (function(superClass) {
       scale: 90,
       selection: null,
       recording: false,
+      active_recordings: [],
       audio_stream: null,
       midi_inputs: [],
       precording_enabled: false,
@@ -24332,14 +24342,19 @@ exports.AudioEditor = (function(superClass) {
   AudioEditor.prototype.get_max_length_or_warn = function() {
     return this._get_max_length_or_do_default((function(_this) {
       return function() {
-        _this._warn_that_document_isnt_loaded();
+        var is_loaded;
+        is_loaded = _this.check_if_document_loaded_and_warn_otherwise();
+        if (is_loaded) {
+          InfoBar.error("The document length is unknown. This is a bug.");
+          if (typeof console !== "undefined" && console !== null) {
+            if (typeof console.error === "function") {
+              console.error("_get_max_length_or_do_default is doing the default even though check_if_document_loaded_and_warn_otherwise says its loaded");
+            }
+          }
+        }
         return void 0;
       };
     })(this));
-  };
-
-  AudioEditor.prototype._warn_that_document_isnt_loaded = function() {
-    return InfoBar.warn("Not all tracks have finished loading.");
   };
 
   AudioEditor.prototype.get_current_position = function() {
@@ -24465,9 +24480,10 @@ exports.AudioEditor = (function(superClass) {
     });
   };
 
-  AudioEditor.prototype.is_loaded = function() {
-    var clip, j, k, len, len1, loaded, ref2, ref3, ref4, track;
+  AudioEditor.prototype.check_if_document_loaded_and_warn_otherwise = function() {
+    var clip, j, k, len, len1, ref2, ref3, ref4, ref5, ref6, track;
     if (!this.state.loaded_document_data) {
+      InfoBar.warn("The document hasn't loaded yet.");
       return false;
     }
     ref2 = this.state.tracks;
@@ -24477,9 +24493,26 @@ exports.AudioEditor = (function(superClass) {
         ref3 = track.clips;
         for (k = 0, len1 = ref3.length; k < len1; k++) {
           clip = ref3[k];
-          loaded = clip.recording_id ? ((ref4 = audio_clips.recordings[clip.recording_id]) != null ? ref4.chunks : void 0) != null : audio_clips.audio_buffers[clip.audio_id] != null;
-          if (!loaded) {
-            return false;
+          if (clip.recording_id) {
+            if (((ref4 = audio_clips.recordings[clip.recording_id]) != null ? ref4.chunks : void 0) == null) {
+              if (typeof console !== "undefined" && console !== null) {
+                if (typeof console.debug === "function") {
+                  console.debug("clip:", clip, "audio_clips.recordings[clip.recording_id]:", audio_clips.recordings[clip.recording_id]);
+                }
+              }
+              InfoBar.warn((ref5 = audio_clips.errors[clip.audio_id]) != null ? ref5 : "Not all tracks have loaded yet.");
+              return false;
+            }
+          } else {
+            if (audio_clips.audio_buffers[clip.audio_id] == null) {
+              if (typeof console !== "undefined" && console !== null) {
+                if (typeof console.debug === "function") {
+                  console.debug("clip:", clip, "audio_clips.audio_buffers[clip.audio_id]:", audio_clips.audio_buffers[clip.audio_id]);
+                }
+              }
+              InfoBar.warn((ref6 = audio_clips.errors[clip.audio_id]) != null ? ref6 : "Not all tracks have loaded yet.");
+              return false;
+            }
           }
         }
       }
@@ -24488,12 +24521,12 @@ exports.AudioEditor = (function(superClass) {
   };
 
   AudioEditor.prototype._schedule_playback = function(from_position, actx) {
-    var channel, channel_index, chunk, chunk_index, clip, clip_length, include_metronome, j, k, l, len, len1, len2, len3, length_to_play_of_clip, m, playback_sources, recording, ref2, ref3, ref4, ref5, ref6, source, start_time, starting_offset_into_clip, track;
+    var channel, channel_index, chunk, chunk_index, clip, clip_length, include_metronome, is_loaded, j, k, l, len, len1, len2, len3, length_to_play_of_clip, m, playback_sources, recording, ref2, ref3, ref4, ref5, ref6, source, start_time, starting_offset_into_clip, track;
     include_metronome = !(actx instanceof OfflineAudioContext);
     playback_sources = [];
-    if (!this.is_loaded()) {
-      this._warn_that_document_isnt_loaded();
-      throw new Error("Not all tracks have finished loading.");
+    is_loaded = this.check_if_document_loaded_and_warn_otherwise();
+    if (!is_loaded) {
+      return;
     }
     ref2 = this.state.tracks;
     for (j = 0, len = ref2.length; j < len; j++) {
@@ -24578,7 +24611,35 @@ exports.AudioEditor = (function(superClass) {
     }
   };
 
-  AudioEditor.prototype.end_recording = function() {};
+  AudioEditor.prototype.end_recording = function() {
+    var active_recordings, current_position, j, len, recording, start_position;
+    active_recordings = this.state.active_recordings;
+    if (!active_recordings.length) {
+      return;
+    }
+    if (typeof console !== "undefined" && console !== null) {
+      console.log("end " + active_recordings.length + " active recordings");
+    }
+    start_position = this.state.position;
+    current_position = this.get_current_position();
+    for (j = 0, len = active_recordings.length; j < len; j++) {
+      recording = active_recordings[j];
+      if (typeof console !== "undefined" && console !== null) {
+        console.log("last recording.length", recording.length);
+      }
+      recording.length = current_position - start_position;
+      if (typeof console !== "undefined" && console !== null) {
+        console.log("final recording.length", recording.length);
+      }
+    }
+    this._save_recording(recording);
+    return this.setState({
+      recording: false,
+      active_recordings: [],
+      position: current_position,
+      position_time: actx.currentTime
+    });
+  };
 
   AudioEditor.prototype._get_audio_stream = function(success_callback) {
     if (this.state.audio_stream) {
@@ -24593,6 +24654,7 @@ exports.AudioEditor = (function(superClass) {
         switch (error.name) {
           case "PermissionDeniedError":
           case "PermissionDismissedError":
+          case "NotAllowedError":
             return;
           case "NotFoundError":
           case "DevicesNotFoundError":
@@ -24746,119 +24808,113 @@ exports.AudioEditor = (function(superClass) {
     return InfoBar.warn("MIDI recording is not yet implemented");
   };
 
+  AudioEditor.prototype._save_recording = function(recording, success_callback) {
+    return localforage.setItem("recording:" + recording.id, {
+      id: recording.id,
+      sample_rate: recording.sample_rate,
+      chunk_ids: recording.chunk_ids,
+      length: recording.length
+    }, (function(_this) {
+      return function(err) {
+        if (err) {
+          InfoBar.warn("Failing to store recording! " + err.message);
+          return console.error("Failed to store recording metadata", err);
+        } else {
+          return typeof success_callback === "function" ? success_callback() : void 0;
+        }
+      };
+    })(this));
+  };
+
   AudioEditor.prototype.record = function() {
+    var is_loaded;
     if (this.state.recording) {
       return;
     }
-    if (this.get_max_length_or_warn() == null) {
+    is_loaded = this.check_if_document_loaded_and_warn_otherwise();
+    if (!is_loaded) {
       return;
     }
     return this._get_audio_stream((function(_this) {
       return function(stream) {
-        var recording_id;
+        var current_chunk, recorder, recording, recording_id, samples_per_chunk, source;
         recording_id = GUID();
-        return _this.undoable(function(tracks) {
-          var chunk_size, clip, current_chunk, ended, final_recording_length, recorder, recording, ref2, source, start_position, track, tracks_to_use_by_type;
-          ref2 = _this._find_places_to_record(["audio"], tracks), start_position = ref2.start_position, tracks_to_use_by_type = ref2.tracks_to_use_by_type;
-          track = tracks_to_use_by_type.audio[0];
-          clip = {
-            id: GUID(),
-            audio_id: recording_id,
-            recording_id: recording_id,
-            position: start_position,
-            offset: 0
+        recording = {
+          id: recording_id,
+          chunks: [[], []],
+          chunk_ids: [[], []],
+          length: 0
+        };
+        source = actx.createMediaStreamSource(stream);
+        current_chunk = 0;
+        samples_per_chunk = Math.pow(2, 14);
+        recorder = actx.createScriptProcessor(samples_per_chunk, 2, typeof chrome !== "undefined" && chrome !== null ? 1 : 0);
+        recorder.onaudioprocess = function(e) {
+          var chunk_id, chunk_ids, chunks, data, ended, fn1, i, j, ref2;
+          ended = indexOf.call(_this.state.active_recordings, recording) < 0;
+          if (typeof console !== "undefined" && console !== null) {
+            console.log("onaudioprocess", ended ? "(final)" : "");
+          }
+          recording.sample_rate = e.inputBuffer.sampleRate;
+          chunks = [];
+          chunk_ids = [];
+          fn1 = function(chunk_id, data) {
+            return localforage.setItem("recording:" + recording_id + ":chunk:" + chunk_id, data, function(err) {
+              if (err) {
+                InfoBar.warn("Failing to store recording! " + err.message);
+                return console.error("Failed to store recording chunk", err);
+              }
+            });
           };
-          track.clips.push(clip);
-          source = actx.createMediaStreamSource(stream);
-          recording = {
-            id: recording_id,
-            chunks: [[], []],
-            chunk_ids: [[], []],
-            length: 0
-          };
-          audio_clips.recordings[clip.recording_id] = recording;
-          audio_clips.loading[clip.audio_id] = true;
-          current_chunk = 0;
-          chunk_size = Math.pow(2, 14);
-          ended = false;
-          final_recording_length = void 0;
-          recorder = actx.createScriptProcessor(chunk_size, 2, typeof chrome !== "undefined" && chrome !== null ? 1 : 0);
-          recorder.onaudioprocess = function(e) {
-            var chunk_id, chunk_ids, chunks, data, fn1, i, j, ref3, save;
+          for (i = j = 0, ref2 = e.inputBuffer.numberOfChannels; 0 <= ref2 ? j < ref2 : j > ref2; i = 0 <= ref2 ? ++j : --j) {
+            data = new Float32Array(e.inputBuffer.getChannelData(i));
+            chunks.push(recording.chunks[i].concat([data]));
+            chunk_ids.push(recording.chunk_ids[i].concat([chunk_id = GUID()]));
+            fn1(chunk_id, data);
+          }
+          recording.chunks = chunks;
+          recording.chunk_ids = chunk_ids;
+          recording.length = typeof final_recording_length !== "undefined" && final_recording_length !== null ? final_recording_length : chunk_ids[0].length * data.length / recording.sample_rate;
+          if (ended) {
+            source.disconnect();
+            recorder.disconnect();
+            delete window["chrome bug workaround (" + recording_id + ")"];
             if (typeof console !== "undefined" && console !== null) {
-              console.log("onaudioprocess", ended ? "(final)" : "");
+              console.log("ended recording");
             }
-            recording.sample_rate = e.inputBuffer.sampleRate;
-            chunks = [];
-            chunk_ids = [];
-            fn1 = function(chunk_id, data) {
-              return localforage.setItem("recording:" + recording_id + ":chunk:" + chunk_id, data, function(err) {
-                if (err) {
-                  InfoBar.warn("Failing to store recording! " + err.message);
-                  return console.error("Failed to store recording chunk", err);
-                }
-              });
-            };
-            for (i = j = 0, ref3 = e.inputBuffer.numberOfChannels; 0 <= ref3 ? j < ref3 : j > ref3; i = 0 <= ref3 ? ++j : --j) {
-              data = new Float32Array(e.inputBuffer.getChannelData(i));
-              chunks.push(recording.chunks[i].concat([data]));
-              chunk_ids.push(recording.chunk_ids[i].concat([chunk_id = GUID()]));
-              fn1(chunk_id, data);
-            }
-            recording.chunks = chunks;
-            recording.chunk_ids = chunk_ids;
-            recording.length = final_recording_length != null ? final_recording_length : chunk_ids[0].length * data.length / recording.sample_rate;
-            save = function() {
-              return localforage.setItem("recording:" + clip.recording_id, {
-                id: recording.id,
-                sample_rate: recording.sample_rate,
-                chunk_ids: recording.chunk_ids,
-                length: recording.length
-              }, function(err) {
-                if (err) {
-                  InfoBar.warn("Failing to store recording! " + err.message);
-                  return console.error("Failed to store recording metadata", err);
-                }
-              });
-            };
-            _this.end_recording = function() {
-              if (ended) {
-                return;
-              }
-              console.log("last recording.length", recording.length);
-              final_recording_length = recording.length = _this.get_current_position() - start_position;
-              console.log("final_recording_length", final_recording_length);
-              save();
-              ended = true;
-              return _this.setState({
-                recording: false,
-                position: start_position + final_recording_length,
-                position_time: actx.currentTime
-              });
-            };
-            if (ended) {
-              source.disconnect();
-              recorder.disconnect();
-              delete window["chrome bug workaround (" + recording_id + ")"];
-              if (typeof console !== "undefined" && console !== null) {
-                console.log("ended recording");
-              }
-            }
-            save();
-            return render();
-          };
-          source.connect(recorder);
-          if (typeof chrome !== "undefined" && chrome !== null) {
-            recorder.connect(actx.destination);
           }
-          if (typeof chrome !== "undefined" && chrome !== null) {
-            window["chrome bug workaround (" + recording_id + ")"] = recorder;
-          }
-          return _this.setState({
-            recording: true,
-            audio_stream: stream
-          }, function() {
-            return _this.play_from(start_position);
+          _this._save_recording(recording);
+          return render();
+        };
+        source.connect(recorder);
+        if (typeof chrome !== "undefined" && chrome !== null) {
+          recorder.connect(actx.destination);
+        }
+        if (typeof chrome !== "undefined" && chrome !== null) {
+          window["chrome bug workaround (" + recording_id + ")"] = recorder;
+        }
+        return _this._save_recording(recording, function() {
+          return _this.undoable(function(tracks) {
+            var clip, ref2, start_position, track, tracks_to_use_by_type;
+            ref2 = _this._find_places_to_record(["audio"], tracks), start_position = ref2.start_position, tracks_to_use_by_type = ref2.tracks_to_use_by_type;
+            track = tracks_to_use_by_type.audio[0];
+            clip = {
+              id: GUID(),
+              audio_id: recording_id,
+              recording_id: recording_id,
+              position: start_position,
+              offset: 0
+            };
+            audio_clips.recordings[clip.recording_id] = recording;
+            audio_clips.loading[clip.audio_id] = true;
+            track.clips.push(clip);
+            return _this.setState({
+              recording: true,
+              active_recordings: _this.state.active_recordings.concat([recording]),
+              audio_stream: stream
+            }, function() {
+              return _this.play_from(start_position);
+            });
           });
         });
       };
