@@ -36,7 +36,7 @@ class exports.AudioEditor extends Component
 			selection: null
 			recording: no
 			active_recordings: []
-			# recording_start_position: null # probably same as position?
+			recording_start_position: null # same as position for now at least (while recording)
 			# TODO: multiple audio streams
 			# might want to make active_recordings into a higher level thing
 			# its currently limited to data to be serialized
@@ -44,6 +44,7 @@ class exports.AudioEditor extends Component
 			# not sure how to make it clear recording is to be serialized
 			# I suppose I could have a serializable Recording class or something :/
 			# or call it recording_metadata
+			# maybe call the thing replacing active_recordings 'active_track_recordings'
 			# also: see further below TODO about active_recordings
 			audio_stream: null
 			midi_inputs: []
@@ -283,6 +284,7 @@ class exports.AudioEditor extends Component
 		
 		@setState
 			# FIXME: setTimeout is unreliable; should use onended!
+			# don't forget to remove clearTimeout @state.tid
 			tid: unless @state.recording then setTimeout @pause, (max_length - from_position) * 1000 + 20
 			# NOTE: an extra few ms because it shouldn't fade out prematurely
 			# (even though it might sound better, it might lead you to believe
@@ -384,16 +386,15 @@ class exports.AudioEditor extends Component
 			@seek @get_current_position()
 	
 	end_recording: =>
-		{active_recordings} = @state
-		
+		{active_recordings, recording_start_position} = @state
 		return unless active_recordings.length
 		
 		console?.log "end #{active_recordings.length} active recordings"
-		start_position = @state.position # is this okay?
 		current_position = @get_current_position()
+		
 		for recording in active_recordings
 			console?.log "last recording.length", recording.length
-			recording.length = current_position - start_position
+			recording.length = current_position - recording_start_position
 			console?.log "final recording.length", recording.length
 		
 		# TODO: probably move active_recordings outside of state; we want to clear it syncronously
@@ -580,7 +581,8 @@ class exports.AudioEditor extends Component
 								console.error "Failed to store recording chunk", err
 				recording.chunks = chunks
 				recording.chunk_ids = chunk_ids
-				recording.length = final_recording_length ? chunk_ids[0].length * data.length / recording.sample_rate
+				unless ended
+					recording.length = chunk_ids[0].length * data.length / recording.sample_rate
 				
 				if ended
 					source.disconnect()
@@ -620,6 +622,7 @@ class exports.AudioEditor extends Component
 					
 					@setState
 						recording: yes
+						recording_start_position: start_position
 						active_recordings: @state.active_recordings.concat([recording])
 						audio_stream: stream
 						=> @play_from start_position

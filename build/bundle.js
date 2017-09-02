@@ -24073,6 +24073,7 @@ exports.AudioEditor = (function(superClass) {
       selection: null,
       recording: false,
       active_recordings: [],
+      recording_start_position: null,
       audio_stream: null,
       midi_inputs: [],
       precording_enabled: false,
@@ -24612,22 +24613,21 @@ exports.AudioEditor = (function(superClass) {
   };
 
   AudioEditor.prototype.end_recording = function() {
-    var active_recordings, current_position, j, len, recording, start_position;
-    active_recordings = this.state.active_recordings;
+    var active_recordings, current_position, j, len, recording, recording_start_position, ref2;
+    ref2 = this.state, active_recordings = ref2.active_recordings, recording_start_position = ref2.recording_start_position;
     if (!active_recordings.length) {
       return;
     }
     if (typeof console !== "undefined" && console !== null) {
       console.log("end " + active_recordings.length + " active recordings");
     }
-    start_position = this.state.position;
     current_position = this.get_current_position();
     for (j = 0, len = active_recordings.length; j < len; j++) {
       recording = active_recordings[j];
       if (typeof console !== "undefined" && console !== null) {
         console.log("last recording.length", recording.length);
       }
-      recording.length = current_position - start_position;
+      recording.length = current_position - recording_start_position;
       if (typeof console !== "undefined" && console !== null) {
         console.log("final recording.length", recording.length);
       }
@@ -24874,7 +24874,9 @@ exports.AudioEditor = (function(superClass) {
           }
           recording.chunks = chunks;
           recording.chunk_ids = chunk_ids;
-          recording.length = typeof final_recording_length !== "undefined" && final_recording_length !== null ? final_recording_length : chunk_ids[0].length * data.length / recording.sample_rate;
+          if (!ended) {
+            recording.length = chunk_ids[0].length * data.length / recording.sample_rate;
+          }
           if (ended) {
             source.disconnect();
             recorder.disconnect();
@@ -24910,6 +24912,7 @@ exports.AudioEditor = (function(superClass) {
             track.clips.push(clip);
             return _this.setState({
               recording: true,
+              recording_start_position: start_position,
               active_recordings: _this.state.active_recordings.concat([recording]),
               audio_stream: stream
             }, function() {
