@@ -35,6 +35,9 @@ class exports.AudioEditor extends Component
 			scale: 90
 			selection: null
 			recording: no
+			active_recordings: []
+			# recording_start_position: null # probably same as position?
+			
 			audio_stream: null
 			midi_inputs: []
 			precording_enabled: no
@@ -188,10 +191,12 @@ class exports.AudioEditor extends Component
 			@_warn_that_document_isnt_loaded()
 			undefined
 	
-	_warn_that_document_isnt_loaded: ->
+	_warn_that_document_isnt_loaded: (reason_not_loaded, extra_console_info=[])->
 		# TODO: show a better error if it's been determined that [part of] a recording is missing from storage.
 		# or an audio clip, or generally show reasons why the document may have failed to load.
-		InfoBar.warn "Not all tracks have finished loading."
+		reason_not_loaded ?= "Not all tracks have finished loading."
+		InfoBar.warn reason_not_loaded
+		console?.warn? reason_not_loaded, extra_console_info...
 	
 	get_current_position: ->
 		@state.position +
@@ -284,27 +289,38 @@ class exports.AudioEditor extends Component
 			playing: yes
 			playback_sources: @_schedule_playback from_position, actx
 	
-	is_loaded: ->
-		return no unless @state.loaded_document_data
+	check_document_loaded: ->
+		unless @state.loaded_document_data
+			return [no, "The document hasn't loaded yet."]
 		for track in @state.tracks when track.type is "audio" and not track.muted
 			for clip in track.clips
-				loaded =
-					if clip.recording_id
-						audio_clips.recordings[clip.recording_id]?.chunks?
-					else
-						audio_clips.audio_buffers[clip.audio_id]?
-				return no unless loaded
-		return yes
+				if clip.recording_id
+					unless audio_clips.recordings[clip.recording_id]?.chunks?
+						console?.debug?(
+							"clip:", clip,
+							"audio_clips.recordings[clip.recording_id]:",
+							audio_clips.recordings[clip.recording_id]
+						)
+						return [no, "Not all tracks have loaded yet."]
+				else
+					unless audio_clips.audio_buffers[clip.audio_id]?
+						console?.debug?(
+							"clip:", clip,
+							"audio_clips.audio_buffers[clip.audio_id]:",
+							audio_clips.audio_buffers[clip.audio_id]
+						)
+
+						return [no, "Not all tracks have loaded yet"]
+		return [yes]
 	
 	_schedule_playback: (from_position, actx)->
 		include_metronome = not (actx instanceof OfflineAudioContext)
 		
 		playback_sources = []
 		
-		unless @is_loaded()
-			@_warn_that_document_isnt_loaded()
-			# XXX: using throw for logical flow? (that's a no no, yo)
-			throw new Error "Not all tracks have finished loading."
+		[is_loaded, reason_not_loaded, extra_console_info] = @check_document_loaded()
+		return unless is_loaded
+			@_warn_that_document_isnt_loaded(reason_not_loaded, extra_console_info)
 		
 		for track in @state.tracks when not track.muted
 			switch track.type
@@ -362,8 +378,28 @@ class exports.AudioEditor extends Component
 			@seek @get_current_position()
 	
 	end_recording: =>
-		# method overridden by @record
-		# XXX: bad way to do things (an "antipattern", you could say)
+		{active_recordings} = @state
+		
+		return unless active_recordings.length
+		
+		console?.log "end #{active_recordings.length} active recordings"
+		start_position = @state.position # is this okay?
+		current_position = @get_current_position()
+		for recording in active_recordings
+			console?.log "last recording.length", recording.length
+			recording.length = current_position - start_position
+			console?.log "final recording.length", recording.length
+		
+		# TODO: probably move active_recordings outside of state; we want to clear it syncronously
+		# so that if you click the end recording button or press spacebar twice while it's lagging,
+		# it won't then try to save() twice
+		# also should one of these be in the other's callback, or..?
+		@_save_recording(recording)
+		@setState
+			recording: no
+			active_recordings: []
+			position: current_position
+			position_time: actx.currentTime
 	
 	_get_audio_stream: (success_callback)=>
 		if @state.audio_stream
@@ -373,7 +409,7 @@ class exports.AudioEditor extends Component
 			.then success_callback, (error)=>
 				error_string = error.name + if error.message then ": #{error.message}" else ""
 				switch error.name
-					when "PermissionDeniedError", "PermissionDismissedError"
+					when "PermissionDeniedError", "PermissionDismissedError", "NotAllowedError"
 						return
 					when "NotFoundError", "DevicesNotFoundError"
 						InfoBar.warn "No recording devices were found."
@@ -469,18 +505,30 @@ class exports.AudioEditor extends Component
 			# console?.log track
 		InfoBar.warn "MIDI recording is not yet implemented"
 	
+	_save_recording: (recording, success_callback)=>
+		localforage.setItem "recording:#{recording.id}", {
+			id: recording.id
+			sample_rate: recording.sample_rate
+			chunk_ids: recording.chunk_ids
+			length: recording.length
+		}, (err)=>
+			if err
+				InfoBar.warn "Failing to store recording! #{err.message}"
+				console.error "Failed to store recording metadata", err
+			else
+				success_callback?()
 	record: =>
 		# TODO: you should actually be able to toggle recording thru individual devices while recording
 		# this may be complicated by play_from calling pause() and whatnot
 		# also by kinda wanting to be able to "undo not recording"
 		# FIXME: if the UI is lagging you can click the record button twice before it gets the audio stream and sets state
 		# and it'll start recording in duplicate and you won't be able to stop one of the recordings
-		# also it might break because of the way I implemented ending the recording (overwriting @end_recording)
 		return if @state.recording
 		# the following is needed because we otherwise implicitly call get_max_length_or_warn via play_from later
 		# and we want to get the warning earlier and cancel
-		# could maybe use is_loaded instead?
-		return unless @get_max_length_or_warn()?
+		[is_loaded, reason_not_loaded, extra_console_info] = @check_document_loaded()
+		return unless is_loaded
+			@_warn_that_document_isnt_loaded(reason_not_loaded, extra_console_info)
 		
 		# wanted_track_types = ["audio", "midi"]
 		# tracks_to_use_by_type = _find_places_to_record(wanted_track_types)
@@ -490,102 +538,86 @@ class exports.AudioEditor extends Component
 		# midi_inputs = []
 		
 		@_get_audio_stream (stream)=>
+			
 			recording_id = GUID()
-			@undoable (tracks)=>
-				{start_position, tracks_to_use_by_type} = @_find_places_to_record(["audio"], tracks)
-				[track] = tracks_to_use_by_type.audio
+			
+			recording =
+				id: recording_id
+				chunks: [[], []]
+				chunk_ids: [[], []]
+				length: 0
+			
+			source = actx.createMediaStreamSource stream
+			
+			current_chunk = 0
+			samples_per_chunk = 2 ** 14 # must be 2 to an integer power between 8 and 14 inclusive
+			
+			recorder = actx.createScriptProcessor samples_per_chunk, 2, if chrome? then 1 else 0
+			recorder.onaudioprocess = (e)=>
 				
-				clip =
-					id: GUID()
-					audio_id: recording_id
-					recording_id: recording_id
-					position: start_position
-					offset: 0
+				ended = recording not in @state.active_recordings
 				
-				track.clips.push clip
+				console?.log "onaudioprocess", if ended then "(final)" else ""
 				
-				source = actx.createMediaStreamSource stream
+				recording.sample_rate = e.inputBuffer.sampleRate
 				
-				recording =
-					id: recording_id
-					chunks: [[], []]
-					chunk_ids: [[], []]
-					length: 0
-				
-				audio_clips.recordings[clip.recording_id] = recording
-				audio_clips.loading[clip.audio_id] = yes
-				
-				current_chunk = 0
-				chunk_size = 2 ** 14 # samples (2 to an integer power between 8 and 14 inclusive)
-				
-				ended = no
-				final_recording_length = undefined
-				
-				recorder = actx.createScriptProcessor chunk_size, 2, if chrome? then 1 else 0
-				recorder.onaudioprocess = (e)=>
-					
-					console?.log "onaudioprocess", if ended then "(final)" else ""
-					
-					recording.sample_rate = e.inputBuffer.sampleRate
-					
-					chunks = []
-					chunk_ids = []
-					for i in [0...e.inputBuffer.numberOfChannels]
-						# new Float32Array necessary in chrome
-						data = new Float32Array e.inputBuffer.getChannelData i
-						chunks.push recording.chunks[i].concat [data]
-						chunk_ids.push recording.chunk_ids[i].concat [chunk_id = GUID()]
-						do (chunk_id, data)=>
-							localforage.setItem "recording:#{recording_id}:chunk:#{chunk_id}", data, (err)=>
-								if err
-									InfoBar.warn "Failing to store recording! #{err.message}"
-									console.error "Failed to store recording chunk", err
-					recording.chunks = chunks
-					recording.chunk_ids = chunk_ids
-					recording.length = final_recording_length ? chunk_ids[0].length * data.length / recording.sample_rate
-					
-					save = =>
-						localforage.setItem "recording:#{clip.recording_id}", {
-							id: recording.id
-							sample_rate: recording.sample_rate
-							chunk_ids: recording.chunk_ids
-							length: recording.length
-						}, (err)=>
+				chunks = []
+				chunk_ids = []
+				for i in [0...e.inputBuffer.numberOfChannels]
+					# new Float32Array necessary in chrome
+					data = new Float32Array e.inputBuffer.getChannelData i
+					chunks.push recording.chunks[i].concat [data]
+					chunk_ids.push recording.chunk_ids[i].concat [chunk_id = GUID()]
+					do (chunk_id, data)=>
+						localforage.setItem "recording:#{recording_id}:chunk:#{chunk_id}", data, (err)=>
 							if err
 								InfoBar.warn "Failing to store recording! #{err.message}"
-								console.error "Failed to store recording metadata", err
-					
-					@end_recording = =>
-						return if ended
-						console.log "last recording.length", recording.length
-						final_recording_length = recording.length = @get_current_position() - start_position
-						console.log "final_recording_length", final_recording_length
-						save()
-						ended = yes
-						@setState
-							recording: no
-							position: start_position + final_recording_length
-							position_time: actx.currentTime
-					
-					if ended
-						source.disconnect()
-						recorder.disconnect()
-						delete window["chrome bug workaround (#{recording_id})"]
-						console?.log "ended recording"
-					
-					save()
-					render()
+								console.error "Failed to store recording chunk", err
+				recording.chunks = chunks
+				recording.chunk_ids = chunk_ids
+				recording.length = final_recording_length ? chunk_ids[0].length * data.length / recording.sample_rate
 				
-				source.connect recorder
-				# TODO: Are these chrome hacks still necessary?
-				recorder.connect actx.destination if chrome?
-				# http://stackoverflow.com/questions/24338144/chrome-onaudioprocess-stops-getting-called-after-a-while
-				if chrome? then window["chrome bug workaround (#{recording_id})"] = recorder
+				if ended
+					source.disconnect()
+					recorder.disconnect()
+					delete window["chrome bug workaround (#{recording_id})"]
+					console?.log "ended recording"
 				
-				@setState
-					recording: yes
-					audio_stream: stream
-					=> @play_from start_position
+				@_save_recording(recording)
+				render()
+			
+			source.connect recorder
+			# TODO: Are these chrome hacks still necessary?
+			recorder.connect actx.destination if chrome?
+			# http://stackoverflow.com/questions/24338144/chrome-onaudioprocess-stops-getting-called-after-a-while
+			if chrome? then window["chrome bug workaround (#{recording_id})"] = recorder
+			
+			# save first so we don't put the document in an invalid state
+			# where there's a clip with a recording_id for a recording that doesn't exist
+			# (avoid "A recording is missing from storage.")
+			@_save_recording recording, =>
+				
+				@undoable (tracks)=>
+					{start_position, tracks_to_use_by_type} = @_find_places_to_record(["audio"], tracks)
+					[track] = tracks_to_use_by_type.audio
+					
+					clip =
+						id: GUID()
+						audio_id: recording_id
+						recording_id: recording_id
+						position: start_position
+						offset: 0
+					
+					audio_clips.recordings[clip.recording_id] = recording
+					audio_clips.loading[clip.audio_id] = yes
+					
+					track.clips.push clip
+					
+					@setState
+						recording: yes
+						active_recordings: @state.active_recordings.concat([recording])
+						audio_stream: stream
+						=> @play_from start_position
 	
 	stop_recording: =>
 		@pause()

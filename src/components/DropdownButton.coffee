@@ -33,6 +33,8 @@ class DropdownButton extends Component
 	
 	componentDidUpdate: ->
 		unless @state.menu_open
+			# FIXME: Edge gives SCRIPT5007: Unable to get property 'handleEvent' of undefined or null reference
+			# could probably check if @_onmousedown exists before trying to remove as a workaround
 			window.removeEventListener "mousedown", @_onmousedown
 	
 	toggleMenu: =>

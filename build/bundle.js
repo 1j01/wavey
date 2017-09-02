@@ -23777,51 +23777,51 @@ module.exports = AudioClipStorage = (function() {
     AudioClipStorage.loading[clip.audio_id] = true;
     if (clip.recording_id != null) {
       return localforage.getItem("recording:" + clip.recording_id, function(err, recording) {
-        var channel_chunk_ids, channel_index, chunk_id, chunk_index, chunks, i, len, loaded, ref, results;
+        var channel_chunk_ids, channel_index, chunk_id, chunk_index, chunks, fn, i, j, len, len1, ref, results, total_loaded_chunks;
         if (err) {
           InfoBar.error("Failed to load recording.\n" + err.message);
           throw err;
         } else if (recording) {
           AudioClipStorage.recordings[clip.recording_id] = recording;
           chunks = [[], []];
-          loaded = 0;
+          total_loaded_chunks = 0;
           ref = recording.chunk_ids;
           results = [];
           for (channel_index = i = 0, len = ref.length; i < len; channel_index = ++i) {
             channel_chunk_ids = ref[channel_index];
-            results.push((function() {
-              var j, len1, results1;
-              results1 = [];
-              for (chunk_index = j = 0, len1 = channel_chunk_ids.length; j < len1; chunk_index = ++j) {
-                chunk_id = channel_chunk_ids[chunk_index];
-                results1.push((function(_this) {
-                  return function(channel_chunk_ids, channel_index, chunk_id, chunk_index) {
-                    return setTimeout(function() {
-                      return localforage.getItem("recording:" + clip.recording_id + ":chunk:" + chunk_id, (function(_this) {
-                        return function(err, typed_array) {
-                          if (err) {
-                            InfoBar.error("Failed to load part of a recording.\n" + err.message);
-                            throw err;
-                          } else if (typed_array) {
-                            chunks[channel_index][chunk_index] = typed_array;
-                            loaded += 1;
-                            throttle -= 1;
-                            if (loaded === recording.chunk_ids.length * channel_chunk_ids.length) {
-                              recording.chunks = chunks;
-                              return render();
-                            }
-                          } else {
-                            InfoBar.warn("Part of a recording is missing from storage.");
-                            return console.warn("A chunk of a recording (" + chunk_id + ") is missing from storage.", clip, recording);
-                          }
-                        };
-                      })(this));
-                    }, throttle += 1);
+            fn = function(channel_chunk_ids, channel_index, chunk_id, chunk_index) {
+              return setTimeout(function() {
+                return localforage.getItem("recording:" + clip.recording_id + ":chunk:" + chunk_id, (function(_this) {
+                  return function(err, typed_array) {
+                    if (err) {
+                      InfoBar.error("Failed to load part of a recording.\n" + err.message);
+                      throw err;
+                    } else if (typed_array) {
+                      chunks[channel_index][chunk_index] = typed_array;
+                      total_loaded_chunks += 1;
+                      throttle -= 1;
+                      if (total_loaded_chunks === recording.chunk_ids.length * channel_chunk_ids.length) {
+                        recording.chunks = chunks;
+                        return render();
+                      }
+                    } else {
+                      InfoBar.warn("Part of a recording is missing from storage.");
+                      return console.warn("A chunk of a recording (" + chunk_id + ") is missing from storage.", clip, recording);
+                    }
                   };
-                })(this)(channel_chunk_ids, channel_index, chunk_id, chunk_index));
-              }
-              return results1;
-            }).call(AudioClipStorage));
+                })(this));
+              }, throttle += 1);
+            };
+            for (chunk_index = j = 0, len1 = channel_chunk_ids.length; j < len1; chunk_index = ++j) {
+              chunk_id = channel_chunk_ids[chunk_index];
+              fn(channel_chunk_ids, channel_index, chunk_id, chunk_index);
+            }
+            if (channel_chunk_ids.length === 0 && channel_index === recording.chunk_ids.length - 1) {
+              recording.chunks = chunks;
+              results.push(render());
+            } else {
+              results.push(void 0);
+            }
           }
           return results;
         } else {

@@ -24,7 +24,7 @@ class AudioClipStorage
 				else if recording
 					AudioClipStorage.recordings[clip.recording_id] = recording
 					chunks = [[], []]
-					loaded = 0
+					total_loaded_chunks = 0
 					for channel_chunk_ids, channel_index in recording.chunk_ids
 						for chunk_id, chunk_index in channel_chunk_ids
 							do (channel_chunk_ids, channel_index, chunk_id, chunk_index)=>
@@ -38,15 +38,18 @@ class AudioClipStorage
 											throw err
 										else if typed_array
 											chunks[channel_index][chunk_index] = typed_array
-											loaded += 1
+											total_loaded_chunks += 1
 											throttle -= 1 # this will not unthrottle anything during the document load
-											if loaded is recording.chunk_ids.length * channel_chunk_ids.length
+											if total_loaded_chunks is recording.chunk_ids.length * channel_chunk_ids.length
 												recording.chunks = chunks
 												render()
 										else
 											InfoBar.warn "Part of a recording is missing from storage."
 											console.warn "A chunk of a recording (#{chunk_id}) is missing from storage.", clip, recording
 								, throttle += 1
+						if channel_chunk_ids.length is 0 and channel_index is recording.chunk_ids.length - 1
+							recording.chunks = chunks
+							render()
 				else
 					InfoBar.warn "A recording is missing from storage."
 					console.warn "A recording is missing from storage.", clip
