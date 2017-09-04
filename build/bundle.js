@@ -23750,112 +23750,137 @@ render();
 
 
 },{"../themes.json":197,"./components/AudioEditor.coffee":180,"./helpers.coffee":195,"react-dom":29}],178:[function(require,module,exports){
-var AudioClipStorage, localforage;
+var AudioClipStorage, localforage,
+  bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
 localforage = require("localforage");
 
-module.exports = AudioClipStorage = (function() {
+AudioClipStorage = (function() {
   var throttle;
 
-  function AudioClipStorage() {}
+  function AudioClipStorage() {
+    this.load_clips = bind(this.load_clips, this);
+    this.load_clip = bind(this.load_clip, this);
+    this.show_error = bind(this.show_error, this);
+    this.has_error = bind(this.has_error, this);
+    this.audio_buffers = {};
+    this.recordings = {};
+    this.loading = {};
+    this._errors = {};
+    this.InfoBar = null;
+    this.remove_broken_clips = null;
+  }
 
-  AudioClipStorage.audio_buffers = {};
+  AudioClipStorage.prototype.has_error = function(clip) {
+    return this._errors[clip.audio_id];
+  };
 
-  AudioClipStorage.recordings = {};
-
-  AudioClipStorage.loading = {};
-
-  AudioClipStorage.errors = {};
+  AudioClipStorage.prototype.show_error = function(clip) {
+    var error_message;
+    error_message = this._errors[clip.audio_id];
+    return this.InfoBar.warn(error_message, [
+      {
+        label: "Remove broken clips",
+        action: this.remove_broken_clips
+      }
+    ]);
+  };
 
   throttle = 0;
 
-  AudioClipStorage.load_clip = function(clip, InfoBar) {
+  AudioClipStorage.prototype.load_clip = function(clip) {
     var fail_warn;
-    if (AudioClipStorage.audio_buffers[clip.audio_id] != null) {
+    if (this.audio_buffers[clip.audio_id] != null) {
       return;
     }
-    if (AudioClipStorage.loading[clip.audio_id] != null) {
+    if (this.loading[clip.audio_id] != null) {
       return;
     }
-    AudioClipStorage.loading[clip.audio_id] = true;
-    fail_warn = function(error_message) {
-      AudioClipStorage.errors[clip.audio_id] = error_message;
-      return InfoBar.warn(error_message);
-    };
+    this.loading[clip.audio_id] = true;
+    fail_warn = (function(_this) {
+      return function(error_message) {
+        _this._errors[clip.audio_id] = error_message;
+        return _this.show_error(clip);
+      };
+    })(this);
     if (clip.recording_id != null) {
-      return localforage.getItem("recording:" + clip.recording_id, function(err, recording) {
-        var channel_chunk_ids, channel_index, chunk_id, chunk_index, chunks, fn, i, j, len, len1, ref, results, total_loaded_chunks;
-        if (err) {
-          InfoBar.error("Failed to load recording.\n" + err.message);
-          throw err;
-        } else if (recording) {
-          AudioClipStorage.recordings[clip.recording_id] = recording;
-          chunks = [[], []];
-          total_loaded_chunks = 0;
-          ref = recording.chunk_ids;
-          results = [];
-          for (channel_index = i = 0, len = ref.length; i < len; channel_index = ++i) {
-            channel_chunk_ids = ref[channel_index];
-            fn = function(channel_chunk_ids, channel_index, chunk_id, chunk_index) {
-              return setTimeout(function() {
-                return localforage.getItem("recording:" + clip.recording_id + ":chunk:" + chunk_id, (function(_this) {
-                  return function(err, typed_array) {
-                    if (err) {
-                      InfoBar.error("Failed to load part of a recording.\n" + err.message);
-                      throw err;
-                    } else if (typed_array) {
-                      chunks[channel_index][chunk_index] = typed_array;
-                      total_loaded_chunks += 1;
-                      throttle -= 1;
-                      if (total_loaded_chunks === recording.chunk_ids.length * channel_chunk_ids.length) {
-                        recording.chunks = chunks;
-                        return render();
+      return localforage.getItem("recording:" + clip.recording_id, (function(_this) {
+        return function(err, recording) {
+          var channel_chunk_ids, channel_index, chunk_id, chunk_index, chunks, fn, i, j, len, len1, ref, results, total_loaded_chunks;
+          if (err) {
+            _this.InfoBar.error("Failed to load recording.\n" + err.message);
+            throw err;
+          } else if (recording) {
+            _this.recordings[clip.recording_id] = recording;
+            chunks = [[], []];
+            total_loaded_chunks = 0;
+            ref = recording.chunk_ids;
+            results = [];
+            for (channel_index = i = 0, len = ref.length; i < len; channel_index = ++i) {
+              channel_chunk_ids = ref[channel_index];
+              fn = function(channel_chunk_ids, channel_index, chunk_id, chunk_index) {
+                return setTimeout(function() {
+                  return localforage.getItem("recording:" + clip.recording_id + ":chunk:" + chunk_id, (function(_this) {
+                    return function(err, typed_array) {
+                      if (err) {
+                        _this.InfoBar.error("Failed to load part of a recording.\n" + err.message);
+                        throw err;
+                      } else if (typed_array) {
+                        chunks[channel_index][chunk_index] = typed_array;
+                        total_loaded_chunks += 1;
+                        throttle -= 1;
+                        if (total_loaded_chunks === recording.chunk_ids.length * channel_chunk_ids.length) {
+                          recording.chunks = chunks;
+                          return render();
+                        }
+                      } else {
+                        fail_warn("Part of a recording is missing from storage.");
+                        return console.warn("A chunk of a recording (chunk_id: " + chunk_id + ") is missing from storage.", clip, recording);
                       }
-                    } else {
-                      fail_warn("Part of a recording is missing from storage.");
-                      return console.warn("A chunk of a recording (chunk_id: " + chunk_id + ") is missing from storage.", clip, recording);
-                    }
-                  };
-                })(this));
-              }, throttle += 1);
-            };
-            for (chunk_index = j = 0, len1 = channel_chunk_ids.length; j < len1; chunk_index = ++j) {
-              chunk_id = channel_chunk_ids[chunk_index];
-              fn(channel_chunk_ids, channel_index, chunk_id, chunk_index);
+                    };
+                  })(this));
+                }, throttle += 1);
+              };
+              for (chunk_index = j = 0, len1 = channel_chunk_ids.length; j < len1; chunk_index = ++j) {
+                chunk_id = channel_chunk_ids[chunk_index];
+                fn(channel_chunk_ids, channel_index, chunk_id, chunk_index);
+              }
+              if (channel_chunk_ids.length === 0 && channel_index === recording.chunk_ids.length - 1) {
+                recording.chunks = chunks;
+                results.push(render());
+              } else {
+                results.push(void 0);
+              }
             }
-            if (channel_chunk_ids.length === 0 && channel_index === recording.chunk_ids.length - 1) {
-              recording.chunks = chunks;
-              results.push(render());
-            } else {
-              results.push(void 0);
-            }
+            return results;
+          } else {
+            fail_warn("A recording is missing from storage.");
+            return console.warn("A recording is missing from storage. clip:", clip);
           }
-          return results;
-        } else {
-          fail_warn("A recording is missing from storage.");
-          return console.warn("A recording is missing from storage. clip:", clip);
-        }
-      });
+        };
+      })(this));
     } else {
-      return localforage.getItem("audio:" + clip.audio_id, function(err, array_buffer) {
-        if (err) {
-          InfoBar.error("Failed to load audio data.\n" + err.message);
-          throw err;
-        } else if (array_buffer) {
-          return actx.decodeAudioData(array_buffer, function(buffer) {
-            AudioClipStorage.audio_buffers[clip.audio_id] = buffer;
-            InfoBar.hide("Not all tracks have finished loading.");
-            return render();
-          });
-        } else {
-          fail_warn("An audio clip is missing from storage.");
-          return console.warn("An audio clip is missing from storage. clip:", clip);
-        }
-      });
+      return localforage.getItem("audio:" + clip.audio_id, (function(_this) {
+        return function(err, array_buffer) {
+          if (err) {
+            _this.InfoBar.error("Failed to load audio data.\n" + err.message);
+            throw err;
+          } else if (array_buffer) {
+            return actx.decodeAudioData(array_buffer, function(buffer) {
+              _this.audio_buffers[clip.audio_id] = buffer;
+              _this.InfoBar.hide("Not all tracks have finished loading.");
+              return render();
+            });
+          } else {
+            fail_warn("An audio clip is missing from storage.");
+            return console.warn("An audio clip is missing from storage. clip:", clip);
+          }
+        };
+      })(this));
     }
   };
 
-  AudioClipStorage.load_clips = function(tracks, InfoBar) {
+  AudioClipStorage.prototype.load_clips = function(tracks) {
     var clip, i, len, results, track;
     results = [];
     for (i = 0, len = tracks.length; i < len; i++) {
@@ -23867,7 +23892,7 @@ module.exports = AudioClipStorage = (function() {
           results1 = [];
           for (j = 0, len1 = ref.length; j < len1; j++) {
             clip = ref[j];
-            results1.push(this.load_clip(clip, InfoBar));
+            results1.push(this.load_clip(clip));
           }
           return results1;
         }).call(this));
@@ -23879,6 +23904,8 @@ module.exports = AudioClipStorage = (function() {
   return AudioClipStorage;
 
 })();
+
+module.exports = new AudioClipStorage;
 
 
 },{"localforage":28}],179:[function(require,module,exports){
@@ -24048,6 +24075,7 @@ exports.AudioEditor = (function(superClass) {
     this.end_recording = bind(this.end_recording, this);
     this.update_playback = bind(this.update_playback, this);
     this.pause = bind(this.pause, this);
+    this.remove_broken_clips = bind(this.remove_broken_clips, this);
     this.play_from = bind(this.play_from, this);
     this.play = bind(this.play, this);
     this.seek_to_end = bind(this.seek_to_end, this);
@@ -24080,6 +24108,8 @@ exports.AudioEditor = (function(superClass) {
       moving_selection: false,
       loaded_document_data: false
     };
+    audio_clips.remove_broken_clips = this.remove_broken_clips;
+    audio_clips.InfoBar = InfoBar;
     this._setup_midi((function(_this) {
       return function() {
         var update_inputs;
@@ -24482,7 +24512,7 @@ exports.AudioEditor = (function(superClass) {
   };
 
   AudioEditor.prototype.check_if_document_loaded_and_warn_otherwise = function() {
-    var clip, j, k, len, len1, ref2, ref3, ref4, ref5, ref6, track;
+    var clip, j, k, len, len1, ref2, ref3, ref4, track;
     if (!this.state.loaded_document_data) {
       InfoBar.warn("The document hasn't loaded yet.");
       return false;
@@ -24501,7 +24531,11 @@ exports.AudioEditor = (function(superClass) {
                   console.debug("clip:", clip, "audio_clips.recordings[clip.recording_id]:", audio_clips.recordings[clip.recording_id]);
                 }
               }
-              InfoBar.warn((ref5 = audio_clips.errors[clip.audio_id]) != null ? ref5 : "Not all tracks have loaded yet.");
+              if (audio_clips.has_error(clip)) {
+                audio_clips.show_error(clip);
+              } else {
+                InfoBar.warn("Not all tracks have loaded yet.");
+              }
               return false;
             }
           } else {
@@ -24511,7 +24545,11 @@ exports.AudioEditor = (function(superClass) {
                   console.debug("clip:", clip, "audio_clips.audio_buffers[clip.audio_id]:", audio_clips.audio_buffers[clip.audio_id]);
                 }
               }
-              InfoBar.warn((ref6 = audio_clips.errors[clip.audio_id]) != null ? ref6 : "Not all tracks have loaded yet.");
+              if (audio_clips.has_error(clip)) {
+                audio_clips.show_error(clip);
+              } else {
+                InfoBar.warn("Not all tracks have loaded yet.");
+              }
               return false;
             }
           }
@@ -24519,6 +24557,68 @@ exports.AudioEditor = (function(superClass) {
       }
     }
     return true;
+  };
+
+  AudioEditor.prototype.remove_broken_clips = function() {
+    return this.undoable((function(_this) {
+      return function(tracks) {
+        var clip, clips_errored, clips_just_not_loaded, j, k, l, len, len1, len2, ref2, ref3, results, track;
+        clips_just_not_loaded = [];
+        clips_errored = [];
+        for (j = 0, len = tracks.length; j < len; j++) {
+          track = tracks[j];
+          if (track.type === "audio") {
+            ref2 = track.clips;
+            for (k = 0, len1 = ref2.length; k < len1; k++) {
+              clip = ref2[k];
+              if (clip.recording_id) {
+                if (((ref3 = audio_clips.recordings[clip.recording_id]) != null ? ref3.chunks : void 0) == null) {
+                  if (audio_clips.has_error(clip)) {
+                    clips_errored.push(clip);
+                  } else {
+                    clips_just_not_loaded.push(clip);
+                  }
+                }
+              } else {
+                if (audio_clips.audio_buffers[clip.audio_id] == null) {
+                  if (audio_clips.has_error(clip)) {
+                    clips_errored.push(clip);
+                  } else {
+                    clips_just_not_loaded.push(clip);
+                  }
+                }
+              }
+            }
+          }
+        }
+        if (typeof console !== "undefined" && console !== null) {
+          console.log("Clips not loaded yet:", clips_just_not_loaded);
+        }
+        if (typeof console !== "undefined" && console !== null) {
+          console.log("Removing broken clips:", clips_errored);
+        }
+        results = [];
+        for (l = 0, len2 = tracks.length; l < len2; l++) {
+          track = tracks[l];
+          if (track.type === "audio") {
+            results.push((function() {
+              var len3, m, results1;
+              results1 = [];
+              for (m = 0, len3 = clips_errored.length; m < len3; m++) {
+                clip = clips_errored[m];
+                if (indexOf.call(track.clips, clip) >= 0) {
+                  results1.push(track.clips.splice(track.clips.indexOf(clip), 1));
+                } else {
+                  results1.push(void 0);
+                }
+              }
+              return results1;
+            })());
+          }
+        }
+        return results;
+      };
+    })(this));
   };
 
   AudioEditor.prototype._schedule_playback = function(from_position, actx) {
@@ -26281,6 +26381,7 @@ module.exports = InfoBar = (function(superClass) {
   InfoBar.state = {
     message: null,
     message_class: null,
+    buttons: null,
     visible: false
   };
 
@@ -26302,38 +26403,42 @@ module.exports = InfoBar = (function(superClass) {
     return setTimeout(function() {
       render();
       if (InfoBar.state.visible && !prev_state.visible) {
-        return document.querySelector(".info-bar button.dismiss").focus();
+        return document.querySelector(".info-bar button").focus();
       }
     }, 50);
   };
 
-  InfoBar.error = function(message) {
+  InfoBar.error = function(message, buttons) {
     return InfoBar.setState({
       message: message,
+      buttons: buttons,
       message_class: "error",
       visible: true
     });
   };
 
-  InfoBar.warn = function(message) {
+  InfoBar.warn = function(message, buttons) {
     return InfoBar.setState({
       message: message,
+      buttons: buttons,
       message_class: "warning",
       visible: true
     });
   };
 
-  InfoBar.info = function(message) {
+  InfoBar.info = function(message, buttons) {
     return InfoBar.setState({
       message: message,
+      buttons: buttons,
       message_class: "info",
       visible: true
     });
   };
 
-  InfoBar.question = function(message) {
+  InfoBar.question = function(message, buttons) {
     return InfoBar.setState({
       message: message,
+      buttons: buttons,
       message_class: "question",
       visible: true
     });
@@ -26354,28 +26459,48 @@ module.exports = InfoBar = (function(superClass) {
   };
 
   InfoBar.prototype.render = function() {
-    var message, message_class, ref1, visible;
-    ref1 = InfoBar.state, message = ref1.message, message_class = ref1.message_class, visible = ref1.visible;
+    var button, buttons, i, message, message_class, ref1, visible;
+    ref1 = InfoBar.state, message = ref1.message, message_class = ref1.message_class, visible = ref1.visible, buttons = ref1.buttons;
+    if (buttons == null) {
+      buttons = [
+        {
+          label: "Dismiss",
+          action: function() {}
+        }
+      ];
+    }
     return E(".info-bar", {
       classes: [message_class, visible ? "visible" : void 0],
       role: "alertdialogue",
       aria: {
         hidden: !visible
       }
-    }, E("GtkLabel", message), E("button.button.dismiss", {
-      disabled: !visible,
-      aria: {
-        hidden: !visible
-      },
-      tabIndex: (!visible ? -1 : void 0),
-      onClick: (function(_this) {
-        return function() {
-          return InfoBar.setState({
-            visible: false
-          });
-        };
-      })(this)
-    }, E("GtkLabel", "Dismiss")));
+    }, E("GtkLabel", {
+      key: "message"
+    }, message), (function() {
+      var j, len, results;
+      results = [];
+      for (i = j = 0, len = buttons.length; j < len; i = ++j) {
+        button = buttons[i];
+        results.push(E("button.button", {
+          key: i,
+          disabled: !visible,
+          aria: {
+            hidden: !visible
+          },
+          tabIndex: (!visible ? -1 : void 0),
+          onClick: (function(_this) {
+            return function() {
+              InfoBar.setState({
+                visible: false
+              });
+              return button.action();
+            };
+          })(this)
+        }, E("GtkLabel", button.label)));
+      }
+      return results;
+    }).call(this));
   };
 
   return InfoBar;

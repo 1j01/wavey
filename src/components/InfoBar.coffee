@@ -7,6 +7,7 @@ class InfoBar extends Component
 	@state:
 		message: null
 		message_class: null
+		buttons: null
 		visible: no
 	
 	@setState: (state)=>
@@ -26,21 +27,20 @@ class InfoBar extends Component
 		setTimeout =>
 			render()
 			if @state.visible and not prev_state.visible
-				document.querySelector(".info-bar button.dismiss").focus()
+				document.querySelector(".info-bar button").focus()
 		, 50
 	
-	@error: (message)=>
-		@setState {message, message_class: "error", visible: yes}
+	@error: (message, buttons)=>
+		@setState {message, buttons, message_class: "error", visible: yes}
 	
-	@warn: (message)=>
-		@setState {message, message_class: "warning", visible: yes}
+	@warn: (message, buttons)=>
+		@setState {message, buttons, message_class: "warning", visible: yes}
 	
-	@info: (message)=>
-		@setState {message, message_class: "info", visible: yes}
+	@info: (message, buttons)=>
+		@setState {message, buttons, message_class: "info", visible: yes}
 	
-	@question: (message)=>
-		@setState {message, message_class: "question", visible: yes}
-		# @TODO: buttons
+	@question: (message, buttons)=>
+		@setState {message, buttons, message_class: "question", visible: yes}
 	
 	@hide: (message)=>
 		if message?
@@ -50,23 +50,32 @@ class InfoBar extends Component
 			@setState visible: no
 	
 	render: ->
-		{message, message_class, visible} = InfoBar.state
+		{message, message_class, visible, buttons} = InfoBar.state
+		buttons ?= [
+			label: "Dismiss"
+			action: ->
+		]
 		E ".info-bar",
 			classes: [message_class, if visible then "visible"]
 			role: "alertdialogue" # @FIXME: message can be read multiple times, sometimes repeatedly
 			aria: hidden: not visible
-			E "GtkLabel", message
-			E "button.button.dismiss",
-				disabled: not visible
-				aria: hidden: not visible
-				tabIndex: (-1 unless visible)
-				onClick: => InfoBar.setState visible: no
-				E "GtkLabel", "Dismiss"
+			E "GtkLabel", key: "message", message
+			for button, i in buttons
+				E "button.button",
+					key: i
+					disabled: not visible
+					aria: hidden: not visible
+					tabIndex: (-1 unless visible)
+					onClick: =>
+						InfoBar.setState visible: no
+						button.action()
+					E "GtkLabel", button.label
 	
 	# shouldComponentUpdate: (next_props, next_state)->
 	# 	next_state.message isnt @state.message or
 	# 	next_state.message_class isnt @state.message_class or
-	# 	next_state.visible isnt @state.visible
+	# 	next_state.visible isnt @state.visible or
+	# 	next_state.buttons isnt @state.buttons # (?)
 
 ###
 module.exports =

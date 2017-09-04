@@ -52,6 +52,9 @@ class exports.AudioEditor extends Component
 			moving_selection: no
 			loaded_document_data: no
 		
+		audio_clips.remove_broken_clips = @remove_broken_clips
+		audio_clips.InfoBar = InfoBar
+		
 		@_setup_midi =>
 			do update_inputs = =>
 				@setState midi_inputs: webmidi.inputs
@@ -300,6 +303,9 @@ class exports.AudioEditor extends Component
 		unless @state.loaded_document_data
 			InfoBar.warn "The document hasn't loaded yet."
 			return no
+		# TODO: share code with remove_broken_clips, which should be pretty easy
+		# XXX: ignoring muted tracks here seems.. fishy?
+		# should also probably check non-audio (i.e. midi) tracks too in the future
 		for track in @state.tracks when track.type is "audio" and not track.muted
 			for clip in track.clips
 				if clip.recording_id
@@ -309,7 +315,10 @@ class exports.AudioEditor extends Component
 							"audio_clips.recordings[clip.recording_id]:",
 							audio_clips.recordings[clip.recording_id]
 						)
-						InfoBar.warn audio_clips.errors[clip.audio_id] ? "Not all tracks have loaded yet."
+						if audio_clips.has_error(clip)
+							audio_clips.show_error(clip)
+						else
+							InfoBar.warn "Not all tracks have loaded yet."
 						return no
 				else
 					unless audio_clips.audio_buffers[clip.audio_id]?
@@ -318,9 +327,40 @@ class exports.AudioEditor extends Component
 							"audio_clips.audio_buffers[clip.audio_id]:",
 							audio_clips.audio_buffers[clip.audio_id]
 						)
-						InfoBar.warn audio_clips.errors[clip.audio_id] ? "Not all tracks have loaded yet."
+						if audio_clips.has_error(clip)
+							audio_clips.show_error(clip)
+						else
+							InfoBar.warn "Not all tracks have loaded yet."
 						return no
 		return yes
+	
+	remove_broken_clips: =>
+		@undoable (tracks)=>
+			clips_just_not_loaded = []
+			clips_errored = []
+			# TODO: probably also look at other track types
+			for track in tracks when track.type is "audio"
+				for clip in track.clips
+					if clip.recording_id
+						unless audio_clips.recordings[clip.recording_id]?.chunks?
+							if audio_clips.has_error(clip)
+								clips_errored.push(clip)
+							else
+								clips_just_not_loaded.push(clip)
+					else
+						unless audio_clips.audio_buffers[clip.audio_id]?
+							if audio_clips.has_error(clip)
+								clips_errored.push(clip)
+							else
+								clips_just_not_loaded.push(clip)
+			
+			console?.log "Clips not loaded yet:", clips_just_not_loaded
+			console?.log "Removing broken clips:", clips_errored
+			
+			for track in tracks when track.type is "audio"
+				for clip in clips_errored
+					if clip in track.clips
+						track.clips.splice(track.clips.indexOf(clip), 1)
 	
 	_schedule_playback: (from_position, actx)->
 		include_metronome = not (actx instanceof OfflineAudioContext)
