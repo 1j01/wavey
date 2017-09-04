@@ -1,12 +1,14 @@
 
 # [![Wavey](images/wavey-logotype.png)][app]
 
-[Wavey][app] is a simple web-based digital audio workstation (DAW), currently in alpha.
+[Wavey][app] is a simple web-based digital audio workstation (DAW), **currently in alpha**.
 
 ### Features
 
-* Drag and drop audio files or record from a microphone\* (\*\*)
+* Drag and drop audio files or record from a microphone.\* \*\*
 * Always saved locally, including persistent undo/redo with the selection state; saves *while* you're recording\*\*
+* Plays while recording so you can record along with previous tracks
+* Lets you edit while playing or recording; you can even delete the recording while recording and undo to keep recording
 * Several themes, including light and dark [elementary OS][] themes via [elementary.css][], and some retro themes
 * Fully scalable graphics, from the icons to the waveforms
 * Export the document or a selected range as WAV or MP3
@@ -16,10 +18,10 @@
 Record redundantly with another application if it matters to you.
 
 \*\*There's a bug right now where chunks are lost when recording!
-Chunks are appended blindly and the data written to the timeline will fall behind the position indicator.
+Dropped chunks will become skips (as opposed to gaps),
+and the data written to the timeline will start to fall further behind the position indicator.
 If you try to record something in time with something already recorded,
-you might not notice until you listen back but it'll get shifted over in time and end up earlier,
-and there will be skips in the audio.
+the skips will cause it to be shifted earlier in time and get out of sync.
 
 
 ### Future Features
@@ -33,20 +35,36 @@ One idea I've had is, you could keep the beat with a foot pedal or something,
 recorded along with a track.
 
 * Tracks can be pinned to the top,
-which should easy the pain when you have many tracks with audio clips
+which should ease the pain when you have many tracks with audio clips
 you want to line up with some main audio track(s).
 (This partially implemented, but currently pinned tracks don't actually stay at the top when scrolling down.)
 
 * You will be able to "precord" up to five minutes as long as precording has been enabled.
-[Precorder][] is a separate project to let you do a similar thing in the background.
+Choose whether to record something after the fact,
+with the caveat(s) that you have to have it enabled and your mic(s) set up beforehand.
+(Sadly it's not actually time travel.)
+	* [Precorder][] is a separate project to do a similar thing
+	on a device like a Raspberry Pi,
+	the idea being you could have it always running,
+	minimizing recording setup, and those caveats.
 
 * Projects should be able to contain separate, distinct timelines;
 some DAWs have "takes", maybe something like that is what I want.
 Ableton Live does something fairly reasonable.
 
-* MIDI. It would probably involve an expanded view to edit the notes, but inline in the track.
-(I've made a basic (non-expanded) notes view component but haven't made a way to actually create it in the editor.
-No way to create or import MIDI data.)
+* Nonlinear undo.
+If you hit undo a bunch, then do something, then try to redo, it normally wouldn't do anything.
+Instead, it should pop up with a tree view of the history.
+
+* Soloing tracks? I bet something better could be done in this area.
+Like a more general configuration of the set of tracks to play?
+Something like that could easily end up faffy/fiddly, but it's something to think about.
+I just feel like with muting and then a separate override of that,
+something could be simpler.
+
+* MIDI: I'm thinking of a collapsed overview of a MIDI clip, and an expanded view to edit the notes, but still inline in the track.
+(I've made a basic collapsed notes view component but haven't made a way to actually create it in the editor,
+i.e. no way to record, create or import MIDI data.)
 
 * Effects! I'm holding off on adding gain and panning because
 I think if the effects UI is good enough, they should be able to simply be effects,
@@ -78,6 +96,8 @@ extra file formats)
 
 * Fix losing chunks when recording
 * Fix pasting across non-consecutive tracks
+* Maybe make the mute buttons clearer by making the iconography (not not) not negative;
+would it be awkward to still call them mute buttons or have the hover text say mute/unmute?
 * Mouse-relative zooming (preferably performant and smoothly animated)
 * Storage management (handle running out of storage, handle multiple editors loaded for the same document, allow data purging, estimate max recording time)
 * Improve accessibility

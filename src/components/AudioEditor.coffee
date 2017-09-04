@@ -600,6 +600,8 @@ class exports.AudioEditor extends Component
 			
 			recorder = actx.createScriptProcessor samples_per_chunk, 2, if chrome? then 1 else 0
 			recorder.onaudioprocess = (e)=>
+				# TODO: detect not receiving onaudioprocess within some amount of time
+				# and show a warning... telling you to try restarting your computer?? :(
 				
 				ended = recording not in @state.active_recordings
 				
