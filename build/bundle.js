@@ -24765,7 +24765,7 @@ exports.AudioEditor = (function(superClass) {
             break;
           case "NotReadableError":
           case "TrackStartError":
-            InfoBar.warn("Failed to open recording device. Another application may be using the device. (" + error_string + ")");
+            InfoBar.warn("Failed to open recording device. Another application may be using it. (" + error_string + ")");
             break;
           default:
             InfoBar.warn("Failed to start recording: " + error_string);
@@ -24937,7 +24937,7 @@ exports.AudioEditor = (function(superClass) {
     }
     return this._get_audio_stream((function(_this) {
       return function(stream) {
-        var current_chunk, recorder, recording, recording_id, samples_per_chunk, source;
+        var current_chunk, onaudioprocess_timeout, onaudioprocess_timeout_message, onaudioprocess_timeout_ms, recorder, recording, recording_id, samples_per_chunk, source, tid_waiting_for_onaudioprocess;
         recording_id = GUID();
         recording = {
           id: recording_id,
@@ -24949,9 +24949,21 @@ exports.AudioEditor = (function(superClass) {
         current_chunk = 0;
         samples_per_chunk = Math.pow(2, 14);
         recorder = actx.createScriptProcessor(samples_per_chunk, 2, typeof chrome !== "undefined" && chrome !== null ? 1 : 0);
+        onaudioprocess_timeout_message = "Not recieving data from audio device. You may need to restart your computer.";
+        onaudioprocess_timeout_ms = 500;
+        onaudioprocess_timeout = function() {
+          InfoBar.warn(onaudioprocess_timeout_message);
+          return typeof console !== "undefined" && console !== null ? typeof console.warn === "function" ? console.warn("onaudioprocess not recieved in " + onaudioprocess_timeout_ms + "ms") : void 0 : void 0;
+        };
+        tid_waiting_for_onaudioprocess = setTimeout(onaudioprocess_timeout, onaudioprocess_timeout_ms);
         recorder.onaudioprocess = function(e) {
           var chunk_id, chunk_ids, chunks, data, ended, fn1, i, j, ref2;
           ended = indexOf.call(_this.state.active_recordings, recording) < 0;
+          InfoBar.hide(onaudioprocess_timeout_message);
+          clearTimeout(tid_waiting_for_onaudioprocess);
+          if (!ended) {
+            tid_waiting_for_onaudioprocess = setTimeout(onaudioprocess_timeout, onaudioprocess_timeout_ms);
+          }
           if (typeof console !== "undefined" && console !== null) {
             console.log("onaudioprocess", ended ? "(final)" : "");
           }

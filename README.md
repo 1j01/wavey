@@ -94,6 +94,7 @@ extra file formats)
 
 ### TODO
 
+* Document loading indicator
 * Fix losing chunks when recording
 * Fix pasting across non-consecutive tracks
 * Maybe make the mute buttons clearer by making the iconography (not not) not negative;

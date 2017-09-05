@@ -463,7 +463,15 @@ class exports.AudioEditor extends Component
 					when "SourceUnavailableError"
 						InfoBar.warn "No available recording devices were found. Another application may be using the device."
 					when "NotReadableError", "TrackStartError" # TrackStartError is Chrome-specific
-						InfoBar.warn "Failed to open recording device. Another application may be using the device. (#{error_string})"
+						InfoBar.warn "Failed to open recording device. Another application may be using it. (#{error_string})"
+						# TODO: a Help/Troubleshoot button that either pops up a dialog or links to a help page
+						# possible troubleshooting steps:
+						# try to switch the mic setting to something else and back,
+						#	i.e. for chrome, chrome://settings/content/microphone
+						# unplug the microphone and plug it back in
+						# restart your browser
+						# restart your computer
+						# update/reinstall audio drivers
 					else
 						InfoBar.warn "Failed to start recording: #{error_string}"
 				console.error "navigator.mediaDevices.getUserMedia", error
@@ -599,11 +607,23 @@ class exports.AudioEditor extends Component
 			samples_per_chunk = 2 ** 14 # must be 2 to an integer power between 8 and 14 inclusive
 			
 			recorder = actx.createScriptProcessor samples_per_chunk, 2, if chrome? then 1 else 0
+			
+			# TODO: any better advice to give?
+			onaudioprocess_timeout_message = "Not recieving data from audio device. You may need to restart your computer."
+			onaudioprocess_timeout_ms = 500
+			onaudioprocess_timeout = ->
+				InfoBar.warn onaudioprocess_timeout_message
+				console?.warn? "onaudioprocess not recieved in #{onaudioprocess_timeout_ms}ms"
+			
+			tid_waiting_for_onaudioprocess = setTimeout onaudioprocess_timeout, onaudioprocess_timeout_ms
+			
 			recorder.onaudioprocess = (e)=>
-				# TODO: detect not receiving onaudioprocess within some amount of time
-				# and show a warning... telling you to try restarting your computer?? :(
-				
 				ended = recording not in @state.active_recordings
+				
+				InfoBar.hide onaudioprocess_timeout_message
+				clearTimeout tid_waiting_for_onaudioprocess
+				unless ended
+					tid_waiting_for_onaudioprocess = setTimeout onaudioprocess_timeout, onaudioprocess_timeout_ms
 				
 				console?.log "onaudioprocess", if ended then "(final)" else ""
 				
