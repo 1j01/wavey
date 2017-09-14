@@ -16,9 +16,7 @@ window.actx = new (
 
 themes = require "../themes.json"
 
-container = document.createElement("div")
-container.id = "app"
-document.body.appendChild(container)
+container = document.getElementById("app")
 
 window.render = ->
 	document_id = (location.hash.match(/document=([\w\-./]*)/) ? [0, "default"])[1]
