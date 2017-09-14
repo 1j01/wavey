@@ -86,10 +86,10 @@ gulp.task 'generate-service-worker', (callback)->
 	path = require 'path'
 	sw_precache = require 'sw-precache'
 	
-	return sw_precache.write 'build/service-worker.js',
+	return sw_precache.write 'service-worker.js',
 		staticFileGlobs: [
 			'./index.html'
-			'./build/service-worker.js'
+			'./service-worker.js'
 			'./build/**/*.{js,css,png,jpg,gif,svg,eot,ttf,woff,woff2}'
 			'./lib/**/*.{js,css,png,jpg,gif,svg,eot,ttf,woff,woff2}'
 			'./styles/**/*.{png,jpg,gif,svg,eot,ttf,woff,woff2}' # TODO: should probably copy assets to /build/ with postcss-url

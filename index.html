@@ -51,7 +51,7 @@
 		<script>
 			if (location.host === "audioeditor.ml") {
 				if ("serviceWorker" in navigator) {
-					navigator.serviceWorker.register("build/service-worker.js").catch(function(error) {
+					navigator.serviceWorker.register("service-worker.js").catch(function(error) {
 						console.warn(error);
 					});
 				}
