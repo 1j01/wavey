@@ -215,16 +215,18 @@ class exports.AudioEditor extends Component
 	
 	scroll_position_into_view: (position, {forwards, backwards, margin}={})=>
 		margin ?= 15
+		forwards ?= yes
+		backwards ?= yes
 		{scale} = @state
 		container = ReactDOM.findDOMNode(@).querySelector(".track-content-area")
 		container_rect = container.getBoundingClientRect()
 		any_old_track_content_el = container.querySelector(".track-content")
 		any_old_track_content_rect = any_old_track_content_el.getBoundingClientRect()
 		x = position * scale + any_old_track_content_rect.left - container_rect.left
-		unless forwards? and not forwards
+		if forwards
 			if x > container.scrollLeft + container.clientWidth
 				container.scrollLeft = x - container.clientWidth + margin
-		unless backwards? and not backwards
+		if backwards
 			if x < container.scrollLeft
 				container.scrollLeft = x - margin
 	
