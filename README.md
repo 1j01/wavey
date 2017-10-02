@@ -17,7 +17,7 @@
 \*Audio recording quality may or may not match native applications in a given browser.
 Record redundantly with another application if it matters to you.
 
-\*\*There's a bug right now where chunks are lost when recording!
+\*\*There's a bug right now where **chunks are lost when recording!**
 Dropped chunks will become skips (as opposed to gaps),
 and the data written to the timeline will start to fall further behind the position indicator.
 If you try to record something in time with something already recorded,
@@ -46,25 +46,25 @@ with the caveat(s) that you have to have it enabled and your mic(s) set up befor
 	* [Precorder][] is a separate project to do a similar thing
 	on a device like a Raspberry Pi,
 	the idea being you could have it always running,
-	minimizing recording setup, and those caveats.
+	minimizing setup time and effort for recording.
 
 * Projects should be able to contain separate, distinct timelines;
 some DAWs have "takes", maybe something like that is what I want.
 Ableton Live does something fairly reasonable.
 
 * Nonlinear undo.
-If you hit undo a bunch, then do something, then try to redo, it normally wouldn't do anything.
+If you hit undo a bunch, then do something, normally the data is instantly lost.
+If you try to redo, it doesn't do anything.
 Instead, it should pop up with a tree view of the history.
 
-* Soloing tracks? I bet something better could be done in this area.
-Like a more general configuration of the set of tracks to play?
-Something like that could easily end up faffy/fiddly, but it's something to think about.
-I just feel like with muting and then a separate override of that,
-something could be simpler.
+* Soloing tracks? I wonder if something better could be done in this area.
+Some more general system for configuring the set of tracks to play?
+I don't know, but it's something to think about.
 
-* MIDI: I'm thinking of a collapsed overview of a MIDI clip, and an expanded view to edit the notes, but still inline in the track.
+* MIDI: I'm thinking of having a collapsed overview of a MIDI clip,
+and an expanded view to edit the notes, but still inline in the track.
 (I've made a basic collapsed notes view component but haven't made a way to actually create it in the editor,
-i.e. no way to record, create or import MIDI data.)
+i.e. no way to record/import/create MIDI data.)
 
 * Effects! I'm holding off on adding gain and panning because
 I think if the effects UI is good enough, they should be able to simply be effects,
@@ -83,7 +83,7 @@ algorithmic synthesis like [HTML5 Bytebeat](http://greggman.com/downloads/exampl
 themes,
 extra file formats)
 
-* Desktop app, ideally native
+* Desktop app, *ideally native* rather than web-based (but web-based for starters)
 
 * Interoperability with Audacity? (exporting/importing project files)
 
@@ -96,6 +96,8 @@ extra file formats)
 
 * Document loading indicator
 * Fix losing chunks when recording
+* Decouple the rendering rate of recorded audio from the size of chunks saved
+(maybe even have a tiered saving system where chunks are merged to improve load times)
 * Fix pasting across non-consecutive tracks
 * Maybe make the mute buttons clearer by making the iconography (not not) not negative;
 would it be awkward to still call them mute buttons or have the hover text say mute/unmute?
