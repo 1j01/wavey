@@ -19,8 +19,8 @@
     "async": "^2.0.1",
     "browserify": "^13.1.0",
     "chai": "^3.5.0",
-    "coffee-script": "^1.11.1",
-    "coffeeify": "^2.0.1",
+    "coffeeify": "^3.0.0",
+    "coffeescript": "^2.0.1",
     "easingjs": "^1.0.1",
     "elementary.css": "^2.0.2",
     "gulp": "^3.9.1",
@@ -51,7 +51,7 @@
     "start": "nw",
     "dev": "gulp",
     "watch": "gulp",
-    "test": "mocha --compilers coffee:coffee-script/register"
+    "test": "mocha --compilers coffee:coffeescript/register"
   },
   "window": {
     "icon": "images/icons/48.png",

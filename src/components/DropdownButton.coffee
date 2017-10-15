@@ -9,6 +9,7 @@ class DropdownButton extends Component
 	@instances: []
 	
 	constructor: ->
+		super()
 		@state =
 			menu_open: no
 			just_opened_via_mousedown: no

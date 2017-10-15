@@ -36,7 +36,7 @@ class AudioClipStorage
 						label: "Reload app"
 						action: -> location.reload()
 					}]
-		###
+				###
 				when "report_issue"
 					[{
 						label: "Report issue"
@@ -78,7 +78,7 @@ class AudioClipStorage
 							email_url = "mailto:${email_address}?subject=#{enc title}&body=#{enc email_body}"
 							window.open(new_issue_url)
 					}]
-		###
+				###
 	
 	throttle = 0
 	

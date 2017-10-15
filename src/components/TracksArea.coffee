@@ -13,6 +13,7 @@ easing = require "easingjs"
 module.exports =
 class TracksArea extends Component
 	constructor: ->
+		super()
 		@y_offset_anims_by_track_id = {}
 	
 	render: ->

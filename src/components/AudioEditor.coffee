@@ -17,6 +17,7 @@ class exports.AudioEditor extends Component
 	copy_of = (o)-> JSON.parse JSON.stringify o
 	
 	constructor: ->
+		super()
 		@state =
 			tracks: [
 				{
