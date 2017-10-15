@@ -1,13 +1,13 @@
 
 # [![Wavey](images/wavey-logotype.png)][app]
 
-[Wavey][app] is a simple web-based digital audio workstation (DAW), **currently in alpha**.
+[Wavey][app] is a simple web-based digital audio workstation (DAW), **currently in pre-alpha**.
 
 ### Features
 
 * Drag and drop audio files or record from a microphone.\* \*\*
 * Always saved locally, including persistent undo/redo with the selection state; saves *while* you're recording\*\*
-* Plays while recording so you can record along with previous tracks
+* Plays while recording so you can record along with previous tracks\*\*
 * Lets you edit while playing or recording; you can even delete the recording while recording and undo to keep recording
 * Several themes, including light and dark [elementary OS][] themes via [elementary.css][], and some retro themes
 * Fully scalable graphics, from the icons to the waveforms
@@ -50,7 +50,8 @@ with the caveat(s) that you have to have it enabled and your mic(s) set up befor
 
 * Projects should be able to contain separate, distinct timelines;
 some DAWs have "takes", maybe something like that is what I want.
-Ableton Live does something fairly reasonable.
+Ableton Live does something fairly reasonable from what I remember.
+(Although it was difficult to get it to actually record anything.)
 
 * Nonlinear undo.
 If you hit undo a bunch, then do something, normally the data is instantly lost.
@@ -66,12 +67,15 @@ and an expanded view to edit the notes, but still inline in the track.
 (I've made a basic collapsed notes view component but haven't made a way to actually create it in the editor,
 i.e. no way to record/import/create MIDI data.)
 
-* Effects! I'm holding off on adding gain and panning because
-I think if the effects UI is good enough, they should be able to simply be effects,
-and I don't want to just immitate the status quo UI and end up with something that's "good enough" but not as good as it could be.
-Gain/panning may warrant special treatment such as being added by default to the effects chain,
+* Effects!
+Adding gain and panning would be easy,
+but I don't want to immitate the status quo UI
+and end up with something that's "good enough" but not as good as it could be.
+I think if the effects UI is good enough, they should be able to be treated the same as any other effects.
+Gain and panning may warrant special treatment
+such as being added by default to the effects chain (or graph?),
 but they probably shouldn't be separate from it.
-After all you'll want to be able to automate them just the same.
+You'll at least want to be able to automate them just the same.
 
 * Plugins
 (e.g. instrument interfaces like
@@ -80,30 +84,32 @@ After all you'll want to be able to automate them just the same.
 effects,
 synthesizers (voices),
 algorithmic synthesis like [HTML5 Bytebeat](http://greggman.com/downloads/examples/html5bytebeat/html5bytebeat.html),
-themes,
-extra file formats)
+extra file formats,
+and themes)
 
-* Desktop app, *ideally native* rather than web-based (but web-based for starters)
+* Desktop app
 
-* Interoperability with Audacity? (exporting/importing project files)
+* Interoperability with other audio editors? (project file import/export)
 
 * Whatever replaces Web Intents, probably the [Web Share API](https://github.com/WICG/web-share) and [Web Share Target API](https://github.com/WICG/web-share-target)
 
-* Internationalization
 
-
-### TODO
+### The Less Exciting To-Do List
 
 * Document loading indicator
 * Fix losing chunks when recording
 * Decouple the rendering rate of recorded audio from the size of chunks saved
 (maybe even have a tiered saving system where chunks are merged to improve load times)
 * Fix pasting across non-consecutive tracks
-* Maybe make the mute buttons clearer by making the iconography (not not) not negative;
-would it be awkward to still call them mute buttons or have the hover text say mute/unmute?
-* Mouse-relative zooming (preferably performant and smoothly animated)
+(or just pasting in general? <kbd>^A^X^V</kbd> doesn't work at all when there's one track;
+and it appears to clear the cursor, but pasting still doesn't work (at that point it should create a new track))
+* Maybe make the mute buttons clearer by making the iconography *not negative*;
+(would it be awkward to still call them mute buttons or have the hover text say mute/unmute?)
+* Mouse-relative zooming (preferably performant and smoothly animated; currently zooming is slow)
+* Lossless compression for audio storage
 * Storage management (handle running out of storage, handle multiple editors loaded for the same document, allow data purging, estimate max recording time)
 * Improve accessibility
+* Internationalization
 
 
 ### Contributing
@@ -112,11 +118,21 @@ Contributions and criticism welcome.
 [Open up an issue][new issue] to discuss features, problems, or improvements!
 
 This project is built with [CoffeeScript][], [React][], and [ReactScript][].
+(I'm eating my own dogfood with ReactScript,
+but I'd prefer [JSX with CoffeeScript 2](http://coffeescript.org/v2/#jsx),
+or to switch to ES6+ in the future)
 
-[Fork and clone the repository](https://guides.github.com/activities/forking/) and then
-with [Node.js](https://nodejs.org/en/),
-open up a command line and enter
-`npm install` and `npm run dev`
+* [Fork and clone the repository](https://guides.github.com/activities/forking/).
+* Install [Node.js](https://nodejs.org/en/) if you don't have it.
+* Open up a command line.
+* Enter `npm i` to install.
+* Enter `npm run dev`
+to start up a task that watches the source and builds the project.
+It also generates a service worker.
+* You'll also need a dev server.
+You could use a plain HTTP server such as `python -m SimpleHTTPServer`
+but I prefer [Live Server](https://github.com/tapio/live-server) which you can insall with `npm i live-server -g`
+and then use by running `live-server` in a separate command line tab/window/instance.
 
 
 ### License

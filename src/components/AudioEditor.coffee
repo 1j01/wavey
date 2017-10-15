@@ -42,9 +42,8 @@ class exports.AudioEditor extends Component
 			# its currently limited to data to be serialized
 			# so like an array of objects like {audio_stream?, midi_input?, recording?, clip}
 			# not sure how to make it clear recording is to be serialized
-			# I suppose I could have a serializable Recording class or something :/
-			# or call it recording_metadata
-			# maybe call the thing replacing active_recordings 'active_track_recordings'
+			# wait, maybe that doesn't matter? when it's serialized only specific properties are used
+			# so I could just add {audio_stream?, midi_input?, clip} as properties of recording?
 			# also: see further below TODO about active_recordings
 			audio_stream: null
 			midi_inputs: []
@@ -202,6 +201,7 @@ class exports.AudioEditor extends Component
 			is_loaded = @check_if_document_loaded_and_warn_otherwise()
 			if is_loaded
 				InfoBar.error "The document length is unknown. This is a bug."
+				# TODO: report issue button!
 				console?.error? "_get_max_length_or_do_default is doing the default
 					even though check_if_document_loaded_and_warn_otherwise says its loaded"
 			undefined
@@ -231,7 +231,9 @@ class exports.AudioEditor extends Component
 				container.scrollLeft = x - margin
 	
 	scroll_selection_into_view: ->
-		# TODO: scroll selection added in direction go that do
+		# TODO: scroll to show the side(s) of the selection changed
+		# or since this is only used in select_vertically,
+		# maybe just define a vertically_scroll_track_into_view thing instead
 		for el in ReactDOM.findDOMNode(@).querySelectorAll(".selection")
 			el.scrollIntoViewIfNeeded?()
 	
@@ -305,9 +307,22 @@ class exports.AudioEditor extends Component
 		unless @state.loaded_document_data
 			InfoBar.warn "The document hasn't loaded yet."
 			return no
+		
 		# TODO: share code with remove_broken_clips, which should be pretty easy
-		# XXX: ignoring muted tracks here seems.. fishy?
-		# should also probably check non-audio (i.e. midi) tracks too in the future
+		
+		# XXX: ignoring muted tracks here
+		# kinda makes sense when checking the document length for playback
+		# the idea being, if only muted tracks haven't loaded, you should still be able to play
+		# but it's sort of subtly special-casing a thing
+		# it seems like premature optimization of an edge case
+		# but then again if you've recorded a bunch of takes, muting the previous ones each time,
+		# and you go to load the doc and hear the last recording,
+		# suddenly it might not "feel so edge-casey"
+		# maybe you have several tracks where you basically have multiple takes just strung together (muted)
+		# and one short and sweet "keeper" take (the one you would want to hear)
+		
+		# NOTE: should also check midi tracks too in the future (etc.)
+		
 		for track in @state.tracks when track.type is "audio" and not track.muted
 			for clip in track.clips
 				if clip.recording_id
