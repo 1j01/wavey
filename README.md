@@ -3,7 +3,7 @@
 
 [Wavey][app] is a simple web-based digital audio workstation (DAW), **currently in pre-alpha**.
 
-![A screenshot of the app showing multiple themes](images/readme-screenshot-in-multiple-themes.png)
+[![A screenshot of the app showing multiple themes](images/readme-screenshot-in-multiple-themes.png)][app]
 
 ### Features
 
