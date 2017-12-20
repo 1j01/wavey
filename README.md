@@ -3,11 +3,13 @@
 
 [Wavey][app] is a simple web-based digital audio workstation (DAW), **currently in pre-alpha**.
 
+![A screenshot of the app showing multiple themes](images/readme-screenshot-in-multiple-themes.png)
+
 ### Features
 
-* Drag and drop audio files or record from a microphone.\* \*\*
-* Always saved locally, including persistent undo/redo with the selection state; saves *while* you're recording\*\*
-* Plays while recording so you can record along with previous tracks\*\*
+* Drag and drop audio files or record from a microphone.*<sup>⁂</sup>
+* Always saved locally, including persistent undo/redo with the selection state; saves *while* you're recording<sup>⁂</sup>
+* Plays while recording so you can record along with previous tracks<sup>⁂</sup>
 * Lets you edit while playing or recording; you can even delete the recording while recording and undo to keep recording
 * Several themes, including light and dark [elementary OS][] themes via [elementary.css][], and some retro themes
 * Fully scalable graphics, from the icons to the waveforms
@@ -17,11 +19,12 @@
 \*Audio recording quality may or may not match native applications in a given browser.
 Record redundantly with another application if it matters to you.
 
-\*\*There's a bug right now where **chunks are lost when recording!**
-Dropped chunks will become skips (as opposed to gaps),
-and the data written to the timeline will start to fall further behind the position indicator.
+<sup>⁂</sup>There's a bug right now where **chunks are lost when recording!**
+Dropped chunks will become skips (as opposed to gaps, which would be more visible).
+When this happens, the data written to the timeline starts to fall further and further behind the position indicator.
 If you try to record something in time with something already recorded,
 the skips will cause it to be shifted earlier in time and get out of sync.
+(In addition to just messing up your recording itself.)
 
 
 ### Future Features
@@ -31,8 +34,9 @@ It's a simplification of the concepts over DAWs which traditionally have a separ
 There will still need to be a way to specify the BPM, and
 it would also be good to have BPM detection and
 variable BPM support (hopefully tying into a general automation system).
-One idea I've had is, you could keep the beat with a foot pedal or something,
-recorded along with a track.
+By the way, what if you could keep the beat with a foot pedal (or other input),
+and record that along with whatever track or tracks you're recording?
+That could be an alternative to beat detection, which might require less manual refinement.
 
 * Tracks can be pinned to the top,
 which should ease the pain when you have many tracks with audio clips
@@ -41,8 +45,8 @@ you want to line up with some main audio track(s).
 
 * You will be able to "precord" up to five minutes as long as precording has been enabled.
 Choose whether to record something after the fact,
-with the caveat(s) that you have to have it enabled and your mic(s) set up beforehand.
-(Sadly it's not actually time travel.)
+with the caveat(s) that you have to have this feature enabled and your mic(s) set up beforehand.
+(Sadly it's not *actually* time travel.)
 	* [Precorder][] is a separate project to do a similar thing
 	on a device like a Raspberry Pi,
 	the idea being you could have it always running,
@@ -53,7 +57,7 @@ some DAWs have "takes", maybe something like that is what I want.
 Ableton Live does something fairly reasonable from what I remember.
 (Although it was difficult to get it to actually record anything.)
 
-* Nonlinear undo.
+* Nonlinear undo history.
 If you hit undo a bunch, then do something, normally the data is instantly lost.
 If you try to redo, it doesn't do anything.
 Instead, it should pop up with a tree view of the history.
@@ -78,14 +82,22 @@ but they probably shouldn't be separate from it.
 You'll at least want to be able to automate them just the same.
 
 * Plugins
-(e.g. instrument interfaces like
-[tri-chromatic-keyboard](https://github.com/1j01/tri-chromatic-keyboard) or
-[guitar](https://github.com/1j01/guitar),
-effects,
-synthesizers (voices),
-algorithmic synthesis like [HTML5 Bytebeat](http://greggman.com/downloads/examples/html5bytebeat/html5bytebeat.html),
-extra file formats,
-and themes)
+	* Instrument interfaces like
+	[tri-chromatic-keyboard](https://github.com/1j01/tri-chromatic-keyboard) or
+	[guitar](https://github.com/1j01/guitar),
+	or even [Pink Trombone](https://dood.al/pinktrombone/),
+	a human vocal simulator which would be awesome to have, and which could benefit from some "MIDI programming" / control assignment
+	at least when multitouch is unavailable, i.e. on desktop (maybe it could be made to work as a remote control on a phone?),
+	and if it could be automated you could more easily produce speech and such
+	and then you could like fade from saying something into gibberish, or do all kinds of stuff
+	* Synthesizers (voices) that play sound from note data
+	* Effects (there are lots of effects libraries already available, waiting to be hooked up to some UI)
+	* Algorithmic synthesis like [HTML5 Bytebeat](http://greggman.com/downloads/examples/html5bytebeat/html5bytebeat.html),
+	possibly optionally crossed with [Shadershop](https://github.com/cdglabs/Shadershop)
+	* Extra file formats (for exporting and importing audio and project files)
+	* Themes
+	<!-- (note that custom themes could essentially make the entire UI an implicit API) -->
+	<!-- (some of the worst APIs come from not realizing you're making an API)-->
 
 * Desktop app
 
@@ -96,6 +108,9 @@ and themes)
 
 ### The Less Exciting To-Do List
 
+* Set up [JSX with CoffeeScript 2](http://coffeescript.org/v2/#jsx)
+(which needs a separate compilation step to actually interpret the JSX that it outputs)
+in place of my [ReactScript][] DSL (which I should also deprecate)
 * Document loading indicator
 * Fix losing chunks when recording
 * Decouple the rendering rate of recorded audio from the size of chunks saved
@@ -106,7 +121,7 @@ and it appears to clear the cursor, but pasting still doesn't work (at that poin
 * Maybe make the mute buttons clearer by making the iconography *not negative*;
 (would it be awkward to still call them mute buttons or have the hover text say mute/unmute?)
 * Mouse-relative zooming (preferably performant and smoothly animated; currently zooming is slow)
-* Lossless compression for audio storage
+* Lossless compression for audio storage (currently it's stored uncompressed)
 * Storage management (handle running out of storage, handle multiple editors loaded for the same document, allow data purging, estimate max recording time)
 * Improve accessibility
 * Internationalization
@@ -116,20 +131,25 @@ and it appears to clear the cursor, but pasting still doesn't work (at that poin
 
 Contributions and criticism welcome.
 [Open up an issue][new issue] to discuss features, problems, or improvements!
+Or [email me](mailto:isaiahodhner@gmail.com) if you prefer.
 
-This project is built with [CoffeeScript][], [React][], and [ReactScript][].
-(I'm eating my own dogfood with ReactScript,
-but I'd prefer [JSX with CoffeeScript 2](http://coffeescript.org/v2/#jsx),
-or to switch to ES6+ in the future)
+This project is built with [CoffeeScript][], [React][], and (currently) [ReactScript][].
+
+(I plan on ditching ReactScript, and I'm also open to switching the source to ES6+ or TypeScript)
+
+The main app code is in the root component, `src/components/AudioEditor.coffee`.
+(`src/app.coffee`'s main job is just to render `AudioEditor` to the DOM.)
+
+#### Development Setup
 
 * [Fork and clone the repository](https://guides.github.com/activities/forking/).
 * Install [Node.js](https://nodejs.org/en/) if you don't have it.
-* Open up a command line.
+* Open up a command line in the repo directory.
 * Enter `npm i` to install.
 * Enter `npm run dev`
 to start up a task that watches the source and builds the project.
 It also generates a service worker.
-* You'll also need a dev server.
+* You'll also need a web server.
 You could use a plain HTTP server such as `python -m SimpleHTTPServer`
 but I prefer [Live Server](https://github.com/tapio/live-server) which you can insall with `npm i live-server -g`
 and then use by running `live-server` in a separate command line tab/window/instance.
