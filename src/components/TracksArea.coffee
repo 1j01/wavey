@@ -343,14 +343,15 @@ class TracksArea extends Component
 			@refs.position_indicator.style.left = "#{x - track_content_area_rect.left}px"
 			@refs.position_indicator.style.top = "#{track_content_area_el.scrollTop}px"
 	
-	componentWillUpdate: (next_props, next_state)=>
+	getSnapshotBeforeUpdate: ()=>
 		# for transitioning track positions
 		# get a baseline for measuring differences in track y positions
 		@last_track_rects = {}
 		for track_current, track_index in @props.tracks
 			track_els = ReactDOM.findDOMNode(@).querySelectorAll(".track")
 			track_el = track_els[track_index]
-			@last_track_rects[track_current.id] = track_el.getBoundingClientRect()
+			if track_el
+				@last_track_rects[track_current.id] = track_el.getBoundingClientRect()
 	
 	componentDidUpdate: (last_props, last_state)=>
 		# measure differences in track y positions
