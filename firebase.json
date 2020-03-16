@@ -2,15 +2,15 @@
   "hosting": {
     "public": ".",
     "ignore": [
-      "firebase.json",
-      ".firebaserc",
-      "**/.*",
-      "**/.history/**",
-      "**/.git/**",
-      "**/.idea/**",
-      "**/.vscode/**",
-      "**/.firebase/**",
-      "**/node_modules/**",
+      "**",
+      "!index.html",
+      "!manifest.webapp",
+      "!service-worker.js",
+      "!build/**",
+      "!images/**",
+      "images/readme-screenshot-*",
+      "!lib/**",
+      "!styles/**",
       "styles/themes/**/*.css"
     ],
     "rewrites": [
