@@ -13,7 +13,7 @@
     "url": "http://github.com/1j01/wavey/issues"
   },
   "dependencies": {
-    "nw": "^0.12.3"
+    "nw": "^0.44.4"
   },
   "devDependencies": {
     "async": "^2.0.1",
