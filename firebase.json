@@ -3,7 +3,13 @@
     "public": ".",
     "ignore": [
       "firebase.json",
+      ".firebaserc",
       "**/.*",
+      "**/.history/**",
+      "**/.git/**",
+      "**/.idea/**",
+      "**/.vscode/**",
+      "**/.firebase/**",
       "**/node_modules/**",
       "styles/themes/**/*.css"
     ],
