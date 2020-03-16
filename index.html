@@ -14,8 +14,7 @@
 				var theme_storage_key = "audio editor theme";
 				
 				var href_for = function(theme){
-					// XXX: absolute URL
-					// FIXME: URL resolution in NW.js app
+					// TODO: avoid absolute URL to make deployment more flexible?
 					return "/build/themes/" + theme;
 				};
 				try{
@@ -56,12 +55,6 @@
 						console.warn(error);
 					});
 				}
-			}
-			if (window.require) {
-				var script = document.createElement("script");
-				script.setAttribute("src", "node_modules/nw-dev/lib/dev.js");
-				script.setAttribute("defer", "defer");
-				document.body.appendChild(script);
 			}
 		</script>
 	</body>
