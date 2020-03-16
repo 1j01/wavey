@@ -283,6 +283,10 @@ class exports.AudioEditor extends Component
 	play_from: (from_position)=>
 		@pause() if @state.playing
 		
+		# Fix for "The AudioContext was not allowed to start. It must be resumed (or created) after a user gesture on the page."
+		# https://developers.google.com/web/updates/2017/09/autoplay-policy-changes#webaudio
+		actx.resume()
+		
 		max_length = @get_max_length_or_warn()
 		unless @state.recording
 			return unless max_length?
