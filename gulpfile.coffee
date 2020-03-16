@@ -1,4 +1,4 @@
-
+fs = require 'fs'
 watchify = require 'watchify'
 browserify = require 'browserify'
 coffeeify = require 'coffeeify'
@@ -7,6 +7,13 @@ source = require 'vinyl-source-stream'
 buffer = require 'vinyl-buffer'
 gutil = require 'gulp-util'
 sourcemaps = require 'gulp-sourcemaps'
+
+unless fs.existsSync 'build/'
+	fs.mkdirSync 'build/'
+unless fs.existsSync 'build/themes/'
+	fs.mkdirSync 'build/themes/'
+unless fs.existsSync 'build/themes/retro/'
+	fs.mkdirSync 'build/themes/retro/'
 
 browserify_options =
 	entries: ['./src/app.coffee']
