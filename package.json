@@ -51,7 +51,8 @@
     "start": "nw",
     "dev": "gulp",
     "watch": "gulp",
-    "test": "mocha --compilers coffee:coffeescript/register"
+    "test": "mocha --compilers coffee:coffeescript/register",
+    "deploy": "echo \"Run npm run dev, then firebase deploy\""
   },
   "window": {
     "icon": "images/icons/48.png",

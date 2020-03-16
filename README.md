@@ -154,6 +154,12 @@ You could use a plain HTTP server such as `python -m SimpleHTTPServer`
 but I prefer [Live Server](https://github.com/tapio/live-server) which you can insall with `npm i live-server -g`
 and then use by running `live-server` in a separate command line tab/window/instance.
 
+#### Deployment Notes
+
+Deployed to Firebase Hosting.
+
+* Make sure the app is built. There's only a watch task for now `npm run dev` so I can't easily add a script that does a one-off build and deploys.
+* `firebase deploy`
 
 ### License
 
