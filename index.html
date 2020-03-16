@@ -49,7 +49,7 @@
 		<script src="lib/polyfill.js"></script>
 		<script src="build/bundle.js"></script>
 		<script>
-			if (location.host === "audioeditor.ml") {
+			if (location.host === "audio-editor.web.app" || location.host === "audioeditor.ml") {
 				if ("serviceWorker" in navigator) {
 					navigator.serviceWorker.register("service-worker.js").catch(function(error) {
 						console.warn(error);

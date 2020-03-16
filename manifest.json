@@ -23,10 +23,10 @@
 	],
 	"app": {
 		"urls": [
-			"https://audioeditor.ml/"
+			"https://audio-editor.web.app/"
 		],
 		"launch": {
-			"web_url": "https://audioeditor.ml/"
+			"web_url": "https://audio-editor.web.app/"
 		}
 	},
 	"offline_enabled": true,
