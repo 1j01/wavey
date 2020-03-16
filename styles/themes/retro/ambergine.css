@@ -1,8 +1,8 @@
+@import "./retro-base.css";
 
 $color: #FFA600;
 $secondary-color: #FFAFED;
 $background-color: #230213;
-@import "./retro-base.css";
 
 .selection {
 	background: rgba(57, 26, 58, 0.5); /* tweak */
