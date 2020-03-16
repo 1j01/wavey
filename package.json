@@ -48,5 +48,8 @@
     "watch": "gulp",
     "test": "mocha --compilers coffee:coffeescript/register",
     "deploy": "echo \"Run npm run dev, then firebase deploy\""
+  },
+  "dependencies": {
+    "mkdirp": "1.0.3"
   }
 }

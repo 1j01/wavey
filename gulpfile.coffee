@@ -1,4 +1,4 @@
-fs = require 'fs'
+mkdirp = require 'mkdirp'
 watchify = require 'watchify'
 browserify = require 'browserify'
 coffeeify = require 'coffeeify'
@@ -7,13 +7,6 @@ source = require 'vinyl-source-stream'
 buffer = require 'vinyl-buffer'
 gutil = require 'gulp-util'
 sourcemaps = require 'gulp-sourcemaps'
-
-unless fs.existsSync 'build/'
-	fs.mkdirSync 'build/'
-unless fs.existsSync 'build/themes/'
-	fs.mkdirSync 'build/themes/'
-unless fs.existsSync 'build/themes/retro/'
-	fs.mkdirSync 'build/themes/retro/'
 
 browserify_options =
 	entries: ['./src/app.coffee']
@@ -60,24 +53,26 @@ gulp.task 'styles', (callback)->
 	build_theme = (theme_path, callback)->
 		input_file_path = "styles/themes/#{theme_path}"
 		output_file_path = "build/themes/#{theme_path}"
-		fs.readFile input_file_path, "utf8", (err, css)->
-			return callback(err) if err
-			
-			postcss(debug([
-				require("postcss-import")
-				# require("postcss-easy-import")
-				require("postcss-advanced-variables")
-				require("postcss-color-function")
-				require("postcss-extend")
-				require("postcss-url")(url: "rebase")
-			]))
-			.process(css, from: input_file_path, to: output_file_path) #, parser: sugarss
-			.then (result)->
-				fs.writeFile output_file_path, result.css, "utf8", (err)->
-					return callback(err) if err
-					gutil.log "Wrote #{output_file_path}"
-					callback(null)
-			.catch(callback)
+		output_dir_path = require("path").dirname(output_file_path)
+		mkdirp(output_dir_path).then ->
+			fs.readFile input_file_path, "utf8", (err, css)->
+				return callback(err) if err
+				
+				postcss(debug([
+					require("postcss-import")
+					# require("postcss-easy-import")
+					require("postcss-advanced-variables")
+					require("postcss-color-function")
+					require("postcss-extend")
+					require("postcss-url")(url: "rebase")
+				]))
+				.process(css, from: input_file_path, to: output_file_path) #, parser: sugarss
+				.then (result)->
+					fs.writeFile output_file_path, result.css, "utf8", (err)->
+						return callback(err) if err
+						gutil.log "Wrote #{output_file_path}"
+						callback(null)
+				.catch(callback)
 	
 	themes = require "./themes.json"
 	
