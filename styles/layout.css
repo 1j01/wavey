@@ -128,7 +128,7 @@
 	transition: height 0.2s ease;
 	overflow: hidden;
 }
-.info-bar > GtkLabel {
+.info-bar > .gtk-label {
 	flex: 1;
 }
 

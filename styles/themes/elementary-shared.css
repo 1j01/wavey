@@ -48,24 +48,24 @@
 .info-bar {
 	@extend GtkInfoBar;
 }
-/*
-.info-bar span {
+.gtk-label {
 	@extend GtkLabel;
+}
+.info-bar .gtk-label {
 	@extend GtkInfoBar GtkLabel;
 }
-.info-bar.warning span {
+.info-bar.warning .gtk-label {
 	@extend GtkInfoBar.warning GtkLabel;
 }
-.info-bar.info span {
+.info-bar.info .gtk-label {
 	@extend GtkInfoBar.info GtkLabel;
 }
-.info-bar.error span {
+.info-bar.error .gtk-label {
 	@extend GtkInfoBar.error GtkLabel;
 }
-.info-bar.question span {
+.info-bar.question .gtk-label {
 	@extend GtkInfoBar.question GtkLabel;
 }
-*/
 
 .audio-editor .button[aria-pressed="true"] {
 	@extend .button:active;

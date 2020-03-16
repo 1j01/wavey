@@ -59,7 +59,7 @@ class InfoBar extends Component
 			classes: [message_class, if visible then "visible"]
 			role: "alertdialogue" # @FIXME: message can be read multiple times, sometimes repeatedly
 			aria: hidden: not visible
-			E "gtklabel", key: "message", message
+			E ".gtk-label", key: "message", message
 			for button, i in buttons
 				E "button.button",
 					key: i
@@ -69,7 +69,7 @@ class InfoBar extends Component
 					onClick: =>
 						InfoBar.setState visible: no
 						button.action()
-					E "gtklabel", button.label
+					E ".gtk-label", button.label
 	
 	# shouldComponentUpdate: (next_props, next_state)->
 	# 	next_state.message isnt @state.message or
@@ -112,9 +112,9 @@ class InfoBar extends Component
 		# @TODO: animate appearing/disappearing
 		E ".info-bar",
 			classes: [message_class, if visible then "visible"]
-			E "gtklabel", @state.alert_message
+			E ".gtk-label", @state.alert_message
 			E "button.button",
 				disabled: not visible
 				onClick: => @setState alert_message: null
-				E "gtklabel", "Dismiss"
+				E ".gtk-label", "Dismiss"
 ###
