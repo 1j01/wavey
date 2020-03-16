@@ -3,6 +3,7 @@ build/
 service-worker.js
 
 .firebaserc
+.firebase/
 
 # Logs
 logs
