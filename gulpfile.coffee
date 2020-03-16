@@ -105,8 +105,9 @@ gulp.task 'generate-service-worker', (callback)->
 gulp.task 'watch-build-and-generate-service-worker', ->
 	gulp.watch 'build/**/*', gulp.series('generate-service-worker')
 
-gulp.task 'default', gulp.series(
+gulp.task 'default', gulp.parallel(
 	'watch-scripts'
+	'styles'
 	'watch-styles'
 	'watch-build-and-generate-service-worker'
 )
