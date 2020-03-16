@@ -34,7 +34,7 @@ b.on 'update', bundle # on any dep update, runs the bundler
 b.on 'log', gutil.log # output build logs
 
 gulp.task 'watch-styles', ->
-	gulp.watch ['styles/**/*', 'themes.json'], ['styles']
+	gulp.watch ['styles/**/*', 'themes.json'], gulp.series('styles')
 
 gulp.task 'styles', (callback)->
 	
@@ -101,11 +101,11 @@ gulp.task 'generate-service-worker', (callback)->
 		# verbose: yes
 
 gulp.task 'watch-build-and-generate-service-worker', ->
-	gulp.watch 'build/**/*', ['generate-service-worker']
+	gulp.watch 'build/**/*', gulp.series('generate-service-worker')
 
-gulp.task 'default', [
+gulp.task 'default', gulp.series(
 	'watch-scripts'
 	'watch-styles'
 	'watch-build-and-generate-service-worker'
-]
+)
 
