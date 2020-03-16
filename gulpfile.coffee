@@ -36,19 +36,23 @@ b.on 'log', gutil.log # output build logs
 gulp.task 'watch-styles', ->
 	gulp.watch ['styles/**/*', 'themes.json'], gulp.series('styles')
 
+enable_postcss_debug = false
+
 gulp.task 'styles', (callback)->
 	
 	fs = require "fs"
 	async = require "async"
 	postcss = require "postcss"
 	# sugarss = require "sugarss"
-	{createDebugger, matcher} = require "postcss-debug"
+
+	if enable_postcss_debug
+		{createDebugger, matcher} = require "postcss-debug"
+		
+		debug = createDebugger([
+			matcher.regex(/amber/)
+		])
 	
 	# TODO: preprocess non-theme-specific css
-	
-	debug = createDebugger([
-		matcher.regex(/amber/)
-	])
 	
 	build_theme = (theme_path, callback)->
 		input_file_path = "styles/themes/#{theme_path}"
@@ -58,14 +62,18 @@ gulp.task 'styles', (callback)->
 			fs.readFile input_file_path, "utf8", (err, css)->
 				return callback(err) if err
 				
-				postcss(debug([
+				postcss_arg = [
 					require("postcss-import")
 					# require("postcss-easy-import")
 					require("postcss-advanced-variables")
 					require("postcss-color-function")
 					require("postcss-extend")
 					require("postcss-url")(url: "rebase")
-				]))
+				]
+				if enable_postcss_debug
+					postcss_arg = debug(postcss_arg)
+				
+				postcss(postcss_arg)
 				.process(css, from: input_file_path, to: output_file_path) #, parser: sugarss
 				.then (result)->
 					fs.writeFile output_file_path, result.css, "utf8", (err)->
@@ -81,7 +89,7 @@ gulp.task 'styles', (callback)->
 			build_theme(theme_path, callback)
 		(err)->
 			return callback(err) if err
-			debug.inspect()
+			debug.inspect() if enable_postcss_debug
 			callback()
 
 gulp.task 'generate-service-worker', (callback)->
