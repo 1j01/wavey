@@ -180,7 +180,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 
-[app]: https://audioeditor.ml/
+[app]: https://audio-editor.web.app/
 [elementary OS]: https://elementary.io/
 [elementary.css]: https://github.com/1j01/elementary.css/
 [Precorder]: https://github.com/1j01/precorder/
